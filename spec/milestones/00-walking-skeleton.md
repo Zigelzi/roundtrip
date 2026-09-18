@@ -1,6 +1,6 @@
 # Milestone 00: Walking skeleton
 
-**Status:** red-teamed · **Branch:** chore/walking-skeleton
+**Status:** done · **Branch:** chore/walking-skeleton (merged)
 <!-- Status: draft → red-teamed → in-progress → done -->
 
 ## Why

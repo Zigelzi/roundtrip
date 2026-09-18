@@ -1,0 +1,21 @@
+package view
+
+// Index is the walking-skeleton landing page. The greeting name is passed in
+// from the database, so a rendered page proves the DB path end to end.
+templ Index(name string) {
+	<!DOCTYPE html>
+	<html lang="en">
+		<head>
+			<meta charset="utf-8"/>
+			<meta name="viewport" content="width=device-width, initial-scale=1"/>
+			<title>Roundtrip</title>
+			<link rel="stylesheet" href="/static/tailwind.css"/>
+		</head>
+		<body class="bg-slate-50">
+			<main class="mx-auto max-w-md p-8">
+				<h1 class="text-3xl font-bold text-slate-900">Roundtrip</h1>
+				<p class="mt-2 text-lg text-slate-600">Hello, { name }! Welcome to Roundtrip.</p>
+			</main>
+		</body>
+	</html>
+}

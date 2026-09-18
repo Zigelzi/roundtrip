@@ -1,0 +1,10 @@
+# Runtime SQLite database (incl. WAL sidecar files)
+*.db
+*.db-shm
+*.db-wal
+
+# Build output
+/build/
+
+# Local environment overrides
+.env

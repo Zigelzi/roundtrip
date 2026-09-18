@@ -1,0 +1,4 @@
+@import "tailwindcss";
+
+/* Scan the templ templates so their utility classes end up in the bundle. */
+@source "./view";

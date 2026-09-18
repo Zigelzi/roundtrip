@@ -4,7 +4,15 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project status
 
-Greenfield. As of this writing the repo contains only specification documents under `spec/` and a short `README.md` — there is no application code, build system, or tests yet. When code is added, update this file with the real build/lint/test commands.
+Milestone 0 (walking skeleton) is merged: a runnable Go web app proving the full stack end to end. Structure mirrors go-tiimit — entrypoint in `cmd/web` (`main.go`, `app.go`, `view/` templ templates), SQLite access in `internal/db` (sqlc-generated), Goose migrations + sqlc queries under `sql/`.
+
+**Commands** (`make`, all wrap codegen via the `generate` target — sqlc + templ + the standalone Tailwind CLI):
+- `make test` — run `go test ./...` (BDD scenarios live in `cmd/web/*_test.go`)
+- `make run` — start the server at http://127.0.0.1:8080
+- `make build` — single static binary to `./build/roundtrip`
+- Run a single test: `go test ./cmd/web/ -run TestName -v`
+
+Generated code (sqlc `internal/db`, `*_templ.go`, the Tailwind bundle) **is committed** so the app builds without a pre-step; `make generate` refreshes it. The runtime SQLite file and `build/` are gitignored.
 
 **Stack (decided — see `spec/constitution.md` for the per-choice rationale):** Go + [templ](https://templ.guide/llms.md) + HTMX + TailwindCSS, backed by SQLite (single file, no server process), with **Goose** migrations and **sqlc** for type-safe DB access (same tooling as go-tiimit). Alpine.js is the chosen tool for client-side *reactive* interactions but is added only when a milestone first needs one — prefer native HTML (`<details>`, `<dialog>`) for simple toggles/modals. The stack optimizes for interpretability, few dependencies, and single-binary deploy to the Pi; live sync is not a v1 requirement.
 
