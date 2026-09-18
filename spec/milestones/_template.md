@@ -12,8 +12,19 @@ Which `../user-flows.md` step this serves.
 - **Out:** explicit non-goals — what we are deliberately NOT doing yet
 
 ## Acceptance conditions (BDD)
-<!-- These become the `go test` cases, written before implementation. -->
-- Given <state>, when <action>, then <observable result>
+<!-- Group conditions into named scenarios. Name each from the user's
+     perspective — a capability they gain or something they see.
+     Exception: a scenario with no real user (e.g. an infrastructure or
+     build check) is named by the behaviour being proven, not forced into
+     a "visitor" frame. Each scenario becomes a `go test` case, written
+     before implementation. -->
+
+### Scenario: <visitor sees / can …>
+- Given <state>
+- When <action>
+- Then <observable result>
+
+### Scenario: <next scenario>
 - ...
 
 ## Open questions

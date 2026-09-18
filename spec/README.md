@@ -32,7 +32,7 @@ spec/milestones/
   - **Status + Branch** — the spec *is* the status tracker; there is no separate tool. `draft → red-teamed → in-progress → done`.
   - **Why** — the problem and user value, and which `user-flows.md` step it serves.
   - **Scope (In / Out)** — the **Out** list is the main lever against scope creep: state what this milestone deliberately does *not* do.
-  - **Acceptance conditions (BDD)** — Given/When/Then. These become the `go test` cases and are written *before* implementation. The load-bearing section.
+  - **Acceptance conditions (BDD)** — Given/When/Then, grouped into **named scenarios**. Name each from the user's perspective (a capability or something they see); name a scenario with no real user (an infrastructure/build check) by the behaviour proven instead. Each scenario becomes a `go test` case, written *before* implementation. The load-bearing section.
   - **Open questions** — where a draft hands off to the red-team pass and back to Human-PM.
 
 ## How a spec gets written
