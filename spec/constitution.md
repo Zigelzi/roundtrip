@@ -51,6 +51,15 @@ Chosen to maximize interpretability (I'm a junior dev and won't hand-edit much, 
 - Goose — versioned database migrations (up/down SQL), same as go-tiimit.
 - sqlc — generates type-safe Go from hand-written SQL queries; keeps queries readable (interpretability) while giving compile-time checking. Adds a `sqlc generate` codegen step to the build.
 
+## UI principles
+
+The app is used on our phones ~99% of the time, so mobile is the primary target, not an afterthought. Prioritize every screen from the mobile viewpoint.
+
+- Mobile first: build and test each feature at phone width first; a desktop/tablet layout is a bonus, never the driver.
+- Function before polish: ship basic, unpolished styling and keep moving; a dedicated visual pass comes later, once the functional parts are far enough along.
+- Usability over style on mobile: prefer large tap targets and simple interactions over visual refinement — when the two conflict, the easier-to-tap option wins.
+- The line between the two: mobile usability essentials (tap-target size, readable text, reachable controls, obvious state) count as function, not polish — don't defer them under "basic styling."
+
 ## Milestone 0: walking skeleton
 
 Before any feature, build the thinnest end-to-end slice that exercises the whole stack locally: one HTTP route → renders one templ page → from one SQLite query, styled with Tailwind. It does nothing useful; its only job is to prove the stack integrates and runs on the dev machine before features are stacked on top. Pi deployment is deferred — do not wire up deploy in Milestone 0; it becomes its own later milestone.
