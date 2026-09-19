@@ -19,12 +19,12 @@ Which `../user-flows.md` step this serves.
      a "visitor" frame. Each scenario becomes a `go test` case, written
      before implementation. -->
 
-### Scenario: <visitor sees / can …>
+### S1: <visitor sees / can …>
 - Given <state>
 - When <action>
 - Then <observable result>
 
-### Scenario: <next scenario>
+### S2: <next scenario>
 - ...
 
 ## Open questions

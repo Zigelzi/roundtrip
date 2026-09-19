@@ -1,4 +1,5 @@
-@import "tailwindcss";
+@import "tailwindcss" source(none);
 
-/* Scan the templ templates so their utility classes end up in the bundle. */
+/* Scan only the templ templates. source(none) turns off automatic detection,
+   which otherwise scans the whole repo (e.g. words in spec/*.md). */
 @source "./view";

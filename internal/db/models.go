@@ -8,3 +8,24 @@ type AppUser struct {
 	ID   int64
 	Name string
 }
+
+type FamilyMember struct {
+	ID   int64
+	Name string
+}
+
+type Item struct {
+	ID             int64
+	TripID         int64
+	FamilyMemberID int64
+	Name           string
+	NameKey        string
+	Quantity       int64
+}
+
+type Trip struct {
+	ID            int64
+	Destination   string
+	DepartureDate string
+	DurationDays  int64
+}

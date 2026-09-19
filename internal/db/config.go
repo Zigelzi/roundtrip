@@ -2,11 +2,13 @@ package db
 
 import (
 	"database/sql"
+	"errors"
 	"fmt"
 
 	migrations "github.com/Zigelzi/roundtrip/sql"
 	"github.com/pressly/goose/v3"
-	_ "modernc.org/sqlite"
+	"modernc.org/sqlite"
+	sqlite3 "modernc.org/sqlite/lib"
 )
 
 // InitDB opens (creating if needed) the SQLite database at dbPath and verifies
@@ -40,4 +42,11 @@ func RunMigrations(database *sql.DB) error {
 		return fmt.Errorf("failed to run migrations: %w", err)
 	}
 	return nil
+}
+
+// IsUniqueViolation reports whether err is SQLite rejecting a row that breaks
+// a UNIQUE constraint.
+func IsUniqueViolation(err error) bool {
+	var sqliteErr *sqlite.Error
+	return errors.As(err, &sqliteErr) && sqliteErr.Code() == sqlite3.SQLITE_CONSTRAINT_UNIQUE
 }

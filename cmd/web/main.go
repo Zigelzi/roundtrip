@@ -13,12 +13,21 @@ import (
 var staticFiles embed.FS
 
 const defaultDBPath = "roundtrip.db"
-const address = "127.0.0.1:8080"
+
+// defaultAddress only accepts connections from this machine. Set ADDR (e.g.
+// ADDR=0.0.0.0:8080) to reach the app from a phone on the home network —
+// there is no login, so only do that on a trusted network.
+const defaultAddress = "127.0.0.1:8080"
 
 func main() {
 	dbPath := os.Getenv("DB_PATH")
 	if dbPath == "" {
 		dbPath = defaultDBPath
+	}
+
+	address := os.Getenv("ADDR")
+	if address == "" {
+		address = defaultAddress
 	}
 
 	database, err := db.InitDB(dbPath)
@@ -31,7 +40,7 @@ func main() {
 		log.Fatalf("failed to run migrations: %v", err)
 	}
 
-	app := &application{queries: db.New(database)}
+	app := newApplication(db.New(database))
 
 	log.Printf("listening on http://%s", address)
 	if err := http.ListenAndServe(address, app.routes()); err != nil {

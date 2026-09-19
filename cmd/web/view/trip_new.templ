@@ -1,0 +1,79 @@
+package view
+
+// NewTrip is the create-trip form. today (YYYY-MM-DD) greys out past dates in
+// the phone's date picker; the server still enforces the rule.
+templ NewTrip(form TripForm, today string) {
+	@Layout("New trip") {
+		<a href="/" class="inline-flex min-h-12 items-center text-slate-600">← Trips</a>
+		<h1 class="text-2xl font-bold">New trip</h1>
+		@errorList(form.Errors)
+		<form method="post" action="/trips" class="mt-4 space-y-4">
+			<label class="block">
+				<span class="font-semibold">Destination</span>
+				<input type="text" name="destination" value={ form.Destination } required class={ inputClass }/>
+			</label>
+			<div class="grid grid-cols-2 gap-3">
+				<label class="block min-w-0">
+					<span class="font-semibold">Departure</span>
+					<input type="date" name="departure_date" value={ form.DepartureDate } min={ today } required class={ inputClass }/>
+				</label>
+				<label class="block min-w-0">
+					<span class="font-semibold">Return</span>
+					<input type="date" name="end_date" value={ form.EndDate } min={ today } class={ inputClass }/>
+				</label>
+			</div>
+			<label class="block w-28">
+				<span class="font-semibold">Days</span>
+				<input type="number" name="duration_days" value={ form.DurationDays } min="1" step="1" inputmode="numeric" class={ inputClass }/>
+			</label>
+			@syncTripDates()
+			<button type="submit" class="min-h-12 w-full rounded-lg bg-slate-900 px-4 font-semibold text-white">Create trip</button>
+		</form>
+	}
+}
+
+// inputClass keeps inputs large enough to tap and at 16px text, which stops
+// iOS from zooming in on focus.
+const inputClass = "mt-1 block min-h-12 w-full rounded-lg border border-slate-300 bg-white px-3 text-base"
+
+templ errorList(errs []string) {
+	if len(errs) > 0 {
+		<ul role="alert" class="mt-4 rounded-lg bg-red-50 p-3 text-red-800">
+			for _, e := range errs {
+				<li>{ e }</li>
+			}
+		</ul>
+	}
+}
+
+// syncTripDates keeps duration and return date in step while typing:
+// changing the days or the departure moves the return date; changing the
+// return date recalculates the days. Dates are handled as UTC midnight, so
+// there are no daylight-saving surprises in the day arithmetic.
+templ syncTripDates() {
+	<script>
+		(() => {
+			const form = document.currentScript.closest("form");
+			const departure = form.elements["departure_date"];
+			const end = form.elements["end_date"];
+			const days = form.elements["duration_days"];
+			const dayMs = 24 * 60 * 60 * 1000;
+
+			function updateEnd() {
+				const d = Date.parse(departure.value);
+				const n = parseInt(days.value, 10);
+				if (departure.value) end.min = departure.value;
+				if (!isNaN(d) && n >= 1) end.value = new Date(d + (n - 1) * dayMs).toISOString().slice(0, 10);
+			}
+			function updateDays() {
+				const d = Date.parse(departure.value);
+				const e = Date.parse(end.value);
+				if (!isNaN(d) && !isNaN(e) && e >= d) days.value = Math.round((e - d) / dayMs) + 1;
+			}
+
+			departure.addEventListener("input", updateEnd);
+			days.addEventListener("input", updateEnd);
+			end.addEventListener("input", updateDays);
+		})();
+	</script>
+}

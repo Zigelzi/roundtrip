@@ -40,6 +40,19 @@ Skills vs sub-agents. A skill encodes how to do a repeatable task; a sub-agent p
 
 Spec organization and how specs are written: see [`README.md`](README.md).
 
+## Model & effort
+
+Two dials trade cost for quality: model tier (Haiku fast/cheap → Sonnet balanced → Opus most capable) and reasoning effort (how much it deliberates before answering). The pattern worth learning: match both to two questions — how hard is the reasoning, and how costly is a mistake here? Spend capability where a mistake is expensive or the thinking is genuinely hard; save it where the work is mechanical.
+
+Light default — don't over-tune it. At ~2 users, context size and number of turns cost more than model tier, so fresh sessions and targeted reads matter more than a per-step model matrix.
+
+- Main session: one capable model (Sonnet is a fine default; switch to Opus for a genuinely tricky slice).
+- The two spawned critics (red-team in step 2, code review in step 6): strong model at high effort. They read small inputs (a short spec, a diff), so capability here is cheap in absolute tokens and high-leverage — a flaw caught pays for itself in avoided rework.
+- Mechanical stretches (scaffolding, commits, the step-7 report): a fast, cheap model at low effort is fine.
+- Code-review effort is a skill argument: `/code-review medium` by default, `high` for changes touching data integrity or auth, and avoid `ultra` (heavy, billed) unless a milestone is large or risky.
+
+Decide per task with the two questions above, not by a fixed table.
+
 ## Tech stack
 
 Chosen to maximize interpretability (I'm a junior dev and won't hand-edit much, but want to be able to read what's happening), minimize dependencies and token cost, and deploy simply to the Raspberry Pi. Live collaboration is not a v1 requirement, and a future commercial version would be a separate native mobile build — so neither argues for a JS/reactive stack now.

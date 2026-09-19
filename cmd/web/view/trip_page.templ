@@ -1,0 +1,89 @@
+package view
+
+// TripPage shows a trip and each family member's items. Each member is a
+// <section data-member="Name"> with an id for jumping back to it.
+templ TripPage(page TripPageData) {
+	@Layout(page.Trip.Destination) {
+		<a href="/" class="inline-flex min-h-12 items-center text-slate-600">← Trips</a>
+		<h1 class="text-2xl font-bold">{ page.Trip.Destination }</h1>
+		<p class="text-slate-600">{ FormatDateRange(page.Trip.Departure, page.Trip.DurationDays) } · { FormatDays(page.Trip.DurationDays) }</p>
+		<div class="mt-4 space-y-4">
+			for _, m := range page.Members {
+				@memberSection(page.Trip.ID, m)
+			}
+		</div>
+		<datalist id="item-names">
+			for _, name := range page.Suggestions {
+				<option value={ name }></option>
+			}
+		</datalist>
+	}
+}
+
+// memberSection is one member's items plus the add form. The form sits
+// outside the swapped item list: htmx replaces only the list, so the focused
+// name field (and the phone keyboard) stays put between additions.
+templ memberSection(tripID int64, m MemberItems) {
+	<section id={ memberAnchor(m.ID) } data-member={ m.Name } class="rounded-lg bg-white p-4 shadow-sm">
+		<h2 class="text-lg font-semibold">{ m.Name }</h2>
+		@MemberItemList(tripID, m)
+		<form
+			method="post"
+			action={ templ.SafeURL(addItemURL(tripID, m.ID)) }
+			hx-post={ addItemURL(tripID, m.ID) }
+			hx-target={ "#" + itemListID(m.ID) }
+			hx-swap="outerHTML"
+			hx-on::after-request="if (event.detail.xhr.status === 200) { this.reset(); this.elements['name'].focus() }"
+			class="mt-3 space-y-2"
+		>
+			<input type="text" name="name" value={ m.Form.Name } placeholder="Add item" list="item-names" autocomplete="off" aria-label={ "Item for " + m.Name } required class={ inputClass }/>
+			<div class="flex items-center gap-2">
+				<button type="button" aria-label="Decrease quantity" onclick="this.nextElementSibling.stepDown()" class={ decreaseClass }>−</button>
+				<input type="number" name="quantity" value={ m.Form.Quantity } min="1" step="1" inputmode="numeric" aria-label="Quantity" required class={ quantityClass }/>
+				<button type="button" aria-label="Increase quantity" onclick="this.previousElementSibling.stepUp()" class={ increaseClass }>+</button>
+				<button type="submit" class="ml-auto min-h-12 rounded-lg bg-slate-900 px-6 font-semibold text-white">Add</button>
+			</div>
+		</form>
+	</section>
+}
+
+// stepperClass is the − / + quantity buttons: full 48px tap targets.
+const stepperClass = "size-12 shrink-0 rounded-lg border bg-white text-xl font-semibold"
+
+// Trial colours: red for −, green for +.
+const decreaseClass = stepperClass + " border-red-300 text-red-600"
+const increaseClass = stepperClass + " border-green-300 text-green-700"
+
+// quantityClass fits two digits and hides the browser's own spin arrows,
+// since − / + replace them.
+const quantityClass = "min-h-12 w-14 rounded-lg border border-slate-300 bg-white px-1 text-center text-base [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+
+// MemberItemList is the part of a member's section that htmx swaps after an
+// item is added or removed: the items and any validation errors. Without
+// JavaScript the forms still work as plain posts with a redirect.
+templ MemberItemList(tripID int64, m MemberItems) {
+	<div id={ itemListID(m.ID) }>
+		if len(m.Items) == 0 {
+			<p class="mt-1 text-slate-600">No items yet.</p>
+		} else {
+			<ul class="mt-2 divide-y divide-slate-100">
+				for _, it := range m.Items {
+					<li class="flex min-h-12 items-center gap-2">
+						<span class="grow">{ it.Name }</span>
+						<span class="whitespace-nowrap text-slate-600">{ FormatQuantity(it.Quantity) }</span>
+						<form
+							method="post"
+							action={ templ.SafeURL(removeItemURL(tripID, it.ID)) }
+							hx-post={ removeItemURL(tripID, it.ID) }
+							hx-target={ "#" + itemListID(m.ID) }
+							hx-swap="outerHTML"
+						>
+							<button type="submit" aria-label={ "Remove " + it.Name } class="min-h-12 min-w-12 rounded-lg text-xl text-red-600">✕</button>
+						</form>
+					</li>
+				}
+			</ul>
+		}
+		@errorList(m.Form.Errors)
+	</div>
+}

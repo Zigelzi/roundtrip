@@ -4,15 +4,17 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project status
 
-Milestone 0 (walking skeleton) is merged: a runnable Go web app proving the full stack end to end. Structure mirrors go-tiimit — entrypoint in `cmd/web` (`main.go`, `app.go`, `view/` templ templates), SQLite access in `internal/db` (sqlc-generated), Goose migrations + sqlc queries under `sql/`.
+Milestone 01 (packing list, `spec/milestones/01-packing-list.md`) is merged: create trips (departure + return date or duration), list them upcoming first, and add/remove items per family member on a trip page — items added in place with HTMX, earlier names suggested, one item per name per member. Milestone 0 (walking skeleton) proved the stack before it. Structure mirrors go-tiimit — entrypoint in `cmd/web` (`main.go`, `app.go`, `view/` templ templates), SQLite access in `internal/db` (sqlc-generated), Goose migrations + sqlc queries under `sql/`.
 
 Commands (`make`, all wrap codegen via the `generate` target — sqlc + templ + the standalone Tailwind CLI):
 - `make test` — run `go test ./...` (BDD scenarios live in `cmd/web/*_test.go`)
 - `make run` — start the server at http://127.0.0.1:8080
+- `make run-lan` — same, but reachable from a phone on the home network (sets `ADDR=0.0.0.0:8080`, prints the URL). No auth, trusted network only; WSL needs mirrored networking, a Hyper-V firewall rule for port 8080, and the Windows network profile set to Private. From the desktop itself use `localhost:8080` — the LAN IP only works from other devices (unless `hostAddressLoopback` is enabled)
+- `make dev` — live reload for development: templ watch + proxy on :8080 (reachable from a phone, same as run-lan), Air rebuilding the app on :8081, Tailwind watch. Edits show up in the browser without restarting. sqlc isn't watched: after editing SQL run `make generate`. htmx replies send `templ-skip-modify` so the proxy doesn't inject its reload script into fragments
 - `make build` — single static binary to `./build/roundtrip`
 - Run a single test: `go test ./cmd/web/ -run TestName -v`
 
-Generated code (sqlc `internal/db`, `*_templ.go`, the Tailwind bundle) is committed so the app builds without a pre-step; `make generate` refreshes it. The runtime SQLite file and `build/` are gitignored.
+Generated Go code (sqlc `internal/db`, `*_templ.go`) is committed so it can be read and reviewed; `make generate` refreshes it. The built Tailwind bundle (`cmd/web/static/tailwind.css`) is gitignored — only the input `cmd/web/tailwind.css` is tracked — so on a fresh checkout run `make generate` once before a plain `go build`/`go test` (the `//go:embed static` fails without it). The runtime SQLite file and `build/` are also gitignored.
 
 Stack (decided — see `spec/constitution.md` for the per-choice rationale): Go + [templ](https://templ.guide/llms.md) + HTMX + TailwindCSS, backed by SQLite (single file, no server process), with Goose migrations and sqlc for type-safe DB access (same tooling as go-tiimit). Alpine.js is the chosen tool for client-side reactive interactions but is added only when a milestone first needs one — prefer native HTML (`<details>`, `<dialog>`) for simple toggles/modals. The stack optimizes for interpretability, few dependencies, and single-binary deploy to the Pi; live sync is not a v1 requirement.
 

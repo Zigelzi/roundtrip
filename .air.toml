@@ -1,0 +1,19 @@
+# Air rebuilds and restarts the server when Go code or the built CSS changes
+# (the CSS is embedded with go:embed, so it needs a rebuild too). Used by
+# `make dev`; see the Makefile for how it fits with templ and Tailwind.
+root = "."
+tmp_dir = "tmp"
+
+[build]
+# After a successful build, tell templ's proxy to reload the browser.
+cmd = "go build -o ./tmp/roundtrip ./cmd/web && templ generate -notify-proxy -proxyport=8080"
+bin = "./tmp/roundtrip"
+include_dir = ["cmd", "internal"]
+include_ext = ["go", "css"]
+# The Tailwind *input* file; the built bundle in cmd/web/static is watched.
+exclude_file = ["cmd/web/tailwind.css"]
+exclude_regex = ["_test.go"]
+delay = 100
+
+[misc]
+clean_on_exit = true

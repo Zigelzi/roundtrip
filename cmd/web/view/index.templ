@@ -1,21 +1,23 @@
 package view
 
-// Index is the walking-skeleton landing page. The greeting name is passed in
-// from the database, so a rendered page proves the DB path end to end.
-templ Index(name string) {
-	<!DOCTYPE html>
-	<html lang="en">
-		<head>
-			<meta charset="utf-8"/>
-			<meta name="viewport" content="width=device-width, initial-scale=1"/>
-			<title>Roundtrip</title>
-			<link rel="stylesheet" href="/static/tailwind.css"/>
-		</head>
-		<body class="bg-slate-50">
-			<main class="mx-auto max-w-md p-8">
-				<h1 class="text-3xl font-bold text-slate-900">Roundtrip</h1>
-				<p class="mt-2 text-lg text-slate-600">Hello, { name }! Welcome to Roundtrip.</p>
-			</main>
-		</body>
-	</html>
+// Index is the front page: the family's trips, upcoming first.
+templ Index(trips []Trip) {
+	@Layout("Trips") {
+		<h1 class="text-3xl font-bold">Roundtrip</h1>
+		<a href="/trips/new" class="mt-4 flex min-h-12 items-center justify-center rounded-lg bg-slate-900 px-4 font-semibold text-white">New trip</a>
+		if len(trips) == 0 {
+			<p class="mt-6 text-slate-600">No trips yet. Create your first trip to start packing.</p>
+		} else {
+			<ul class="mt-6 space-y-2">
+				for _, trip := range trips {
+					<li>
+						<a href={ templ.SafeURL(TripURL(trip.ID)) } class="block rounded-lg bg-white p-4 shadow-sm">
+							<span class="block text-lg font-semibold">{ trip.Destination }</span>
+							<span class="block text-slate-600">{ FormatDateRange(trip.Departure, trip.DurationDays) } · { FormatDays(trip.DurationDays) }</span>
+						</a>
+					</li>
+				}
+			</ul>
+		}
+	}
 }
