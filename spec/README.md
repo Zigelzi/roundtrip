@@ -45,6 +45,7 @@ A good kickoff description covers:
 
 - The user goal — what the person is trying to do and why, from their point of view. "Let me set up a trip so I can plan what to pack," not "add a trips table."
 - The thin slice — the smallest end-to-end path that delivers that goal. If it doesn't fit in a sentence, it is probably two milestones; say so and it gets split.
+- One user goal per milestone. A kickoff joining two goals with "and" ("create a trip and add items to it") is two milestones, even if it fits in one sentence. Rough ceiling: about 8 scenarios. Milestone 01 bundled both goals and grew to 18 scenarios and 29 commits.
 - In / out — what this milestone deliberately leaves for later. This is the strongest guard against scope creep.
 - Which `user-flows.md` step it serves.
 - What you are unsure about — these seed the red-team pass and the open questions.
