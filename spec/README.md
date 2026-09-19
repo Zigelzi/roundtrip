@@ -35,6 +35,26 @@ spec/milestones/
   - Acceptance conditions (BDD) — Given/When/Then, grouped into named scenarios. Name each from the user's perspective (a capability or something they see); name a scenario with no real user (an infrastructure/build check) by the behaviour proven instead. Each scenario becomes a `go test` case, written before implementation. This is the section that matters most.
   - Open questions — where a draft hands off to the red-team pass and back to Human-PM.
 
+## Starting a milestone
+
+Open a fresh session and describe what you want to build; the session creates the `feature/<name>` branch and scaffolds the spec file from the template, then you write the spec into it. (Mechanics live in the workflow in `constitution.md`; this section is about the describing.)
+
+A good kickoff description covers:
+
+- The user goal — what the person is trying to do and why, from their point of view. "Let me set up a trip so I can plan what to pack," not "add a trips table."
+- The thin slice — the smallest end-to-end path that delivers that goal. If it doesn't fit in a sentence, it is probably two milestones; say so and it gets split.
+- In / out — what this milestone deliberately leaves for later. This is the strongest guard against scope creep.
+- Which `user-flows.md` step it serves.
+- What you are unsure about — these seed the red-team pass and the open questions.
+
+Leave out the how: no database schema, no page layout, no test wording. You are describing intent; the refine step turns it into precise acceptance conditions and implementation decides the design. Rough is fine — red-team and refine sharpen it.
+
+Example kickoff:
+
+> Milestone 1: let me create a trip (name + dates) and add the activities we plan to do on it (swimming, hiking, …), so later I can derive a packing list from them. In scope: creating one trip and listing/adding its activities, on mobile. Out: the packing list itself, editing/deleting, multiple trips at once, auth. Serves the "plan activities" step. Unsure: do activities come from a fixed list or free text?
+
+That is enough for the session to scaffold and for you to expand into Why + Scope + rough scenarios.
+
 ## How a spec gets written
 
 This maps onto the workflow steps in `constitution.md`:
