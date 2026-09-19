@@ -13,7 +13,7 @@ Goals:
 
 **When goals conflict, speed and token minimization win over practicing elaborate multi-agent orchestration.** This workflow is deliberately lighter than "full" multi-agent ceremony — at this scale (one family, ~2 users) the app doesn't justify the cost, and the main session does most phases inline. Sub-agents are spawned only at the two points where independent context genuinely pays for itself: red-teaming the spec, and reviewing the diff. (A spawned agent starts cold and re-derives context, so each spawn has a real token cost.)
 
-Version control is part of the workflow. Human-PM makes the initial baseline commit (spec + CLAUDE.md); after that all commits are made by the main session, not the Human-PM — this is a standing authorization to commit without asking each time. Each milestone runs on its own branch off `main`; each vertical slice is one focused commit on that branch once its acceptance test is green. The branch diff is what the code-review loop reviews, and the branch merges to `main` only after Human-PM accepts it.
+Version control is part of the workflow. Human-PM makes the initial baseline commit (spec + CLAUDE.md); after that all commits are made by the main session, not the Human-PM — this is a standing authorization to commit without asking each time. Each milestone runs on its own branch off `main`; each vertical slice is one focused commit on that branch once its acceptance test is green. The branch diff is what the code-review loop reviews, and the branch merges to `main` only after Human-PM accepts it. The branch is created at the start of the milestone (step 1) and the spec is authored on it — branch-first — so a discarded milestone leaves nothing on `main`.
 
 Conventions:
 - Commit messages follow Conventional Commits: `type(scope): summary` (types: `feat`, `fix`, `chore`, `docs`, `refactor`, `test`). Per-slice commits on the branch are working checkpoints.
@@ -22,7 +22,7 @@ Conventions:
 - Remote: a private GitHub repo will be added as remote later. Until then merges are local (`git merge --squash`); once the remote exists, use squash-merge PRs.
 
 ### Workflow:
-1. Human-PM writes a minimal spec: what to build and why.
+1. In a new session, Human-PM describes what to build. The main session scaffolds the milestone — creates the `feature/<name>` branch off `main`, copies `_template.md` to `NN-<name>.md` with Status and Branch filled, and commits it — then Human-PM writes the minimal spec (what and why) into the file and the main session commits the draft.
 2. Spawn a red-team agent on the spec — weak points, clarifying questions, usability/feasibility risks.
 3. Human-PM decides which findings to accept. *(checkpoint)*
 4. Main session refines the spec into milestones that deliver a feature/flow E2E, each with Behaviour-Driven Development (BDD) acceptance conditions. Those conditions become acceptance tests before implementation — written independently of the code that will satisfy them.
@@ -33,6 +33,8 @@ Conventions:
    c. Disagreements resolve by type — factual (is there a bug?): settle with a test, the test decides; subjective (too complex?): default to the simpler option; product/scope in disguise: escalate to Human-PM as a plain-language trade-off, never as a technical vote.
    d. Max 2 rounds. Blocking findings must be fixed or proven-not-a-bug before the feature is done; anything unresolved escalates to Human-PM.
 7. Report to Human-PM: what's done, what to test/verify, and request feedback → continue / complete / discard. On accept, the main session merges the milestone branch to `main`. *(checkpoint)*
+
+Sessions. Start each milestone in a fresh session to keep context and token cost small — the spec, `CLAUDE.md`, and memory carry what a new session needs to pick up. Optionally start another fresh session at implementation (step 5); the finalized spec is on the branch for it to read. The spawned sub-agents (steps 2 and 6) run in isolated context, so they never require restarting the main session.
 
 Skills vs sub-agents. A skill encodes how to do a repeatable task; a sub-agent provides isolated fresh context — orthogonal, and they compose (a sub-agent can run a skill). Reuse the built-in skills that already fit: `/code-review` (step 6), `/verify` and `/run` (step 7). Do not build custom skills upfront — extract one (e.g. a red-team-the-spec skill) only after running the procedure manually a couple of times, so it's shaped by real use. Refine / implement / orchestrate stay as prose here, not skills.
 
