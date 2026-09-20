@@ -5,6 +5,13 @@
 # stylesheet embedded by the web binary). `build`, `run`, and `test` depend
 # on it, so a single command always produces a consistent app.
 
+# Local, gitignored configuration (family names and any other value that must
+# stay out of a public repository). Optional: the leading `-` means a missing
+# .env is not an error, and `export` passes the values to the commands below.
+# See .env.example for the format.
+-include .env
+export
+
 TAILWIND_IN  = ./cmd/web/tailwind.css
 TAILWIND_OUT = ./cmd/web/static/tailwind.css
 

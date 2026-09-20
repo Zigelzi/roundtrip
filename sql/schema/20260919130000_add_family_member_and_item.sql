@@ -1,6 +1,11 @@
 -- +goose Up
 -- The family is fixed (spec/domain-model.md); there is no screen to manage it.
 -- Members are separate from app_user: kids own items but never log in.
+--
+-- The seeded names are neutral placeholders on purpose: the repository is
+-- public and the real names are not in it. A deployment supplies them via
+-- FAMILY_NAMES (see .env.example); the ids below are the stable part that
+-- item.family_member_id references.
 CREATE TABLE family_member (
     id   INTEGER PRIMARY KEY,
     name TEXT NOT NULL

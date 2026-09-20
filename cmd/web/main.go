@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"embed"
 	"log"
 	"net/http"
@@ -40,7 +41,16 @@ func main() {
 		log.Fatalf("failed to run migrations: %v", err)
 	}
 
-	app := newApplication(db.New(database))
+	queries := db.New(database)
+
+	// The real family names are not in the repository; a deployment supplies
+	// them (see .env.example). Without FAMILY_NAMES the app still runs, with
+	// the placeholder names from the migration.
+	if err := db.ApplyFamilyNames(context.Background(), queries, os.Getenv("FAMILY_NAMES")); err != nil {
+		log.Fatalf("failed to apply family names: %v", err)
+	}
+
+	app := newApplication(queries)
 
 	log.Printf("listening on http://%s", address)
 	if err := http.ListenAndServe(address, app.routes()); err != nil {

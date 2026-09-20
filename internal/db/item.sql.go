@@ -157,3 +157,22 @@ func (q *Queries) ListTripItems(ctx context.Context, tripID int64) ([]ListTripIt
 	}
 	return items, nil
 }
+
+const updateFamilyMemberName = `-- name: UpdateFamilyMemberName :execrows
+UPDATE family_member
+SET name = ?
+WHERE id = ?
+`
+
+type UpdateFamilyMemberNameParams struct {
+	Name string
+	ID   int64
+}
+
+func (q *Queries) UpdateFamilyMemberName(ctx context.Context, arg UpdateFamilyMemberNameParams) (int64, error) {
+	result, err := q.db.ExecContext(ctx, updateFamilyMemberName, arg.Name, arg.ID)
+	if err != nil {
+		return 0, err
+	}
+	return result.RowsAffected()
+}

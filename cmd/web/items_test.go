@@ -18,14 +18,14 @@ import (
 func TestAddItem(t *testing.T) {
 	app, database := newTestApp(t)
 	tripID := insertTrip(t, database, "Parainen", "2026-09-20", 3)
-	miika := memberID(t, database, "Parent 1")
+	parent := memberID(t, database, "Parent 1")
 
-	rec := addItem(t, app, tripID, miika, "Underwear", "4")
+	rec := addItem(t, app, tripID, parent, "Underwear", "4")
 
 	if rec.Code != http.StatusSeeOther {
 		t.Fatalf("status = %d, want 303 back to the trip", rec.Code)
 	}
-	if loc, want := rec.Header().Get("Location"), fmt.Sprintf("/trips/%d#member-%d", tripID, miika); loc != want {
+	if loc, want := rec.Header().Get("Location"), fmt.Sprintf("/trips/%d#member-%d", tripID, parent); loc != want {
 		t.Errorf("redirect to %q, want %q (back to Parent 1's section)", loc, want)
 	}
 	section := memberSection(t, get(t, app, tripURLFor(tripID)), "Parent 1")
@@ -177,10 +177,10 @@ func TestDatabaseRefusesDuplicateItem(t *testing.T) {
 func TestRemoveItem(t *testing.T) {
 	app, database := newTestApp(t)
 	tripID := insertTrip(t, database, "Parainen", "2026-09-20", 3)
-	miikas := insertItem(t, database, tripID, "Parent 1", "Underwear", 4)
+	parentsItem := insertItem(t, database, tripID, "Parent 1", "Underwear", 4)
 	insertItem(t, database, tripID, "Parent 2", "Underwear", 4)
 
-	rec := send(t, app, http.MethodPost, fmt.Sprintf("/trips/%d/items/%d/delete", tripID, miikas), nil)
+	rec := send(t, app, http.MethodPost, fmt.Sprintf("/trips/%d/items/%d/delete", tripID, parentsItem), nil)
 
 	if rec.Code != http.StatusSeeOther {
 		t.Fatalf("status = %d, want 303", rec.Code)

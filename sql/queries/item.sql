@@ -6,6 +6,11 @@ SELECT id, name
 FROM family_member
 ORDER BY id;
 
+-- name: UpdateFamilyMemberName :execrows
+UPDATE family_member
+SET name = ?
+WHERE id = ?;
+
 -- name: ListTripItems :many
 SELECT id, family_member_id, name, quantity
 FROM item

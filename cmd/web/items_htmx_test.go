@@ -23,11 +23,11 @@ func TestTripPageWiresInPlaceAdd(t *testing.T) {
 		t.Errorf("page does not load htmx")
 	}
 	section := memberSection(t, body, "Parent 1")
-	miika := memberID(t, database, "Parent 1")
-	if want := fmt.Sprintf(`hx-target="#items-member-%d"`, miika); !strings.Contains(section, want) {
-		t.Errorf("Parent 1's add form does not target her item list (%s)", want)
+	parent := memberID(t, database, "Parent 1")
+	if want := fmt.Sprintf(`hx-target="#items-member-%d"`, parent); !strings.Contains(section, want) {
+		t.Errorf("Parent 1's add form does not target their item list (%s)", want)
 	}
-	if want := fmt.Sprintf(`id="items-member-%d"`, miika); !strings.Contains(section, want) {
+	if want := fmt.Sprintf(`id="items-member-%d"`, parent); !strings.Contains(section, want) {
 		t.Errorf("Parent 1's item list has no %s to swap", want)
 	}
 }
@@ -35,14 +35,14 @@ func TestTripPageWiresInPlaceAdd(t *testing.T) {
 func TestAddItemInPlaceRepliesWithOnlyTheList(t *testing.T) {
 	app, database := newTestApp(t)
 	tripID := insertTrip(t, database, "Parainen", "2026-09-20", 3)
-	miika := memberID(t, database, "Parent 1")
+	parent := memberID(t, database, "Parent 1")
 
-	rec := sendHTMX(t, app, fmt.Sprintf("/trips/%d/members/%d/items", tripID, miika), url.Values{"name": {"Underwear"}, "quantity": {"4"}})
+	rec := sendHTMX(t, app, fmt.Sprintf("/trips/%d/members/%d/items", tripID, parent), url.Values{"name": {"Underwear"}, "quantity": {"4"}})
 
 	if rec.Code != http.StatusOK {
 		t.Fatalf("status = %d, want 200", rec.Code)
 	}
-	assertOnlyMemberList(t, rec.Body.String(), miika)
+	assertOnlyMemberList(t, rec.Body.String(), parent)
 	if body := rec.Body.String(); !strings.Contains(body, "Underwear") || !strings.Contains(body, "4 pcs") {
 		t.Errorf("reply does not list Underwear, 4 pcs:\n%s", body)
 	}
@@ -54,14 +54,14 @@ func TestAddItemInPlaceRepliesWithOnlyTheList(t *testing.T) {
 func TestAddItemInPlaceShowsErrorsInTheList(t *testing.T) {
 	app, database := newTestApp(t)
 	tripID := insertTrip(t, database, "Parainen", "2026-09-20", 3)
-	miika := memberID(t, database, "Parent 1")
+	parent := memberID(t, database, "Parent 1")
 
-	rec := sendHTMX(t, app, fmt.Sprintf("/trips/%d/members/%d/items", tripID, miika), url.Values{"name": {"Socks"}, "quantity": {"0"}})
+	rec := sendHTMX(t, app, fmt.Sprintf("/trips/%d/members/%d/items", tripID, parent), url.Values{"name": {"Socks"}, "quantity": {"0"}})
 
 	if rec.Code != http.StatusUnprocessableEntity {
 		t.Errorf("status = %d, want 422", rec.Code)
 	}
-	assertOnlyMemberList(t, rec.Body.String(), miika)
+	assertOnlyMemberList(t, rec.Body.String(), parent)
 	if want := html.EscapeString("Quantity must be a whole number, at least 1"); !strings.Contains(rec.Body.String(), want) {
 		t.Errorf("reply does not explain the problem")
 	}
@@ -149,9 +149,9 @@ func buttonTag(t *testing.T, body, label string) string {
 func TestHTMXRepliesSkipDevReloadInjection(t *testing.T) {
 	app, database := newTestApp(t)
 	tripID := insertTrip(t, database, "Parainen", "2026-09-20", 3)
-	miika := memberID(t, database, "Parent 1")
+	parent := memberID(t, database, "Parent 1")
 
-	rec := sendHTMX(t, app, fmt.Sprintf("/trips/%d/members/%d/items", tripID, miika), url.Values{"name": {"Socks"}, "quantity": {"1"}})
+	rec := sendHTMX(t, app, fmt.Sprintf("/trips/%d/members/%d/items", tripID, parent), url.Values{"name": {"Socks"}, "quantity": {"1"}})
 	if got := rec.Header().Get("templ-skip-modify"); got != "true" {
 		t.Errorf("htmx reply templ-skip-modify = %q, want \"true\"", got)
 	}

@@ -1,9 +1,11 @@
 package db
 
 import (
+	"context"
 	"database/sql"
 	"errors"
 	"fmt"
+	"strings"
 
 	migrations "github.com/Zigelzi/roundtrip/sql"
 	"github.com/pressly/goose/v3"
@@ -49,4 +51,30 @@ func RunMigrations(database *sql.DB) error {
 func IsUniqueViolation(err error) bool {
 	var sqliteErr *sqlite.Error
 	return errors.As(err, &sqliteErr) && sqliteErr.Code() == sqlite3.SQLITE_CONSTRAINT_UNIQUE
+}
+
+// ApplyFamilyNames renames the seeded family members from a comma-separated
+// list, e.g. FAMILY_NAMES="Ada,Bo,Cy,Di".
+//
+// The repository is public, so the migration seeds neutral placeholders and
+// the real names live only in a deployment's environment (see .env.example).
+// Names map to member ids by position, so the order matches the seed order in
+// the migration. A blank entry leaves that member's placeholder alone, and an
+// unset or empty list is a no-op — the app runs without any configuration.
+func ApplyFamilyNames(ctx context.Context, queries *Queries, list string) error {
+	for i, name := range strings.Split(list, ",") {
+		name = strings.TrimSpace(name)
+		if name == "" {
+			continue
+		}
+		id := int64(i + 1)
+		rows, err := queries.UpdateFamilyMemberName(ctx, UpdateFamilyMemberNameParams{Name: name, ID: id})
+		if err != nil {
+			return fmt.Errorf("renaming family member %d: %w", id, err)
+		}
+		if rows == 0 {
+			return fmt.Errorf("FAMILY_NAMES entry %d has no matching family member (the family has fewer members than that)", i+1)
+		}
+	}
+	return nil
 }
