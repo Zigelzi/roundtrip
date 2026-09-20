@@ -30,11 +30,7 @@ Conventions:
    - **Stop after every slice.** Commit it, hand Human-PM a 2–4 step phone checklist for that slice alone, and wait. This is the default, not a question to ask; chaining slices together and delivering one long checklist at the end is what this rule exists to prevent. Milestone 02 proved the cost: the packed section gave no sign it could be opened, a defect present from slice 1, but it surfaced only after all three slices and a review round were done, so the later slices were built on top of it.
    - **Before the first slice, raise the model choice** (see [Model & effort](#model--effort)). The main session says in one line what kind of work the slices actually are (mechanical, or a genuine design problem), and Human-PM decides. Rolling straight from a finished spec into code takes that decision away from him.
 6. Code-review loop (bounded).
-   a. Spawn a code-review agent (`/code-review`) on the finished feature's diff. It tags each finding blocking (correctness / bug / security / a failing BDD condition) or non-blocking (style / preference).
-   b. Implementer addresses each: fix it, or decline a non-blocking one with a one-line reason.
-   c. Disagreements resolve by type: factual (is there a bug?): settle with a test, the test decides; subjective (too complex?): default to the simpler option; product/scope in disguise: escalate to Human-PM as a plain-language trade-off, never as a technical vote.
-   d. Max 2 rounds. Blocking findings must be fixed or proven-not-a-bug before the feature is done; anything unresolved escalates to Human-PM.
-   e. Changes after review. Small fixes found while testing (wording, styling, a tweak to an existing scenario) go straight in with their tests. A new scenario either gets a short second review round on its own diff or moves to the next milestone; Human-PM picks.
+   a. Spawn a code-review agent (`/code-review`) on the finished feature's diff. It tags each finding blocking (correctness / bug / security / a failing BDD condition) or non-blocking (style / preference). b. Implementer addresses each: fix it, or decline a non-blocking one with a one-line reason. c. Disagreements resolve by type: factual (is there a bug?): settle with a test, the test decides; subjective (too complex?): default to the simpler option; product/scope in disguise: escalate to Human-PM as a plain-language trade-off, never as a technical vote. d. Max 2 rounds. Blocking findings must be fixed or proven-not-a-bug before the feature is done; anything unresolved escalates to Human-PM. e. Changes after review. Small fixes found while testing (wording, styling, a tweak to an existing scenario) go straight in with their tests. A new scenario either gets a short second review round on its own diff or moves to the next milestone; Human-PM picks.
 7. Report to Human-PM: what's done, what to test/verify, and request feedback → continue / complete / discard. The report includes a phone checklist: a few concrete steps to try on a phone with `make dev`, each with what should happen, drawn from the milestone's scenarios, always covering the ones marked `Verification: manual`. On accept, the main session sets the spec's Status to `done`, merges the milestone branch to `main` and pushes. The spec's Status line is the only place the milestone's state is recorded, so that edit is not optional bookkeeping; nothing else tracks it. *(checkpoint)*
 
 Sessions. Start each milestone in a fresh session to keep context and token cost small; the spec, `CLAUDE.md`, and memory carry what a new session needs to pick up. Optionally start another fresh session at implementation (step 5); the finalized spec is on the branch for it to read. The spawned sub-agents (steps 2 and 6) run in isolated context, so they never require restarting the main session.
@@ -62,44 +58,25 @@ Not duration. A long session of small turns is cheap. The cost is **context size
 
 ### Two allocations: an open experiment
 
-Decided 2026-09-20: draft both, run one per milestone, compare before concluding. Results are
-recorded per slice in [`allocation-log.md`](allocation-log.md); append a row there at the end
-of each slice, while the numbers are still to hand. What to compare afterwards: total tokens for the milestone, how soon the first slice was testable on a phone, how many defects Human-PM found at his check that an earlier stop would have caught, and whether he felt in the loop.
+Decided 2026-09-20: draft both, run one per milestone, compare before concluding. Results are recorded per slice in [`allocation-log.md`](allocation-log.md); append a row there at the end of each slice, while the numbers are still to hand. What to compare afterwards: total tokens for the milestone, how soon the first slice was testable on a phone, how many defects Human-PM found at his check that an earlier stop would have caught, and whether he felt in the loop.
 
-**Shared by both options:** the Opus main session writes the BDD acceptance tests first, from
-the milestone's scenarios, before any implementation exists. This is not a tie-breaker detail,
-it is what makes the constitution's own rule true: conditions become tests "written
-independently of the code that satisfies them". When one agent writes both, independence is a
-hope; when the author and the implementer are different, it is structural. It also turns the
-handoff from prose into a red test, which is a far less ambiguous brief.
+**Shared by both options:** the Opus main session writes the BDD acceptance tests first, from the milestone's scenarios, before any implementation exists. This is not a tie-breaker detail, it is what makes the constitution's own rule true: conditions become tests "written independently of the code that satisfies them". When one agent writes both, independence is a hope; when the author and the implementer are different, it is structural. It also turns the handoff from prose into a red test, which is a far less ambiguous brief.
 
 The two options differ only in **where the implementation happens**.
 
 **Option A: implement in the main session.**
-- Opus writes the tests, then Human-PM switches to Sonnet (`/model`) and the implementation
-  runs in the same thread. Switch back to Opus to triage review findings.
+- Opus writes the tests, then Human-PM switches to Sonnet (`/model`) and the implementation runs in the same thread. Switch back to Opus to triage review findings.
 - No cold start: every decision made in conversation is still there.
-- Costs two cache re-warms (caches are per-model, so each switch re-pays the input once;
-  switch twice, not a dozen times).
-- The main session's context keeps growing, because every file the implementation reads lands
-  in it.
+- Costs two cache re-warms (caches are per-model, so each switch re-pays the input once; switch twice, not a dozen times).
+- The main session's context keeps growing, because every file the implementation reads lands in it.
 
 **Option B: implement in Sonnet sub-agents.**
-- Opus writes the tests, then delegates each slice to a Sonnet sub-agent that gets the red
-  tests, the milestone spec, the slice's scope and a pointer to the repo conventions. It makes
-  the tests pass, runs `make test`, commits, and returns a summary.
-- The main session's context stays small, because the implementation's file reading happens in
-  the agent and does not come back.
-- Each spawn pays cold start (re-deriving spec and conventions), and the main session partly
-  re-pays it by reading the diff to report.
-- The red tests carry most of what the agent would otherwise have to infer, which is what
-  makes this viable. Decisions must still live in the spec, not the conversation: milestone
-  02's `<details>` collapse hazard is the example, written into the spec's decisions log, which
-  is the only reason an implementer with no memory of the discussion would have handled it.
+- Opus writes the tests, then delegates each slice to a Sonnet sub-agent that gets the red tests, the milestone spec, the slice's scope and a pointer to the repo conventions. It makes the tests pass, runs `make test`, commits, and returns a summary.
+- The main session's context stays small, because the implementation's file reading happens in the agent and does not come back.
+- Each spawn pays cold start (re-deriving spec and conventions), and the main session partly re-pays it by reading the diff to report.
+- The red tests carry most of what the agent would otherwise have to infer, which is what makes this viable. Decisions must still live in the spec, not the conversation: milestone 02's `<details>` collapse hazard is the example, written into the spec's decisions log, which is the only reason an implementer with no memory of the discussion would have handled it.
 
-Both options split the reading by cost: test authoring needs the scenarios, the decisions and
-the test helpers; implementation needs handlers, templates and queries. The expensive half is
-the one worth isolating.
+Both options split the reading by cost: test authoring needs the scenarios, the decisions and the test helpers; implementation needs handlers, templates and queries. The expensive half is the one worth isolating.
 
 Expected shape of the answer, to be confirmed by the experiment rather than assumed: at this repo's size (~15 files, a slice touching 2–4 of them) cold start is a large fraction of a slice, which favours A. On a codebase where a slice means searching hundreds of files, that flips and B wins clearly.
 

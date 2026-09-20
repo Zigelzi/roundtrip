@@ -4,23 +4,15 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project status
 
-Deliberately not restated here. This file is loaded every session, which makes it tempting to
-summarise the project's state in it, and that summary goes stale: it sat two milestones behind
-until 2026-09-20. `spec/README.md` makes the rule explicit ("one fact lives in exactly one
-file", "the spec is the status tracker; there is no separate tool"), so:
+Deliberately not restated here. This file is loaded every session, which makes it tempting to summarise the project's state in it, and that summary goes stale: it sat two milestones behind until 2026-09-20. `spec/README.md` makes the rule explicit ("one fact lives in exactly one file", "the spec is the status tracker; there is no separate tool"), so:
 
-- **What is built and where each milestone stands:** `spec/milestones/NN-*.md`, each carrying a
-  Status line (`draft -> red-teamed -> in-progress -> done`). `git log --oneline main` is the
-  merged list, one squashed commit per milestone.
+- **What is built and where each milestone stands:** `spec/milestones/NN-*.md`, each carrying a Status line (`draft -> red-teamed -> in-progress -> done`). `git log --oneline main` is the merged list, one squashed commit per milestone.
 - **The entities and how they are stored:** `spec/domain-model.md`.
 - **What each spec file is for:** the table in `spec/README.md`.
 
-Do not restate any of that here. Add to the file it belongs in and let this section keep
-pointing.
+Do not restate any of that here. Add to the file it belongs in and let this section keep pointing.
 
-Code layout (stable): entrypoint in `cmd/web` (`main.go`, `app.go`, `view/` templ templates),
-SQLite access in `internal/db` (sqlc-generated), Goose migrations + sqlc queries under `sql/`.
-Mirrors go-tiimit.
+Code layout (stable): entrypoint in `cmd/web` (`main.go`, `app.go`, `view/` templ templates), SQLite access in `internal/db` (sqlc-generated), Goose migrations + sqlc queries under `sql/`. Mirrors go-tiimit.
 
 Commands (`make`, all wrap codegen via the `generate` target: sqlc, templ and the standalone Tailwind CLI):
 - `make test`: run `go test ./...` (BDD scenarios live in `cmd/web/*_test.go`)
