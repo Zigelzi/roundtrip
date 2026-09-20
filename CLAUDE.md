@@ -36,7 +36,7 @@ Core user flow (`spec/user-flows.md`): plan trip activities → derive a packing
 - Code-review loop is bounded (max 2 rounds). Disputes resolve by type: factual → settle with a test; subjective → default to the simpler option; product/scope → escalate to Human-PM as a plain-language trade-off, never a technical vote.
 - Starting a milestone: Human-PM opens a fresh session and describes what to build; the main session creates the `feature/<name>` branch (branch-first, at step 1) and scaffolds the spec from `_template.md` on that branch. The spec is authored on the branch, not on `main`.
 - Commits are the agent's job, with standing authorization to commit without asking. Human-PM makes only the initial baseline commit. Milestone = branch off `main`; each vertical slice = one focused commit once its test is green; merge to `main` only after Human-PM accepts (step 7).
-- Git conventions: Conventional Commits (`type(scope): summary`); branch names per [Conventional Branch](https://conventionalbranch.org/) (`<type>/<description>`, lowercase + hyphens, e.g. `feature/packing-list`); squash the branch's slice commits into one Conventional Commit before merging to `main` (keep a clean linear log). No remote yet, so merges are local (`git merge --squash`); once a private GitHub remote is added, use squash-merge PRs.
+- Git conventions: Conventional Commits (`type(scope): summary`); branch names per [Conventional Branch](https://conventionalbranch.org/) (`<type>/<description>`, lowercase + hyphens, e.g. `feature/packing-list`); squash the branch's slice commits into one Conventional Commit before merging to `main` (keep a clean linear log). Merges to `main` are local (`git merge --squash`), then `main` is pushed to `origin` (github.com/Zigelzi/roundtrip).
 - Milestone 0 is a local walking skeleton (one route → templ page → SQLite query, Tailwind-styled) proving the stack end-to-end before any feature. Pi deployment is deferred to its own later milestone; don't wire up deploy early. Stack constraints: BDD conditions → standard `go test` (not `godog`); Tailwind via the standalone CLI (no Node); migrations via Goose + type-safe DB access via sqlc (same as go-tiimit; `sqlc generate` is part of the build).
 
 The three goals shaping every decision: (1) right-size tasks for a good feedback loop, (2) minimize token usage for cost and environmental reasons, (3) maximize code quality and maintainability.
@@ -45,10 +45,6 @@ The three goals shaping every decision: (1) right-size tasks for a good feedback
 
 - Single family, ~2 active users. Do not design for multi-tenancy or scale unless explicitly asked; treat scaling as a thought experiment and call out the specific point where it would actually matter.
 - Keep configuration and auth minimal (Google login is the preferred ceiling).
-
-## Writing style
-
-No em dashes anywhere in this repo: specs, docs, code comments, commit messages, UI text. Use a colon, comma, semicolon, parentheses, or two sentences instead. Keep one only where it is genuinely the right punctuation and no other mark fits (for example quoting a source verbatim).
 
 ## Deployment
 
