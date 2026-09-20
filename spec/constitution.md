@@ -27,6 +27,8 @@ Conventions:
 3. Human-PM decides which findings to accept. *(checkpoint)*
 4. Main session refines the spec into milestones that deliver a feature/flow E2E, each with Behaviour-Driven Development (BDD) acceptance conditions. Those conditions become acceptance tests before implementation — written independently of the code that will satisfy them.
 5. Main session implements milestone by milestone as vertical slices, sequentially, each slice satisfying its BDD acceptance test. Parallel dev sub-agents only if slices provably share no files. A task is right-sized if one agent can implement and self-verify it in one context without re-loading the whole app. Each slice is committed to the milestone branch once its test is green.
+   - **Stop after every slice.** Commit it, hand Human-PM a 2–4 step phone checklist for that slice alone, and wait. This is the default, not a question to ask — chaining slices together and delivering one long checklist at the end is what this rule exists to prevent. Milestone 02 proved the cost: the packed section gave no sign it could be opened, a defect present from slice 1, but it surfaced only after all three slices and a review round were done, so the later slices were built on top of it.
+   - **Before the first slice, raise the model choice** (see [Model & effort](#model--effort)). The main session says in one line what kind of work the slices actually are — mechanical, or a genuine design problem — and Human-PM decides. Rolling straight from a finished spec into code takes that decision away from him.
 6. Code-review loop (bounded).
    a. Spawn a code-review agent (`/code-review`) on the finished feature's diff. It tags each finding blocking (correctness / bug / security / a failing BDD condition) or non-blocking (style / preference).
    b. Implementer addresses each: fix it, or decline a non-blocking one with a one-line reason.
@@ -47,12 +49,37 @@ Two dials trade cost for quality: model tier (Haiku fast/cheap → Sonnet balanc
 
 Light default — don't over-tune it. At ~2 users, context size and number of turns cost more than model tier, so fresh sessions and targeted reads matter more than a per-step model matrix.
 
-- Main session: one capable model (Sonnet is a fine default; switch to Opus for a genuinely tricky slice).
+- Main session: see the two allocations below — which one we use is an open experiment.
 - The two spawned critics (red-team in step 2, code review in step 6): strong model at high effort. They read small inputs (a short spec, a diff), so capability here is cheap in absolute tokens and high-leverage — a flaw caught pays for itself in avoided rework.
 - Mechanical stretches (scaffolding, commits, the step-7 report): a fast, cheap model at low effort is fine.
 - Code-review effort is a skill argument: `/code-review medium` by default, `high` for changes touching data integrity or auth, and avoid `ultra` (heavy, billed) unless a milestone is large or risky.
 
 Decide per task with the two questions above, not by a fixed table.
+
+### Where the main session's tokens actually go
+
+Not duration. A long session of small turns is cheap. The cost is **context size × number of turns**: everything the session reads stays in its context and is re-sent every turn after (prompt caching softens this, it does not remove it), and the model tier multiplies against that growing prompt. So the thing worth isolating is not "coding" as an activity — it is the *file reading that coding drags in*. That is what the two options below trade differently.
+
+### Two allocations — open experiment
+
+Decided 2026-09-20: draft both, run one per milestone, compare before concluding. What to compare afterwards: total tokens for the milestone, how soon the first slice was testable on a phone, how many defects Human-PM found at his check that an earlier stop would have caught, and whether he felt in the loop.
+
+**Option A — one session, switch model at the boundary.**
+- Opus for spec drafting, red-team triage, code-review triage and the step-7 report.
+- At the step 4 → 5 boundary Human-PM switches to Sonnet (`/model`); the implementation slices run on Sonnet in the same thread. Switch back to Opus to interpret review findings.
+- No cold start: every decision made in conversation is still there. Costs two cache re-warms (caches are per-model, so each switch re-pays the input once — switch twice, not a dozen times).
+- The main session's context keeps growing, because every file the implementation reads lands in it.
+
+**Option B — Opus main session, Sonnet implementation sub-agents.**
+- The main session stays Opus and never writes feature code: it specs, orchestrates, triages findings and reports.
+- Each vertical slice is delegated to a Sonnet sub-agent that gets the milestone spec, that slice's scope and a pointer to the repo conventions. It writes the test first, implements, runs `make test`, commits, and returns a summary.
+- The main session's context stays small — the file reading happens in the agent and does not come back.
+- Each spawn pays cold start (re-deriving spec + conventions + the patterns it must match; roughly 10–15k in this repo), and the main session partly re-pays it by reading the diff to report.
+- **Only viable if decisions live in the spec, not in the conversation.** Milestone 02's `<details>` collapse hazard is the example: it came out of the red-team pass and was written into the spec's decisions log, which is the only reason an implementer with no memory of the discussion would have handled it.
+
+Expected shape of the answer, to be confirmed by the experiment rather than assumed: at this repo's size (~15 files, a slice touching 2–4 of them) cold start is a large fraction of a slice, which favours A. On a codebase where a slice means searching hundreds of files, that flips and B wins clearly.
+
+Either way the two critic spawns (red-team, code review) stay on a strong model. They read small inputs, so capability is cheap there in absolute tokens, and both earned their cost in milestone 02.
 
 ## Tech stack
 

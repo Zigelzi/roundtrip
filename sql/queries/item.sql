@@ -12,7 +12,7 @@ SET name = ?
 WHERE id = ?;
 
 -- name: ListTripItems :many
-SELECT id, family_member_id, name, quantity
+SELECT id, family_member_id, name, quantity, status
 FROM item
 WHERE trip_id = ?
 ORDER BY id;
@@ -28,6 +28,15 @@ ORDER BY name_key;
 -- name: CreateItem :exec
 INSERT INTO item (trip_id, family_member_id, name, name_key, quantity)
 VALUES (?, ?, ?, ?, ?);
+
+-- name: SetItemStatus :one
+-- Scoped to the trip for the same reason DeleteItem is: an item id from
+-- another trip must not be reachable through this trip's page. Returning the
+-- member says whose list to re-render; no row means the item is gone.
+UPDATE item
+SET status = ?
+WHERE id = ? AND trip_id = ?
+RETURNING family_member_id;
 
 -- name: DeleteItem :one
 -- Scoped to the trip so an item can't be removed through another trip's URL.

@@ -1,0 +1,179 @@
+package view
+
+// PackPage is the screen used while standing at the bag. It reuses the trip
+// page's <section data-member="Name"> contract, but carries no add form and
+// no remove button: packing must not be one mis-tap away from deleting an
+// item.
+templ PackPage(page PackPageData) {
+	@Layout("Packing · " + page.Trip.Destination) {
+		<a href={ templ.SafeURL(TripURL(page.Trip.ID)) } class="inline-flex min-h-12 items-center text-slate-600">← { page.Trip.Destination }</a>
+		<h1 class="text-2xl font-bold">Packing</h1>
+		if page.TripTotal == 0 {
+			<p class="mt-2 text-slate-600">Nothing to pack yet.</p>
+			<a href={ templ.SafeURL(TripURL(page.Trip.ID)) } class="mt-2 inline-flex min-h-12 items-center font-semibold text-slate-900">Add items to the trip →</a>
+		} else {
+			@PackProgress(page, false)
+			@memberFilter(page)
+			<div class="mt-4 space-y-4">
+				for _, m := range page.Shown() {
+					@packMemberSection(page, m)
+				}
+			</div>
+			@packedSection(page)
+		}
+	}
+}
+
+// PackProgress is how much of the list is in the bag. It is swapped on every
+// tap, so the "everything is packed" message lives here too.
+templ PackProgress(page PackPageData, oob bool) {
+	<div id="pack-progress" { oobAttrs(oob)... }>
+		<p class="text-slate-600">{ FormatProgress(page.Packed, page.Total) }</p>
+		if page.Total > 0 && page.Packed == page.Total {
+			<p class="mt-2 rounded-lg bg-green-50 p-4 font-semibold text-green-800">Everything is packed.</p>
+		}
+	</div>
+}
+
+// memberFilter narrows the page to one person. Plain links, so the choice
+// lives in the URL and survives every tap.
+templ memberFilter(page PackPageData) {
+	<nav class="mt-3 flex flex-wrap gap-2">
+		@filterLink(PackURL(page.Trip.ID), "Everyone", page.Filter == 0)
+		for _, m := range page.Members {
+			@filterLink(packMemberURL(page.Trip.ID, m.ID), m.Name, page.Filter == m.ID)
+		}
+	</nav>
+}
+
+// filterLink marks the one being viewed, so it is obvious whose things are
+// on screen. aria-current carries that to a screen reader as well.
+templ filterLink(url, label string, active bool) {
+	if active {
+		<a href={ templ.SafeURL(url) } aria-current="page" class={ filterActiveClass }>{ label }</a>
+	} else {
+		<a href={ templ.SafeURL(url) } class={ filterClass }>{ label }</a>
+	}
+}
+
+const filterBaseClass = "inline-flex min-h-12 items-center rounded-lg border px-4 font-semibold"
+const filterClass = filterBaseClass + " border-slate-300 bg-white text-slate-700"
+const filterActiveClass = filterBaseClass + " border-slate-900 bg-slate-900 text-white"
+
+templ packMemberSection(page PackPageData, m PackMember) {
+	<section data-member={ m.Name } class="rounded-lg bg-white p-4 shadow-sm">
+		<h2 class="text-lg font-semibold">{ m.Name }</h2>
+		@PackMemberList(page, m)
+	</section>
+}
+
+// PackMemberList is what one member still has to pack — the part a tap
+// swaps. A member with nothing planned and a member who is finished both
+// show no rows, so the wording has to tell them apart (S9).
+templ PackMemberList(page PackPageData, m PackMember) {
+	<div id={ toPackListID(m.ID) }>
+		if !m.HasItems() {
+			<p class="mt-1 text-slate-600">Nothing planned.</p>
+		} else if len(m.ToPack) == 0 {
+			<p class="mt-1 font-semibold text-green-800">All packed.</p>
+		} else {
+			<ul class="mt-2 divide-y divide-slate-100">
+				for _, it := range m.ToPack {
+					<li>
+						@tapRow(packItemURL(page.Trip.ID, m.ID, it.ID, page.Filter), toPackListID(m.ID), "Pack "+it.Name) {
+							<span class={ boxClass }></span>
+							<span class="grow">{ it.Name }</span>
+							<span class="whitespace-nowrap text-slate-600">{ FormatQuantity(it.Quantity) }</span>
+						}
+					</li>
+				}
+			</ul>
+		}
+	</div>
+}
+
+// packedSection holds everything already in the bag. The <details> element
+// itself is never swapped — only the list inside it — so it stays open while
+// a parent works through it (S3).
+templ packedSection(page PackPageData) {
+	<details id="packed" class="group mt-4 rounded-lg bg-white p-4 shadow-sm">
+		@PackedSummary(page, false)
+		@PackedList(page, false)
+	</details>
+}
+
+// PackedSummary is the only thing saying the packed section can be opened
+// and what is inside it. Flexing a <summary> drops the browser's own
+// disclosure triangle, so the chevron here replaces it rather than
+// decorating it. Swapped on every tap to keep the count honest.
+templ PackedSummary(page PackPageData, oob bool) {
+	<summary
+		id="packed-summary"
+		{ oobAttrs(oob)... }
+		class="flex min-h-12 cursor-pointer list-none items-center gap-2 font-semibold text-slate-600 [&::-webkit-details-marker]:hidden"
+	>
+		<span class="inline-block text-slate-400 transition-transform group-open:rotate-90">▸</span>
+		<span>Packed ({ FormatCount(page.Packed) })</span>
+		<span class="ml-auto text-sm font-normal text-slate-500 group-open:hidden">Show</span>
+		<span class="ml-auto hidden text-sm font-normal text-slate-500 group-open:inline">Hide</span>
+	</summary>
+}
+
+// PackedList is grouped by member in the same order as the lists above, so
+// an item can be found where the parent expects it.
+templ PackedList(page PackPageData, oob bool) {
+	<div id="packed-list" { oobAttrs(oob)... }>
+		if page.Packed == 0 {
+			<p class="mt-1 text-slate-600">Nothing packed yet.</p>
+		} else {
+			for _, m := range page.Shown() {
+				if len(m.Packed) > 0 {
+					<p class="mt-3 text-sm font-semibold text-slate-500">{ m.Name }</p>
+					<ul class="divide-y divide-slate-100">
+						for _, it := range m.Packed {
+							<li>
+								@tapRow(unpackItemURL(page.Trip.ID, m.ID, it.ID, page.Filter), toPackListID(m.ID), "Unpack "+it.Name) {
+									<span class={ tickedClass }>✓</span>
+									<span class="grow text-slate-500 line-through">{ it.Name }</span>
+									<span class="whitespace-nowrap text-slate-500">{ FormatQuantity(it.Quantity) }</span>
+								}
+							</li>
+						}
+					</ul>
+				}
+			}
+		}
+	</div>
+}
+
+// PackChanged answers a tap: the member's own list is swapped into place,
+// and the packed section and the progress are updated out of band. The
+// <details> wrapper is deliberately not part of the reply.
+templ PackChanged(page PackPageData, m PackMember) {
+	@PackMemberList(page, m)
+	@PackedSummary(page, true)
+	@PackedList(page, true)
+	@PackProgress(page, true)
+}
+
+// tapRow makes a whole row the tap target: a full-width submit button, so
+// packing works one-handed with a bag in the other. Without JavaScript it is
+// still a plain form post.
+templ tapRow(action, targetID, label string) {
+	<form
+		method="post"
+		action={ templ.SafeURL(action) }
+		hx-post={ action }
+		hx-target={ "#" + targetID }
+		hx-swap="outerHTML"
+		hx-sync="body:queue all"
+	>
+		<button type="submit" aria-label={ label } class="flex min-h-14 w-full items-center gap-3 text-left">
+			{ children... }
+		</button>
+	</form>
+}
+
+// boxClass is the empty tick box; tickedClass its packed counterpart.
+const boxClass = "size-6 shrink-0 rounded border-2 border-slate-300"
+const tickedClass = "flex size-6 shrink-0 items-center justify-center rounded border-2 border-green-600 text-green-700"

@@ -21,6 +21,7 @@ type Item struct {
 	Name           string
 	NameKey        string
 	Quantity       int64
+	Status         string
 }
 
 type Trip struct {

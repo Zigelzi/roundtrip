@@ -117,7 +117,7 @@ func (q *Queries) ListItemNames(ctx context.Context) ([]string, error) {
 }
 
 const listTripItems = `-- name: ListTripItems :many
-SELECT id, family_member_id, name, quantity
+SELECT id, family_member_id, name, quantity, status
 FROM item
 WHERE trip_id = ?
 ORDER BY id
@@ -128,6 +128,7 @@ type ListTripItemsRow struct {
 	FamilyMemberID int64
 	Name           string
 	Quantity       int64
+	Status         string
 }
 
 func (q *Queries) ListTripItems(ctx context.Context, tripID int64) ([]ListTripItemsRow, error) {
@@ -144,6 +145,7 @@ func (q *Queries) ListTripItems(ctx context.Context, tripID int64) ([]ListTripIt
 			&i.FamilyMemberID,
 			&i.Name,
 			&i.Quantity,
+			&i.Status,
 		); err != nil {
 			return nil, err
 		}
@@ -156,6 +158,29 @@ func (q *Queries) ListTripItems(ctx context.Context, tripID int64) ([]ListTripIt
 		return nil, err
 	}
 	return items, nil
+}
+
+const setItemStatus = `-- name: SetItemStatus :one
+UPDATE item
+SET status = ?
+WHERE id = ? AND trip_id = ?
+RETURNING family_member_id
+`
+
+type SetItemStatusParams struct {
+	Status string
+	ID     int64
+	TripID int64
+}
+
+// Scoped to the trip for the same reason DeleteItem is: an item id from
+// another trip must not be reachable through this trip's page. Returning the
+// member says whose list to re-render; no row means the item is gone.
+func (q *Queries) SetItemStatus(ctx context.Context, arg SetItemStatusParams) (int64, error) {
+	row := q.db.QueryRowContext(ctx, setItemStatus, arg.Status, arg.ID, arg.TripID)
+	var family_member_id int64
+	err := row.Scan(&family_member_id)
+	return family_member_id, err
 }
 
 const updateFamilyMemberName = `-- name: UpdateFamilyMemberName :execrows
