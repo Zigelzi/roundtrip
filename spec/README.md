@@ -37,7 +37,19 @@ spec/milestones/
   - Acceptance conditions (BDD): Given/When/Then, grouped into named scenarios. Name each from the user's perspective (a capability or something they see); name a scenario with no real user (an infrastructure/build check) by the behaviour proven instead. Each scenario becomes a `go test` case, written before implementation. This is the section that matters most.
   - Number scenarios `S1`, `S2`, … in the heading (`### S3: Parent creates a trip`) so they can be referenced in conversation, open items and code review. Numbers are stable: a new scenario takes the next free number, a removed one leaves a gap; never renumber. The matching test carries the number in its comment (`// S3: Parent creates a trip`). Outside the spec, prefix the milestone: `01/S3`.
   - Verify each scenario the most feasible way. A `go test` is the default; behaviour a Go test can't observe (e.g. keyboard focus on a phone) is marked `Verification: manual` under the scenario and checked by Human-PM at step 7. Still test the part that is observable (e.g. the server's reply) automatically.
-  - Open questions: where a draft hands off to the red-team pass and back to Human-PM.
+  - Open questions: where a draft hands off to the red-team pass and back to Human-PM. Number them `Q1`, `Q2`, … so they can be referenced in conversation and in the decisions log. Same stability rule as scenarios: never renumber, a resolved one keeps its number and moves to the decisions log.
+
+## Referencing things by number
+
+One letter per kind of thing, so a number is never ambiguous across documents:
+
+| Prefix | What | Lives in |
+|---|---|---|
+| `S` | A BDD scenario | A milestone spec. Prefix the milestone outside it: `03/S8`. |
+| `Q` | An open question about that milestone | The same milestone spec. |
+| `A` | An open item about the activity catalogue | [`activity-catalogue.md`](activity-catalogue.md), because those questions outlive any one milestone. |
+
+All three follow the scenario rule: numbers are stable, a removed one leaves a gap, never renumber. Note that `constitution.md` separately uses "Option A" and "Option B" for the allocation experiment; that is unrelated to the `A` prefix here.
 
 ## Starting a milestone
 
