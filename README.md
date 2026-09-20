@@ -10,7 +10,7 @@ The part that makes it more than a shared checklist is what happens *after* a tr
 
 **This repository is an experiment in agentic coding. Nearly all of the code here was written by Claude Code, not by me. It is not a sample of my programming ability and should not be read as one.**
 
-I'm a product manager by profession; software is a hobby I'm still fairly junior at. In my other projects I write the code myself, because I enjoy the problem solving. This project is the opposite on purpose: an honest test of how far a spec-driven, agent-written workflow gets when a non-expert drives it — and what that feels like from a PM's seat.
+I'm a product manager by profession; software is a hobby I'm still fairly junior at. In my other projects I write the code myself, because I enjoy the problem solving. This project is the opposite on purpose: an honest test of how far a spec-driven, agent-written workflow gets when a non-expert drives it, and what that feels like from a PM's seat.
 
 What I actually do here:
 
@@ -21,16 +21,16 @@ What I actually do here:
 
 What the agent does: writes the specs into testable acceptance conditions, writes the tests, writes the implementation, reviews its own diff with an independent reviewer agent, and commits.
 
-So: if the code is good, credit the model and the workflow. If it is bad, that's a finding about the workflow — which is the point of running the experiment in the open.
+So: if the code is good, credit the model and the workflow. If it is bad, that's a finding about the workflow, which is the point of running the experiment in the open.
 
 ## How the work is organised
 
 The process lives in [`spec/`](spec/) and is the actual subject of the experiment:
 
-- [`spec/constitution.md`](spec/constitution.md) — how the work is done: the agentic workflow, the two points where sub-agents are worth their token cost, git conventions, the tech stack and why each piece was chosen.
-- [`spec/README.md`](spec/README.md) — how specs are written and structured.
-- [`spec/user-flows.md`](spec/user-flows.md) — who uses this and what they are trying to do.
-- [`spec/milestones/`](spec/milestones/) — one file per unit of work, each with Given/When/Then acceptance conditions that become Go tests before any implementation exists.
+- [`spec/constitution.md`](spec/constitution.md): how the work is done: the agentic workflow, the two points where sub-agents are worth their token cost, git conventions, the tech stack and why each piece was chosen.
+- [`spec/README.md`](spec/README.md): how specs are written and structured.
+- [`spec/user-flows.md`](spec/user-flows.md): who uses this and what they are trying to do.
+- [`spec/milestones/`](spec/milestones/): one file per unit of work, each with Given/When/Then acceptance conditions that become Go tests before any implementation exists.
 
 One milestone = one spec file = one branch = one squashed commit, so a milestone can be reviewed by reading one spec against one diff.
 
@@ -40,7 +40,7 @@ Three goals shape every decision: right-size tasks for a fast feedback loop, kee
 
 Go + [templ](https://templ.guide) + [HTMX](https://htmx.org) + TailwindCSS, on SQLite with [Goose](https://github.com/pressly/goose) migrations and [sqlc](https://sqlc.dev) for type-safe queries. It builds to a single static binary with no Node toolchain (Tailwind runs via its standalone CLI). Rationale for each choice is in the constitution.
 
-Mobile is the primary target — the app is used on a phone roughly all of the time.
+Mobile is the primary target: the app is used on a phone roughly all of the time.
 
 ## Running it
 
@@ -50,22 +50,22 @@ Requires Go 1.26+ and `make`.
 make run   # http://127.0.0.1:8080
 ```
 
-`run`, `run-lan`, `test` and `build` run codegen (sqlc + templ + Tailwind) first, so there is no separate setup step. A plain `go build` or `go test` does need `make generate` once on a fresh checkout — the Tailwind bundle is gitignored and the `//go:embed` fails without it.
+`run`, `run-lan`, `test` and `build` run codegen (sqlc + templ + Tailwind) first, so there is no separate setup step. A plain `go build` or `go test` does need `make generate` once on a fresh checkout, because the Tailwind bundle is gitignored and the `//go:embed` fails without it.
 
 Other targets:
 
 | Command | What it does |
 |---|---|
-| `make test` | `go test ./...` — the BDD scenarios live in `cmd/web/*_test.go` |
+| `make test` | `go test ./...`; the BDD scenarios live in `cmd/web/*_test.go` |
 | `make dev` | live reload (templ watch + Air + Tailwind watch), reachable from a phone on the LAN; after editing SQL, re-run `make generate` |
 | `make run-lan` | plain run, bound to the LAN so a phone can reach it |
 | `make build` | single static binary to `./build/roundtrip` |
 
-There is no auth — run it on a trusted network only.
+There is no auth, so run it on a trusted network only.
 
 ### Configuration
 
-Copy `.env.example` to `.env` and fill it in; `make` loads it automatically and `.env` is gitignored. It is also where the family members' names come from — this repository is public, so the migration seeds placeholders (`Parent 1`, `Child 1`, …) and `FAMILY_NAMES` supplies the real ones at startup. The app runs fine without it, with the placeholder names.
+Copy `.env.example` to `.env` and fill it in; `make` loads it automatically and `.env` is gitignored. It is also where the family members' names come from. This repository is public, so the migration seeds placeholders (`Parent 1`, `Child 1`, …) and `FAMILY_NAMES` supplies the real ones at startup. The app runs fine without it, with the placeholder names.
 
 ## Layout
 
@@ -80,4 +80,4 @@ Generated Go (`internal/db`, `*_templ.go`) is committed on purpose so it can be 
 
 ## License
 
-[MIT](LICENSE) — use it however you like, notice included.
+[MIT](LICENSE): use it however you like, notice included.

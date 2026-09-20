@@ -88,7 +88,7 @@ func toPackListID(memberID int64) string {
 }
 
 // oobAttrs marks a fragment as an out-of-band swap. One tap changes three
-// places — the member's list, the packed section and the progress — and
+// places (the member's list, the packed section and the progress), and
 // htmx swaps the extra two by id wherever they sit on the page.
 func oobAttrs(oob bool) templ.Attributes {
 	if oob {

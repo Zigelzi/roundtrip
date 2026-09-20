@@ -67,7 +67,7 @@ func (app *application) setItemStatus(w http.ResponseWriter, r *http.Request, st
 	owner, err := app.queries.SetItemStatus(r.Context(), db.SetItemStatusParams{Status: status, ID: itemID, TripID: tripID})
 	switch {
 	case errors.Is(err, sql.ErrNoRows):
-		// The item is gone — removed on the trip page by the other parent, or
+		// The item is gone: removed on the trip page by the other parent, or
 		// an id from another trip. Nothing is saved; the parent gets the list
 		// as it now stands and carries on packing (S10). With no row to ask,
 		// the path says which list that is.

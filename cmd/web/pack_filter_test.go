@@ -37,7 +37,7 @@ func TestPackPageNarrowedToOneMember(t *testing.T) {
 	}
 }
 
-// S5: the narrowing holds while packing — otherwise the first tap would
+// S5: the narrowing holds while packing, otherwise the first tap would
 // throw the parent back to the whole family's list.
 func TestPackingWhileNarrowedStaysNarrowed(t *testing.T) {
 	app, database := newTestApp(t)

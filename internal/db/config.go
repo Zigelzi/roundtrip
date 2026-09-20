@@ -60,7 +60,7 @@ func IsUniqueViolation(err error) bool {
 // the real names live only in a deployment's environment (see .env.example).
 // Names map to member ids by position, so the order matches the seed order in
 // the migration. A blank entry leaves that member's placeholder alone, and an
-// unset or empty list is a no-op — the app runs without any configuration.
+// unset or empty list is a no-op: the app runs without any configuration.
 func ApplyFamilyNames(ctx context.Context, queries *Queries, list string) error {
 	for i, name := range strings.Split(list, ",") {
 		name = strings.TrimSpace(name)

@@ -16,8 +16,8 @@ var staticFiles embed.FS
 const defaultDBPath = "roundtrip.db"
 
 // defaultAddress only accepts connections from this machine. Set ADDR (e.g.
-// ADDR=0.0.0.0:8080) to reach the app from a phone on the home network —
-// there is no login, so only do that on a trusted network.
+// ADDR=0.0.0.0:8080) to reach the app from a phone on the home network.
+// There is no login, so only do that on a trusted network.
 const defaultAddress = "127.0.0.1:8080"
 
 func main() {

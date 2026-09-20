@@ -435,7 +435,7 @@ func packMemberSection(page PackPageData, m PackMember) templ.Component {
 	})
 }
 
-// PackMemberList is what one member still has to pack — the part a tap
+// PackMemberList is what one member still has to pack, the part a tap
 // swaps. A member with nothing planned and a member who is finished both
 // show no rows, so the wording has to tell them apart (S9).
 func PackMemberList(page PackPageData, m PackMember) templ.Component {
@@ -581,7 +581,7 @@ func PackMemberList(page PackPageData, m PackMember) templ.Component {
 }
 
 // packedSection holds everything already in the bag. The <details> element
-// itself is never swapped — only the list inside it — so it stays open while
+// itself is never swapped, only the list inside it, so it stays open while
 // a parent works through it (S3).
 func packedSection(page PackPageData) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {

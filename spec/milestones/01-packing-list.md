@@ -7,7 +7,7 @@
 Flow: Plan what to pack (`../user-flows.md` step 2).
 As a parent I want to start a new trip and write down the items each family member needs on it, so that we can keep track of everything we need to bring.
 
-This comes before step 1 (planning activities) on purpose: a packing list is the most valuable part on its own, and activity-based planning later needs a packing list to feed into. It is intentionally a single-player milestone — learning the basics with one user before adding the second parent.
+This comes before step 1 (planning activities) on purpose: a packing list is the most valuable part on its own, and activity-based planning later needs a packing list to feed into. It is intentionally a single-player milestone: learning the basics with one user before adding the second parent.
 
 ## Scope
 **In:**
@@ -30,7 +30,7 @@ This comes before step 1 (planning activities) on purpose: a packing list is the
 2. Removing or editing trips; editing items (remove and re-add instead).
 3. Cloning trips.
 4. Packing templates.
-5. Auth — single player, no login. Local by default; can be opened to the home network (`ADDR`) for phone testing and demos.
+5. Auth: single player, no login. Local by default; can be opened to the home network (`ADDR`) for phone testing and demos.
 6. Trips with only specific family members, and managing family members (they are fixed).
 7. Item states beyond "planned" (Prepared, Needs to be bought, Bought, Packed come in later milestones).
 8. Relative time to/from departure ("in 5 days").
@@ -166,4 +166,4 @@ Red-team pass resolved (Human-PM, 2026-09-19): cut the "item already exists, add
 
 Implementation choices kept (Human-PM, 2026-09-19): plain HTML forms with post/redirect and a `#member-N` anchor (trip creation still works this way; item add/remove moved to HTMX in S15 once per-tap reloads hurt quick entry, with the plain forms kept as fallback); ✕ removes an item immediately, no confirm/undo; a trip already under way lists under past trips; item names compare case-insensitively including Ä/ä (enforced by a lowercased `name_key` + UNIQUE constraint); the Milestone 0 greeting stays on the front page (later removed at acceptance; the `app_user` table stays for future login).
 
-Home-network access (Human-PM, 2026-09-19): reverses "local only" — the listen address is configurable via `ADDR` (default stays 127.0.0.1) so the app can be demoed and tested on a phone. Still no auth, so only on the trusted home network.
+Home-network access (Human-PM, 2026-09-19): reverses "local only": the listen address is configurable via `ADDR` (default stays 127.0.0.1) so the app can be demoed and tested on a phone. Still no auth, so only on the trusted home network.

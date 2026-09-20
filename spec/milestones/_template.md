@@ -9,11 +9,11 @@ Which `../user-flows.md` step this serves.
 
 ## Scope
 - **In:** what this milestone delivers end-to-end
-- **Out:** explicit non-goals — what we are deliberately NOT doing yet
+- **Out:** explicit non-goals, what we are deliberately NOT doing yet
 
 ## Acceptance conditions (BDD)
 <!-- Group conditions into named scenarios. Name each from the user's
-     perspective — a capability they gain or something they see.
+     perspective: a capability they gain or something they see.
      Exception: a scenario with no real user (e.g. an infrastructure or
      build check) is named by the behaviour being proven, not forced into
      a "visitor" frame. Each scenario becomes a `go test` case, written

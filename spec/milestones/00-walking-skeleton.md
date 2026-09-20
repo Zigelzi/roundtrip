@@ -4,11 +4,11 @@
 <!-- Status: draft → red-teamed → in-progress → done -->
 
 ## Why
-Prove the whole stack integrates and runs locally before any feature is built. Serves no user flow directly — it de-risks the stack and tooling.
+Prove the whole stack integrates and runs locally before any feature is built. Serves no user flow directly; it de-risks the stack and tooling.
 
 ## Scope
 - **In:** one HTTP route → renders one templ page → greeting read from SQLite (driver: `modernc.org/sqlite`, pure Go for easy Pi cross-compile) via a sqlc query against a throwaway seed table, styled with the standalone Tailwind CLI, schema applied by Goose. A single documented, repeatable build+run command (including `sqlc generate` and the Tailwind build) is produced.
-- **Out:** any real feature or user flow; authentication; Pi deployment (deferred to its own later milestone). The seed table is throwaway skeleton scaffolding, not the start of the domain model — it is replaced when the real model arrives.
+- **Out:** any real feature or user flow; authentication; Pi deployment (deferred to its own later milestone). The seed table is throwaway skeleton scaffolding, not the start of the domain model; it is replaced when the real model arrives.
 
 ## Acceptance conditions (BDD)
 
@@ -20,7 +20,7 @@ Prove the whole stack integrates and runs locally before any feature is built. S
 - And the index page links the Tailwind stylesheet
 
 ### Scenario: Tailwind stylesheet is generated and served
-<!-- No real user — named by the behaviour proven, not a "visitor" frame. -->
+<!-- No real user, so named by the behaviour proven, not a "visitor" frame. -->
 - Given the standalone Tailwind CLI has built the stylesheet
 - When the stylesheet route linked by the index page is requested
 - Then the response is non-empty

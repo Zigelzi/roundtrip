@@ -112,7 +112,7 @@ func sendHTMX(t *testing.T, app *application, path string, form url.Values) *htt
 }
 
 // S16 (automated part): the − and + buttons exist next to the quantity and
-// are type="button" — a button's default type is submit, so otherwise a
+// are type="button". A button's default type is submit, so otherwise a
 // tap would add the item instead of changing the number.
 func TestQuantityStepperButtonsDoNotSubmit(t *testing.T) {
 	app, database := newTestApp(t)
