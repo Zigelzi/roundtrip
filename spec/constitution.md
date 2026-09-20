@@ -19,7 +19,7 @@ Conventions:
 - Commit messages follow Conventional Commits: `type(scope): summary` (types: `feat`, `fix`, `chore`, `docs`, `refactor`, `test`). Per-slice commits on the branch are working checkpoints.
 - Branch names follow [Conventional Branch](https://conventionalbranch.org/): `<type>/<description>`, lowercase `a-z0-9` + hyphens, no leading/trailing/consecutive hyphens (e.g. `feature/packing-list`). Use the purpose prefix matching the milestone (`feature`/`fix`/`chore`/`hotfix`/`release`).
 - Squash before merge. On acceptance, squash the branch's slice commits into a single Conventional Commit so `main` stays a clean, linear log of one commit per milestone.
-- Remote: `origin` is the public repo at github.com/Zigelzi/roundtrip (history rewritten and clean as of 2026-09-20). Merges to `main` are local (`git merge --squash`) and `main` is pushed once Human-PM accepts the milestone. Switch to squash-merge PRs if a change ever needs reviewing on GitHub.
+- Remote: `origin` is the public repo at github.com/Zigelzi/roundtrip (history rewritten and clean as of 2026-09-20). Merges to `main` are local (`git merge --squash`) and `main` is pushed once Human-PM accepts the milestone. No pull requests: the code review in step 6 happens on the local branch diff, so a PR would only add a round trip.
 
 ### Workflow:
 1. In a new session, Human-PM describes what to build. The main session scaffolds the milestone: it creates the `feature/<name>` branch off `main`, copies `_template.md` to `NN-<name>.md` with Status and Branch filled, and commits it. Then Human-PM writes the minimal spec (what and why) into the file and the main session commits the draft.
