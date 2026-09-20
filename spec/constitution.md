@@ -62,20 +62,44 @@ Not duration. A long session of small turns is cheap. The cost is **context size
 
 ### Two allocations: an open experiment
 
-Decided 2026-09-20: draft both, run one per milestone, compare before concluding. What to compare afterwards: total tokens for the milestone, how soon the first slice was testable on a phone, how many defects Human-PM found at his check that an earlier stop would have caught, and whether he felt in the loop.
+Decided 2026-09-20: draft both, run one per milestone, compare before concluding. Results are
+recorded per slice in [`allocation-log.md`](allocation-log.md); append a row there at the end
+of each slice, while the numbers are still to hand. What to compare afterwards: total tokens for the milestone, how soon the first slice was testable on a phone, how many defects Human-PM found at his check that an earlier stop would have caught, and whether he felt in the loop.
 
-**Option A: one session, switch model at the boundary.**
-- Opus for spec drafting, red-team triage, code-review triage and the step-7 report.
-- At the step 4 → 5 boundary Human-PM switches to Sonnet (`/model`); the implementation slices run on Sonnet in the same thread. Switch back to Opus to interpret review findings.
-- No cold start: every decision made in conversation is still there. Costs two cache re-warms (caches are per-model, so each switch re-pays the input once, so switch twice, not a dozen times).
-- The main session's context keeps growing, because every file the implementation reads lands in it.
+**Shared by both options:** the Opus main session writes the BDD acceptance tests first, from
+the milestone's scenarios, before any implementation exists. This is not a tie-breaker detail,
+it is what makes the constitution's own rule true: conditions become tests "written
+independently of the code that satisfies them". When one agent writes both, independence is a
+hope; when the author and the implementer are different, it is structural. It also turns the
+handoff from prose into a red test, which is a far less ambiguous brief.
 
-**Option B: Opus main session, Sonnet implementation sub-agents.**
-- The main session stays Opus and never writes feature code: it specs, orchestrates, triages findings and reports.
-- Each vertical slice is delegated to a Sonnet sub-agent that gets the milestone spec, that slice's scope and a pointer to the repo conventions. It writes the test first, implements, runs `make test`, commits, and returns a summary.
-- The main session's context stays small, because the file reading happens in the agent and does not come back.
-- Each spawn pays cold start (re-deriving spec + conventions + the patterns it must match; roughly 10–15k in this repo), and the main session partly re-pays it by reading the diff to report.
-- **Only viable if decisions live in the spec, not in the conversation.** Milestone 02's `<details>` collapse hazard is the example: it came out of the red-team pass and was written into the spec's decisions log, which is the only reason an implementer with no memory of the discussion would have handled it.
+The two options differ only in **where the implementation happens**.
+
+**Option A: implement in the main session.**
+- Opus writes the tests, then Human-PM switches to Sonnet (`/model`) and the implementation
+  runs in the same thread. Switch back to Opus to triage review findings.
+- No cold start: every decision made in conversation is still there.
+- Costs two cache re-warms (caches are per-model, so each switch re-pays the input once;
+  switch twice, not a dozen times).
+- The main session's context keeps growing, because every file the implementation reads lands
+  in it.
+
+**Option B: implement in Sonnet sub-agents.**
+- Opus writes the tests, then delegates each slice to a Sonnet sub-agent that gets the red
+  tests, the milestone spec, the slice's scope and a pointer to the repo conventions. It makes
+  the tests pass, runs `make test`, commits, and returns a summary.
+- The main session's context stays small, because the implementation's file reading happens in
+  the agent and does not come back.
+- Each spawn pays cold start (re-deriving spec and conventions), and the main session partly
+  re-pays it by reading the diff to report.
+- The red tests carry most of what the agent would otherwise have to infer, which is what
+  makes this viable. Decisions must still live in the spec, not the conversation: milestone
+  02's `<details>` collapse hazard is the example, written into the spec's decisions log, which
+  is the only reason an implementer with no memory of the discussion would have handled it.
+
+Both options split the reading by cost: test authoring needs the scenarios, the decisions and
+the test helpers; implementation needs handlers, templates and queries. The expensive half is
+the one worth isolating.
 
 Expected shape of the answer, to be confirmed by the experiment rather than assumed: at this repo's size (~15 files, a slice touching 2–4 of them) cold start is a large fraction of a slice, which favours A. On a codebase where a slice means searching hundreds of files, that flips and B wins clearly.
 

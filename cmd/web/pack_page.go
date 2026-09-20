@@ -135,7 +135,7 @@ func (app *application) packPage(ctx context.Context, tripID, filter int64) (vie
 		return view.PackPageData{}, err
 	}
 
-	page := view.PackPageData{Trip: trip, Filter: filter}
+	page := view.PackPageData{Trip: trip, Filter: filter, FamilyBucketID: familyBucketID}
 	for _, m := range members {
 		section := view.PackMember{ID: m.ID, Name: m.Name}
 		for _, it := range items {
@@ -150,6 +150,7 @@ func (app *application) packPage(ctx context.Context, tripID, filter int64) (vie
 			}
 		}
 		page.TripTotal += len(section.Packed) + len(section.ToPack)
+		page.TripPacked += len(section.Packed)
 		page.Members = append(page.Members, section)
 	}
 	// A filter naming nobody (a stale or hand-edited link) would otherwise

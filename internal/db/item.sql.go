@@ -116,6 +116,40 @@ func (q *Queries) ListItemNames(ctx context.Context) ([]string, error) {
 	return items, nil
 }
 
+const listPeople = `-- name: ListPeople :many
+SELECT id, name
+FROM family_member
+WHERE id != 100
+ORDER BY id
+`
+
+// The four people, excluding the Family bucket (id 100, cmd/web's
+// familyBucketID). For logic that means "each person" and must not hand the
+// bucket a copy of every personal item, such as milestone 04's activity
+// expansion.
+func (q *Queries) ListPeople(ctx context.Context) ([]FamilyMember, error) {
+	rows, err := q.db.QueryContext(ctx, listPeople)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []FamilyMember
+	for rows.Next() {
+		var i FamilyMember
+		if err := rows.Scan(&i.ID, &i.Name); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const listTripItems = `-- name: ListTripItems :many
 SELECT id, family_member_id, name, quantity, status
 FROM item

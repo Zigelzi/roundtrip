@@ -20,8 +20,17 @@ type PackPageData struct {
 	// narrowing to a member with nothing planned does not look like an
 	// empty trip.
 	TripTotal int
+	// TripPacked counts how much of the whole trip is packed, regardless of
+	// narrowing. Paired with TripTotal for S8's "34 of 61 packed on the
+	// trip" line, so finishing a narrowed bucket does not read as the whole
+	// trip being done when it is not.
+	TripPacked int
 	// Filter is the family member the page is narrowed to, 0 for everyone.
 	Filter int64
+	// FamilyBucketID is the family_member row that means "the whole family"
+	// (cmd/web's familyBucketID constant), passed through so the view layer
+	// can tell the bucket apart from a person without hardcoding its id.
+	FamilyBucketID int64
 }
 
 // Shown is the members whose items the page is displaying: all of them, or
@@ -36,6 +45,38 @@ func (p PackPageData) Shown() []PackMember {
 		}
 	}
 	return nil
+}
+
+// FilteredName is the name of the member the page is narrowed to, or "" when
+// it is showing everyone. It exists so the template never has to index
+// Shown(): that is safe only because packPage resets a filter matching nobody,
+// an invariant two files away, and a wrong one would panic mid-render.
+func (p PackPageData) FilteredName() string {
+	shown := p.Shown()
+	if p.Filter == 0 || len(shown) == 0 {
+		return ""
+	}
+	return shown[0].Name
+}
+
+// FilterOrder is the family member order for the filter row: Family sits
+// second, directly after Everyone, even though its section (Members) keeps
+// it last. The filter is navigation and the sections are the work order, so
+// they deliberately do not match: the bucket nobody owns should not be the
+// one a parent has to hunt for (S2).
+func (p PackPageData) FilterOrder() []PackMember {
+	ordered := make([]PackMember, 0, len(p.Members))
+	for _, m := range p.Members {
+		if m.ID == p.FamilyBucketID {
+			ordered = append(ordered, m)
+		}
+	}
+	for _, m := range p.Members {
+		if m.ID != p.FamilyBucketID {
+			ordered = append(ordered, m)
+		}
+	}
+	return ordered
 }
 
 // PackMember is one family member's section on the packing page: what is

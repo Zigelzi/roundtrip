@@ -2,9 +2,9 @@
 
 Shared entities across milestones. One definition per entity; milestone specs link here.
 
-- Family member: one of the 4 fixed people in the family: two adults and two young children, in that seed order. Seeded, not editable. Separate from app users (children own items but never log in). The repository is public, so the migration seeds placeholder names and the real ones come from `FAMILY_NAMES` at startup (see `.env.example`).
+- Family member: either one of the 4 fixed people in the family (two adults and two young children, in that seed order), or the Family bucket, one further row meaning "the whole family, not a person" (see `milestones/03-family-items.md`). The four people are seeded, not editable, and separate from app users (children own items but never log in). The repository is public, so the migration seeds placeholder names for the people and the real ones come from `FAMILY_NAMES` at startup (see `.env.example`); the bucket's name, "Family", is fixed and is not one of the names `FAMILY_NAMES` supplies.
 - Trip: destination, departure date, duration in days. The return date is derived, not stored: departure + duration − 1 (the departure day counts).
-- Item: one thing a family member takes on a trip: trip + member + name + quantity, plus where it is in its lifecycle (see below). Reuse across trips is by name.
+- Item: one thing taken on a trip by a family member, either a person or the Family bucket: trip + owner + name + quantity, plus where it is in its lifecycle (see below). Reuse across trips is by name.
 
 ## Item lifecycle
 

@@ -14,6 +14,16 @@ import (
 	"github.com/Zigelzi/roundtrip/internal/db"
 )
 
+// familyBucketID is the family_member row that means "the whole family", not
+// a person. It is seeded out of range (see the migration comment in
+// sql/schema/20260920130000_add_family_bucket.sql) so internal/db/config.go's
+// positional FAMILY_NAMES mapping can never reach it. It lives here rather
+// than beside one page because it spans the schema, both pages and the view
+// layer. sql/queries/item.sql's ListPeople repeats the number as a literal,
+// because sqlc cannot reach a Go constant; TestListPeopleExcludesTheFamilyBucket
+// keeps the two in step.
+const familyBucketID int64 = 100
+
 // application holds the dependencies shared across HTTP handlers.
 type application struct {
 	queries *db.Queries

@@ -8,13 +8,14 @@ import (
 	"github.com/Zigelzi/roundtrip/internal/db"
 )
 
-// memberNames reads the family in seed order, which is the order FAMILY_NAMES
-// maps onto.
+// memberNames reads the four people in seed order, which is the order
+// FAMILY_NAMES maps onto. It uses ListPeople, not ListFamilyMembers, because
+// the Family bucket is not one of the names FAMILY_NAMES supplies.
 func memberNames(t *testing.T, queries *db.Queries) []string {
 	t.Helper()
-	members, err := queries.ListFamilyMembers(context.Background())
+	members, err := queries.ListPeople(context.Background())
 	if err != nil {
-		t.Fatalf("ListFamilyMembers: %v", err)
+		t.Fatalf("ListPeople: %v", err)
 	}
 	names := make([]string, 0, len(members))
 	for _, member := range members {

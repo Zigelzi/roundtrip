@@ -6,6 +6,16 @@ SELECT id, name
 FROM family_member
 ORDER BY id;
 
+-- name: ListPeople :many
+-- The four people, excluding the Family bucket (id 100, cmd/web's
+-- familyBucketID). For logic that means "each person" and must not hand the
+-- bucket a copy of every personal item, such as milestone 04's activity
+-- expansion.
+SELECT id, name
+FROM family_member
+WHERE id != 100
+ORDER BY id;
+
 -- name: UpdateFamilyMemberName :execrows
 UPDATE family_member
 SET name = ?
