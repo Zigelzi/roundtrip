@@ -1,19 +1,12 @@
 # Activity catalogue (draft)
 
-**Status:** draft, not yet specced or built. Feeds **milestone 04**, not 03: drafting this
-surfaced the Family-items problem (see [open item A3](#open-items)), which was split out into
-milestone 03 because it changes what an item is. Serves [`user-flows.md`](user-flows.md)
-step 1 ("plan what activities we're doing") and step 2 ("plan what to pack based on that").
+**Status:** draft, not yet specced or built. Feeds **milestone 04**, not 03: drafting this surfaced the Family-items problem (see [open item A3](#open-items)), which was split out into milestone 03 because it changes what an item is. Serves [`user-flows.md`](user-flows.md) step 1 ("plan what activities we're doing") and step 2 ("plan what to pack based on that").
 
-This file exists to answer one question before any code is written: *if we had this, would
-the packing list it produces actually be the list we'd write by hand?* It drafts the
-activities, the items behind them, and a worked example trip so the result can be judged on
-paper. The milestone spec (`milestones/03-*.md`) comes after this is agreed.
+This file exists to answer one question before any code is written: *if we had this, would the packing list it produces actually be the list we'd write by hand?* It drafts the activities, the items behind them, and a worked example trip so the result can be judged on paper. The milestone spec (`milestones/03-*.md`) comes after this is agreed.
 
 ## The idea in one line
 
-A trip is a set of activities. Each activity knows what it needs. Selecting the activities
-produces the items, so the same swimsuit decision is not made from scratch every trip.
+A trip is a set of activities. Each activity knows what it needs. Selecting the activities produces the items, so the same swimsuit decision is not made from scratch every trip.
 
 ```mermaid
 flowchart TD
@@ -24,8 +17,7 @@ flowchart TD
     E --> F[Parent edits by hand<br/>from here on]
 ```
 
-The catalogue is fixed and seeded, like the family members are. Editing activities is a
-later milestone; this one is about whether the fixed content is any good.
+The catalogue is fixed and seeded, like the family members are. Editing activities is a later milestone; this one is about whether the fixed content is any good.
 
 ## How an activity entry is written
 
@@ -37,9 +29,7 @@ Every activity is a list of rows. A row is a name, a quantity, and who it is for
 | Qty | a number, or `n/day` | `1/day` on a 3-night trip means 4 (days, not nights). See [Quantity](#quantity-fixed-or-per-day). |
 | Who | `Everyone`, `Adults`, `Children`, a named member, `Family` | `Family` means one for the whole trip, not one each. Where it is stored is milestone 03's job, not this one's. |
 
-The four members are fixed and seeded: Parent 1, Parent 2, Child 1, Child 2
-(see [`domain-model.md`](domain-model.md)). `Adults` = Parents 1 and 2, `Children` =
-Children 1 and 2.
+The four members are fixed and seeded: Parent 1, Parent 2, Child 1, Child 2 (see [`domain-model.md`](domain-model.md)). `Adults` = Parents 1 and 2, `Children` = Children 1 and 2.
 
 ---
 
@@ -47,9 +37,7 @@ Children 1 and 2.
 
 ### Everyday basics
 
-Not chosen, always on. This is the part that is boring to redo every trip, so it carries
-most of the value. It is also where `n/day` matters most: underwear for a weekend and
-underwear for a week are different lists.
+Not chosen, always on. This is the part that is boring to redo every trip, so it carries most of the value. It is also where `n/day` matters most: underwear for a weekend and underwear for a week are different lists.
 
 | Item | Qty | Who |
 |---|---|---|
@@ -75,15 +63,9 @@ underwear for a week are different lists.
 
 ## Where we sleep: out of scope
 
-Decided (Human-PM): an activity is strictly *what we do*, not where we sleep. Cottage, hotel,
-camping and staying with relatives were drafted here and have been cut. They are a different
-kind of choice (you pick exactly one, and it mostly changes what the *place* supplies rather
-than what you do there), so folding them into the same list would have made "select the
-activities" mean two things at once. If accommodation earns a feature later it gets its own
-milestone and its own field.
+Decided (Human-PM): an activity is strictly *what we do*, not where we sleep. Cottage, hotel, camping and staying with relatives were drafted here and have been cut. They are a different kind of choice (you pick exactly one, and it mostly changes what the *place* supplies rather than what you do there), so folding them into the same list would have made "select the activities" mean two things at once. If accommodation earns a feature later it gets its own milestone and its own field.
 
-The cut removes the single largest source of Family items from the worked example below,
-which is worth re-checking once milestone 03 lands.
+The cut removes the single largest source of Family items from the worked example below, which is worth re-checking once milestone 03 lands.
 
 ---
 
@@ -200,18 +182,13 @@ Assumes snow play is also selected; this adds only the gear on top of the warm c
 
 ## Candidates, not drafted yet
 
-Named so the list is visibly incomplete on purpose, and so we can see whether the shape
-above stretches to cover them: cycling, fishing, cross-country skiing, berry picking,
-boating, amusement park, birthday party, ice swimming, festival.
+Named so the list is visibly incomplete on purpose, and so we can see whether the shape above stretches to cover them: cycling, fishing, cross-country skiing, berry picking, boating, amusement park, birthday party, ice swimming, festival.
 
 ---
 
 ## Worked example: does it produce the right list?
 
-**Trip:** cottage in Punkaharju, 4 days / 3 nights, July.
-**Activities selected:** Swimming, Sauna, Beach day, Long car drive.
-Everyday basics is always on. Four taps in total. (Where the family sleeps no longer
-contributes anything, per the cut above.)
+**Trip:** cottage in Punkaharju, 4 days / 3 nights, July. **Activities selected:** Swimming, Sauna, Beach day, Long car drive. Everyday basics is always on. Four taps in total. (Where the family sleeps no longer contributes anything, per the cut above.)
 
 ### What Parent 1 ends up with
 
@@ -237,9 +214,7 @@ Personal items, 17 of them:
 | Sun hat | 1 | Beach |
 | Travel pillow | 1 | Car |
 
-Family items, 13 of them: toothpaste, hairbrush, wet wipes, first aid kit, shampoo, bag for
-wet swimsuits, sunscreen, picnic blanket, cool bag, snacks, window sunshade, car snacks,
-sick bags.
+Family items, 13 of them: toothpaste, hairbrush, wet wipes, first aid kit, shampoo, bag for wet swimsuits, sunscreen, picnic blanket, cool bag, snacks, window sunshade, car snacks, sick bags.
 
 ### Totals for the trip
 
@@ -254,70 +229,34 @@ sick bags.
 
 ### What the example shows
 
-1. **Four taps produce ~88 items.** Milestone 02 already sized the packing page for ~120
-   items, so this is not a new scale problem, but it is a very different feeling: today
-   items arrive one at a time and each one was a decision. Whether an 88-row list is a
-   relief or a wall is the real question, and it is [open item A5](#open-items).
-2. **The Family bucket is 13 rows, a seventh of the trip.** Cutting accommodation took it
-   down from 22, so it is no longer the biggest single block, but it is still more than
-   half of what a parent carries personally. Parked on Parent 1 it would inflate that
-   parent's list by 75% and make milestone 02's "pack only my things" filter misleading.
-   This is why it became milestone 03 and goes first.
-3. **The basics carry the value.** 11 of Parent 1's 17 personal rows come from the always-on
-   list, and the four that scale with duration (underwear, socks, t-shirts) are exactly the
-   ones that are re-decided every trip. If only the basics shipped and no activities at all,
-   most of the "same socks every trip" pain would be gone. Worth knowing when sizing 04.
-4. **Sauna earned its place by being nearly empty.** Its three rows all collapse into rows
-   swimming already added. An activity that adds nothing new is still a correct answer; it
-   just means the catalogue is well factored.
+1. **Four taps produce ~88 items.** Milestone 02 already sized the packing page for ~120 items, so this is not a new scale problem, but it is a very different feeling: today items arrive one at a time and each one was a decision. Whether an 88-row list is a relief or a wall is the real question, and it is [open item A5](#open-items).
+2. **The Family bucket is 13 rows, a seventh of the trip.** Cutting accommodation took it down from 22, so it is no longer the biggest single block, but it is still more than half of what a parent carries personally. Parked on Parent 1 it would inflate that parent's list by 75% and make milestone 02's "pack only my things" filter misleading. This is why it became milestone 03 and goes first.
+3. **The basics carry the value.** 11 of Parent 1's 17 personal rows come from the always-on list, and the four that scale with duration (underwear, socks, t-shirts) are exactly the ones that are re-decided every trip. If only the basics shipped and no activities at all, most of the "same socks every trip" pain would be gone. Worth knowing when sizing 04.
+4. **Sauna earned its place by being nearly empty.** Its three rows all collapse into rows swimming already added. An activity that adds nothing new is still a correct answer; it just means the catalogue is well factored.
 
 ## Design questions the draft ran into
 
 ### Overlap: the towel problem
 
-Cottage, Swimming, Sauna and Beach day each want a towel. If they are named "Towel",
-"Swim towel", "Sauna towel" and "Beach towel", the list gets four rows for what is really
-two towels. If they are all named "Towel", they collapse to one row, and one towel for a
-4-day cottage trip with a sauna is too few.
+Cottage, Swimming, Sauna and Beach day each want a towel. If they are named "Towel", "Swim towel", "Sauna towel" and "Beach towel", the list gets four rows for what is really two towels. If they are all named "Towel", they collapse to one row, and one towel for a 4-day cottage trip with a sauna is too few.
 
-Proposal: dedup by name (case-insensitive, which the item table already enforces per member)
-and keep the **highest** quantity, not the sum. Reasoning: a list with one honest "Towel, 2"
-row that a parent bumps to 3 by hand is better than three rows that each look like a
-separate towel. The cost of being wrong is one edit; the cost of three towel rows is
-confusion every time.
+Proposal: dedup by name (case-insensitive, which the item table already enforces per member) and keep the **highest** quantity, not the sum. Reasoning: a list with one honest "Towel, 2" row that a parent bumps to 3 by hand is better than three rows that each look like a separate towel. The cost of being wrong is one edit; the cost of three towel rows is confusion every time.
 
-This makes **naming discipline part of the catalogue's job**. Two activities that mean the
-same object must spell it the same way.
+This makes **naming discipline part of the catalogue's job**. Two activities that mean the same object must spell it the same way.
 
 ### Quantity: fixed or per day
 
-`Underwear, 4 pcs` is wrong for a week and wrong for a weekend. The exact pain the user
-described is not re-deciding *which* items, it is re-deciding *how many*. A fixed number
-means the parent edits underwear, socks and t-shirts on every single trip, which is most of
-the problem left unsolved.
+`Underwear, 4 pcs` is wrong for a week and wrong for a weekend. The exact pain the user described is not re-deciding *which* items, it is re-deciding *how many*. A fixed number means the parent edits underwear, socks and t-shirts on every single trip, which is most of the problem left unsolved.
 
-Proposal: a row's quantity is either a fixed number or a per-day number, and the trip's
-duration is already stored (`domain-model.md`). It is one nullable column and one
-multiplication. This is the one place where the extra field looks worth it, and it is
-[open item A2](#open-items) because it is a scope call, not a technical one.
+Proposal: a row's quantity is either a fixed number or a per-day number, and the trip's duration is already stored (`domain-model.md`). It is one nullable column and one multiplication. This is the one place where the extra field looks worth it, and it is [open item A2](#open-items) because it is a scope call, not a technical one.
 
 ### When are activities chosen, and can they change
 
-Decided (Human-PM): **activities are chosen while creating the trip, and cannot be changed
-afterwards** in this milestone. This removes the preset-vs-linked question entirely: with no
-unselect there is no removal to design, no "which items came from this activity" link to
-store for that purpose, and no rule needed for items that have been edited, hand-added or
-already packed. The trip form is also the natural place for it: you know what the trip is for
-at the moment you create it.
+Decided (Human-PM): **activities are chosen while creating the trip, and cannot be changed afterwards** in this milestone. This removes the preset-vs-linked question entirely: with no unselect there is no removal to design, no "which items came from this activity" link to store for that purpose, and no rule needed for items that have been edited, hand-added or already packed. The trip form is also the natural place for it: you know what the trip is for at the moment you create it.
 
-The escape hatch moves down a level. You cannot un-choose swimming, but you can delete the
-swimsuit rows it produced, using the per-item remove that milestone 01 already built.
+The escape hatch moves down a level. You cannot un-choose swimming, but you can delete the swimsuit rows it produced, using the per-item remove that milestone 01 already built.
 
-**The consequence worth pricing.** A mis-tapped activity is paid for by hand, per item. Snow
-play on a July trip produces 30 rows (6 items for each of 4 people, 2 for the children, 2 for
-the adults, 2 for the family), and there is currently no way to delete a trip either
-(`sql/queries/trip.sql` has ListTrips, CreateTrip and GetTrip, no delete). So today the only
-recovery from one wrong tap is 30 taps.
+**The consequence worth pricing.** A mis-tapped activity is paid for by hand, per item. Snow play on a July trip produces 30 rows (6 items for each of 4 people, 2 for the children, 2 for the adults, 2 for the family), and there is currently no way to delete a trip either (`sql/queries/trip.sql` has ListTrips, CreateTrip and GetTrip, no delete). So today the only recovery from one wrong tap is 30 taps.
 
 Three ways to close that, cheapest first:
 
@@ -327,25 +266,16 @@ Three ways to close that, cheapest first:
 | Review step in the trip form | Layout work, no schema | Catches a mis-tap before it becomes rows, but not after |
 | "Remove this activity's items" | Needs the item-to-activity link back | Reintroduces exactly what this decision avoided |
 
-**Storing the selection is still worth it**, even though it is immutable. It costs one small
-join table and buys two things: the trip page can show what the trip is for, and the post-trip
-review (the distinguishing goal in [`user-flows.md`](user-flows.md)) can eventually ask "were
-the swimming items ever useful?" That question is unanswerable if the activities are only a
-generation step that leaves no trace.
+**Storing the selection is still worth it**, even though it is immutable. It costs one small join table and buys two things: the trip page can show what the trip is for, and the post-trip review (the distinguishing goal in [`user-flows.md`](user-flows.md)) can eventually ask "were the swimming items ever useful?" That question is unanswerable if the activities are only a generation step that leaves no trace.
 
 ### One more: what is this list for
 
 Two philosophies, and the catalogue above picked one without asking:
 
-- **Complete list** (what is drafted): everything that goes in the bag, including socks and
-  a toothbrush. Long, but it is the list you tick through while packing, which is what
-  milestone 02 built.
-- **Reminder list**: only the things that get forgotten. Twenty rows, not a hundred. Faster,
-  but it is not a packing list and the milestone 02 packing page would half-empty.
+- **Complete list** (what is drafted): everything that goes in the bag, including socks and a toothbrush. Long, but it is the list you tick through while packing, which is what milestone 02 built.
+- **Reminder list**: only the things that get forgotten. Twenty rows, not a hundred. Faster, but it is not a packing list and the milestone 02 packing page would half-empty.
 
-The drafted catalogue assumes the first, because milestone 02 already built a page for
-ticking through everything. Flagged so the assumption is visible, not because it looks
-wrong.
+The drafted catalogue assumes the first, because milestone 02 already built a page for ticking through everything. Flagged so the assumption is visible, not because it looks wrong.
 
 ---
 
