@@ -12,7 +12,7 @@ Three milestones, each usable on its own. "Family" means only the Family bucket 
 |---|---|---|---|---|
 | 04 | [Basics](#basics) | A new trip already holds each person's basics and the Family bucket's, sized to the trip's length | Items created together with the trip; per-day quantities ([A2](#open-items)) | Choosing anything: basics are always on. Merging duplicate names, since one source per owner cannot overlap with itself. |
 | 05 | [Shared activities](#shared-activities) | Pick swimming, beach, etc. while creating the trip | Choosing activities on the trip form; merging duplicate names across sources ([towel problem](#overlap-the-towel-problem)) | Choosing who takes part |
-| 06 | [Personal activities](#personal-activities) | "I'm going running" brings only the runner's gear | Choosing an activity's participants while creating the trip | Depends on [A8](#open-items) |
+| 06 | [Personal activities](#personal-activities) | "I'm going running" brings only the runner's gear | Choosing an activity's participants while creating the trip ([A8](#open-items)) | Adding participants after the trip exists ([A9](#open-items)) |
 
 Activities are chosen only while creating the trip, and are never added or removed afterwards ([A4](#open-items), [A9](#open-items)). Anything forgotten is added as an individual item, which milestone 01 already supports.
 
@@ -39,7 +39,7 @@ Every activity is a list of rows. A row is a name, a quantity, and who it is for
 
 | Column | Values | Notes |
 |---|---|---|
-| Item | free text | This is the name that appears on the packing list. Names must match across activities, or dedup fails (see [Overlap](#overlap-the-towel-problem)). |
+| Item | free text | This is the name that appears on the packing list. Singular ("Dress, 2", not "Dresses, 2"), and one name per object everywhere in the catalogue ("Hairbrush", never also "Brush"), or dedup and cross-trip reuse fail ([A13](#open-items), see [Overlap](#overlap-the-towel-problem)). |
 | Qty | a number, or `n/day` | `1/day` on a 3-night trip means 4 (days, not nights). See [Quantity](#quantity-fixed-or-per-day). |
 | Who | `Everyone`, `Adults`, `Children`, a named member, `Family` | `Family` means one for the whole trip, not one each. Where it is stored is milestone 03's job, not this one's. |
 
@@ -51,81 +51,107 @@ The four members are fixed and seeded: Parent 1, Parent 2, Child 1, Child 2 (see
 
 Milestone 04. Not chosen, always on. This is the part that is boring to redo every trip, so it carries most of the value. It is also where `n/day` matters most: underwear for a weekend and underwear for a week are different lists.
 
-Each person has their own fixed list, because one parent's basics are not the other's. Whether they are written out per person or as a shared base plus differences is [A10](#open-items), open until the lists below are adjusted to match reality. They are the drafted shared list expanded per person, unverified.
+Each person has their own list, written out in full, because the lists share only about half their items ([A10](#open-items)). The lists are fixed in 04; letting parents adjust them is a later milestone.
 
-Accepted for 04 ([A12](#open-items)): basics ignore the season (a July and a January trip get the same outdoor jacket; winter gear comes from snow play), and trips created before 04 get no basics.
+Accepted for 04 ([A12](#open-items)): basics ignore the season, and trips created before 04 get no basics. A seasonal item is written generically: Child 1's "Hat" is a woolly hat in winter and a cap in summer, and the parent picks which when packing. Seasonal trip planning is a later milestone.
 
 ### Parent 1
+
+Reviewed by Parent 1, 2026-09-25.
 
 | Item | Qty |
 |---|---|
 | Underwear | 1/day + 1 |
 | Socks | 1/day + 1 |
 | T-shirt | 1/day |
-| Trousers | 2 |
-| Jumper | 1 |
-| Pyjamas | 1 |
+| Sweatpants | 1 |
+| Khakis | 1 |
+| Belt | 1 |
+| Long shirt | 1 |
+| Hoodie | 1 |
 | Outdoor jacket | 1 |
 | Toothbrush | 1 |
 | Water bottle | 1 |
 | Phone charger | 1 |
 | Wallet and keys | 1 |
+| Deodorant | 1 |
 
 ### Parent 2
+
+Quick edit by Parent 1; to be reviewed with Parent 2.
 
 | Item | Qty |
 |---|---|
 | Underwear | 1/day + 1 |
-| Socks | 1/day + 1 |
+| Socks | 1/day + 2 |
 | T-shirt | 1/day |
 | Trousers | 2 |
 | Jumper | 1 |
 | Pyjamas | 1 |
 | Outdoor jacket | 1 |
 | Toothbrush | 1 |
+| Hairbrush | 1 |
 | Water bottle | 1 |
 | Phone charger | 1 |
 | Wallet and keys | 1 |
 
 ### Child 1
 
+Quick edit by Parent 1; to be reviewed with Parent 2.
+
 | Item | Qty |
 |---|---|
 | Underwear | 1/day + 1 |
 | Socks | 1/day + 1 |
 | T-shirt | 1/day |
 | Trousers | 2 |
-| Jumper | 1 |
+| Dress | 2 |
+| Long-sleeved shirt | 2 |
+| Hat | 1 |
+| Gloves | 1 |
 | Pyjamas | 1 |
 | Outdoor jacket | 1 |
 | Toothbrush | 1 |
 | Water bottle | 1 |
-| Comfort toy | 1 |
+| Small towel | 1 |
+| Sleep bunny | 1 |
+| Hairbrush | 1 |
 
 ### Child 2
 
+Quick edit by Parent 1; to be reviewed with Parent 2.
+
 | Item | Qty |
 |---|---|
-| Underwear | 1/day + 1 |
 | Socks | 1/day + 1 |
 | T-shirt | 1/day |
 | Trousers | 2 |
-| Jumper | 1 |
+| Long-sleeved shirt | 2 |
 | Pyjamas | 1 |
 | Outdoor jacket | 1 |
 | Toothbrush | 1 |
 | Water bottle | 1 |
 | Comfort toy | 1 |
+| Sleeping bag | 1 |
+| Pacifier | 2 |
+| Small towel | 1 |
 | Nappies | 6/day |
+| Hairbrush | 1 |
 
 ### Family
 
+Quick edit by Parent 1; to be reviewed with Parent 2.
+
 | Item | Qty |
 |---|---|
-| Toothpaste | 1 |
-| Hairbrush | 1 |
+| Kids toothpaste | 1 |
+| Adults toothpaste | 1 |
 | Wet wipes | 1 |
-| First aid kit | 1 |
+| Painkillers | 1 |
+| Double stroller | 1 |
+| Stroller rain cover | 2 |
+
+The double stroller comes on every trip, with one rain cover per seat ([A14](#open-items)). A light single stroller for some trips is added as an individual item. There is no first aid kit on purpose: the medical things are too big for one kit and are listed as individual items, starting with painkillers ([A15](#open-items)).
 
 ---
 
@@ -225,7 +251,6 @@ Assumes snow play is also selected; this adds only the gear on top of the warm c
 |---|---|---|
 | Small backpack | 1 | Adults |
 | Change of clothes | 1 | Children |
-| Pushchair | 1 | Family |
 | Umbrella | 1 | Family |
 | Snacks | 1 | Family |
 
@@ -252,7 +277,7 @@ Assumes snow play is also selected; this adds only the gear on top of the warm c
 
 ## Personal activities
 
-Milestone 06. Something one or some of us do, not the whole family. Rows have no Who column: they apply to whoever the activity is chosen for on the trip form. Whether this needs its own milestone at all is [A8](#open-items).
+Milestone 06. Something one or some of us do, not the whole family. Rows have no Who column: they apply to whoever the activity is chosen for on the trip form ([A8](#open-items)).
 
 ### Running
 
@@ -383,13 +408,16 @@ Decided by Human-PM, 2026-09-25:
 |---|---|---|
 | A9 | Can activities be added to a trip after it is created? | **No.** Activities are chosen only on the trip form. Anything forgotten is added as an individual item. |
 | A11 | "Family" was about to mean the bucket, the basics and the shared activities. Rename? | **Yes.** "Family" means only the bucket. The sources are Basics, Shared activities and Personal activities. |
-| A12 | Basics ignore the season, and trips created before 04 get no basics. OK? | **Yes, both accepted** for milestone 04. |
+| A8 | Are personal activities their own milestone (06), with a participant picker on the trip form? | **Yes.** Chosen over folding fixed-person activities into 05. |
+| A10 | Basics written per person, or as a shared base plus per-person differences? | **Per person, written out.** Fixed in 04; parents adjusting their basics is a later milestone. |
+| A12 | Basics ignore the season, and trips created before 04 get no basics. OK? | **Yes, both accepted** for milestone 04. A seasonal basic is written generically ("Hat" = woolly hat or cap). Seasonal trip planning is a later milestone. |
+| A13 | Naming rule for catalogue items? | **Singular names, one name per object** across the whole catalogue. |
+| A14 | Keep Pushchair in City day, now that a double stroller is in the Family basics? | **No, removed.** The double stroller is the default; a light single stroller is added by hand when a trip needs it. |
+| A15 | Family basics dropped the first aid kit. Deliberate? | **Yes.** Medical things are listed as individual items because they do not fit one kit. |
 
 Still open:
 
 | # | Question | Draft's assumption |
 |---|---|---|
-| A5 | Is ~88 generated rows the right outcome, or should activities be leaner? | Complete list, matching what milestone 02 packs. Parked until milestone 03 lands. |
-| A6 | Is the content right: activities missing, ones you would never pick, wrong items? | Drafted unverified. Kept as-is for review after milestone 03. |
-| A8 | Are personal activities their own milestone (06), with a participant picker on the trip form? | Human-PM leans yes. Counter-argument: an activity only one person ever does (running) can be a shared-activity entry whose rows are all for that person, with no picker. The picker earns its cost only when the same activity has different participants on different trips. |
-| A10 | Basics written per person, or as a shared base plus per-person differences? | Open until Human-PM adjusts the [basics lists](#basics). Recommendation: per person, written out. |
+| A5 | Is ~88 generated rows the right outcome, or should activities be leaner? | Complete list, matching what milestone 02 packs. The [worked example](#worked-example-does-it-produce-the-right-list) still counts the old basics; recount once the basics are reviewed with Parent 2. |
+| A6 | Is the content right: activities missing, ones you would never pick, wrong items? | Drafted unverified; review before milestone 05. Known clashes with the new basics: Child 1's "Hat" vs Snow play's "Woolly hat" and Beach's "Sun hat"; Parent 1's khakis and long shirt vs Eating out's "Nicer outfit". |
