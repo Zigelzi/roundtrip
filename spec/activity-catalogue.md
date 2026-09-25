@@ -106,7 +106,7 @@ Quick edit by Parent 1; to be reviewed with Parent 2.
 
 ### Child 1
 
-Reviewed by Parent 1 and Parent 2, 2026-09-25.
+Reviewed by Parent 1 and Parent 2, 2026-09-25. Underwear is 2/day + 1 because Child 1 is potty training and changes more often.
 
 | Item | Qty |
 |---|---|
