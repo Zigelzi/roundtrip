@@ -69,9 +69,11 @@ Reviewed by Parent 1, 2026-09-25.
 | Sweatpants | 1 |
 | Khakis | 1 |
 | Belt | 1 |
-| Long shirt | 1 |
+| Long-sleeved shirt | 1 |
 | Hoodie | 1 |
 | Outdoor jacket | 1 |
+| Hat | 1 |
+| Gloves | 1 |
 | Shoes | 2 |
 | Toothbrush | 1 |
 | Water bottle | 1 |
@@ -90,8 +92,11 @@ Quick edit by Parent 1; to be reviewed with Parent 2.
 | T-shirt | 1/day |
 | Trousers | 2 |
 | Jumper | 1 |
+| Long-sleeved shirt | 1 |
 | Pyjamas | 1 |
 | Outdoor jacket | 1 |
+| Hat | 1 |
+| Gloves | 1 |
 | Shoes | 2 |
 | Toothbrush | 1 |
 | Hairbrush | 1 |
@@ -106,7 +111,7 @@ Reviewed by Parent 1 and Parent 2, 2026-09-25.
 | Item | Qty |
 |---|---|
 | Underwear | 2/day + 1 |
-| Socks | 1/day |
+| Socks | 1/day + 1 |
 | Outfit | 1/day + 1 |
 | Long-sleeved shirt | 2 |
 | Hat | 1 |
@@ -120,7 +125,7 @@ Reviewed by Parent 1 and Parent 2, 2026-09-25.
 | Toothbrush | 1 |
 | Water bottle | 1 |
 | Small towel | 1 |
-| Sleep bunny | 1 |
+| Sleep toy | 4 |
 | Hairbrush | 1 |
 | Hair spray | 1 |
 | Hair tie | 1/day |
@@ -134,13 +139,15 @@ Reviewed by Parent 1 and Parent 2, 2026-09-25.
 | Socks | 1/day + 1 |
 | Outfit | 1/day + 1 |
 | Long-sleeved shirt | 2 |
+| Hat | 1 |
+| Gloves | 1 |
 | Pyjamas | 1 |
 | Outdoor jacket | 1 |
 | Outdoor overalls | 1 |
 | Shoes | 2 |
 | Toothbrush | 1 |
 | Water bottle | 1 |
-| Comfort toy | 1 |
+| Sleep toy | 1 |
 | Sleeping bag | 1 |
 | Pacifier | 2 |
 | Small towel | 1 |
@@ -183,7 +190,7 @@ Milestone 05. Things the family does together. A row can still be for a subset (
 | Flip flops | 1 | Everyone |
 | Goggles | 1 | Adults, Child 1 |
 | Float vest | 1 | Children |
-| Swim nappy | 2/day | Child 2 |
+| Swim nappy | 2 | Children |
 | Shampoo | 1 | Family |
 | Bag for wet swimsuits | 1 | Family |
 
@@ -317,14 +324,16 @@ Every member side by side, so a gap between them is visible: a blank cell means 
 | Item | From | Parent 1 | Parent 2 | Child 1 | Child 2 | Family |
 |---|---|---|---|---|---|---|
 | Underwear | Basics | 4 | 4 | 7 |  |  |
-| Socks | Basics | 4 | 5 | 3 | 4 |  |
+| Socks | Basics | 4 | 5 | 4 | 4 |  |
 | T-shirt | Basics | 3 | 3 |  |  |  |
 | Sweatpants | Basics | 1 |  |  |  |  |
 | Khakis | Basics | 1 |  |  |  |  |
 | Belt | Basics | 1 |  |  |  |  |
-| Long shirt | Basics | 1 |  |  |  |  |
+| Long-sleeved shirt | Basics | 1 | 1 | 2 | 2 |  |
 | Hoodie | Basics | 1 |  |  |  |  |
 | Outdoor jacket | Basics | 1 | 1 | 1 | 1 |  |
+| Hat | Basics | 1 | 1 | 1 | 1 |  |
+| Gloves | Basics | 1 | 1 | 1 | 1 |  |
 | Shoes | Basics | 2 | 2 | 2 | 2 |  |
 | Toothbrush | Basics | 1 | 1 | 1 | 1 |  |
 | Water bottle | Basics | 1 | 1 | 1 | 1 |  |
@@ -336,18 +345,14 @@ Every member side by side, so a gap between them is visible: a blank cell means 
 | Pyjamas | Basics |  | 1 |  | 1 |  |
 | Hairbrush | Basics |  | 1 | 1 | 1 |  |
 | Outfit | Basics |  |  | 4 | 4 |  |
-| Long-sleeved shirt | Basics |  |  | 2 | 2 |  |
-| Hat | Basics |  |  | 1 |  |  |
-| Gloves | Basics |  |  | 1 |  |  |
 | Pyjama dress | Basics |  |  | 1 |  |  |
 | Pyjama pants | Basics |  |  | 1 |  |  |
 | Pyjama socks | Basics |  |  | 1 |  |  |
 | Outdoor overalls | Basics |  |  | 1 | 1 |  |
 | Small towel | Basics |  |  | 1 | 1 |  |
-| Sleep bunny | Basics |  |  | 1 |  |  |
+| Sleep toy | Basics |  |  | 4 | 1 |  |
 | Hair spray | Basics |  |  | 1 |  |  |
 | Hair tie | Basics |  |  | 3 |  |  |
-| Comfort toy | Basics |  |  |  | 1 |  |
 | Sleeping bag | Basics |  |  |  | 1 |  |
 | Pacifier | Basics |  |  |  | 2 |  |
 | Nappies | Basics |  |  |  | 18 |  |
@@ -362,7 +367,7 @@ Every member side by side, so a gap between them is visible: a blank cell means 
 | Flip flops | Swimming | 1 | 1 | 1 | 1 |  |
 | Goggles | Swimming | 1 | 1 | 1 |  |  |
 | Float vest | Swimming |  |  | 1 | 1 |  |
-| Swim nappy | Swimming |  |  |  | 6 |  |
+| Swim nappy | Swimming |  |  | 2 | 2 |  |
 | Shampoo | Swimming |  |  |  |  | 1 |
 | Bag for wet swimsuits | Swimming |  |  |  |  | 1 |
 
@@ -370,19 +375,19 @@ Every member side by side, so a gap between them is visible: a blank cell means 
 
 | Bucket | From basics | From swimming | Total |
 |---|---|---|---|
-| Parent 1 | 15 | 4 | 19 |
-| Parent 2 | 13 | 4 | 17 |
-| Child 1 | 19 | 5 | 24 |
-| Child 2 | 15 | 5 | 20 |
+| Parent 1 | 17 | 4 | 21 |
+| Parent 2 | 16 | 4 | 20 |
+| Child 1 | 19 | 6 | 25 |
+| Child 2 | 17 | 5 | 22 |
 | Family | 6 | 2 | 8 |
-| **Total** | **68** | **20** | **88** |
+| **Total** | **75** | **21** | **96** |
 
 ### What the example shows
 
-1. **A weekend with one activity is 88 rows**, the same count the old 4-day, four-activity example reached. The growth came from the reviewed basics, not from activities. So if the list turns out too long ([A5](#open-items)), the basics are where it would have to get leaner.
-2. **The basics carry the value.** 68 of 88 rows come from them, including every row that scales with the trip's length (underwear, socks, t-shirts, outfits, hair ties, nappies). If only the basics shipped, most of the list would already exist.
-3. **Swimming gives each child a second towel.** The basics have "Small towel" and swimming adds "Towel". Different names do not merge, which is right if the small towel is for washing and wrong if it is the swim towel.
-4. **Spares weigh most on short trips.** `1/day + 1` gives 4 pairs of underwear for 2 nights, and Child 2 gets 18 nappies plus 6 swim nappies. Worth a sanity check against what a weekend bag really holds.
+1. **A weekend with one activity is 96 rows**, more than the 88 the old 4-day, four-activity example reached. The growth came from the reviewed basics, not from activities. So if the list turns out too long ([A5](#open-items)), the basics are where it would have to get leaner.
+2. **The basics carry the value.** 75 of 96 rows come from them, including every row that scales with the trip's length (underwear, socks, t-shirts, outfits, hair ties, nappies). If only the basics shipped, most of the list would already exist.
+3. **Two towels per child is correct.** The basics' "Small towel" is for washing and swimming's "Towel" is for swimming, so the different names keeping them apart is intended.
+4. **The per-day spares hold up on a short trip.** `1/day + 1` gives 4 pairs of underwear for 2 nights, and Child 2 gets 18 nappies; Human-PM confirmed both match a real weekend bag. Swim nappies were the exception: they follow swimming sessions, not days, so they are a fixed 2 per child.
 
 ## Design questions the draft ran into
 
@@ -459,5 +464,5 @@ Still open:
 
 | # | Question | Draft's assumption |
 |---|---|---|
-| A5 | Is ~88 generated rows the right outcome, or should the list be leaner? | Complete list, matching what milestone 02 packs. The [worked example](#worked-example-does-it-produce-the-right-list) reaches 88 rows on a one-activity weekend, 68 of them from the basics. |
+| A5 | Is ~88 generated rows the right outcome, or should the list be leaner? | Complete list, matching what milestone 02 packs. The [worked example](#worked-example-does-it-produce-the-right-list) reaches 96 rows on a one-activity weekend, 75 of them from the basics. |
 | A6 | Is the content right: activities missing, ones you would never pick, wrong items? | Drafted unverified; review before milestone 05. Known clashes with the new basics: Child 1's "Hat" vs Snow play's "Woolly hat" and Beach's "Sun hat"; Parent 1's khakis and long shirt vs Eating out's "Nicer outfit". |
