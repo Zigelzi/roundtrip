@@ -16,7 +16,7 @@ Three milestones, each usable on its own. "Family" means only the Family bucket 
 
 Activities are chosen only while creating the trip, and are never added or removed afterwards ([A4](#open-items), [A9](#open-items)). Anything forgotten is added as an individual item, which milestone 01 already supports.
 
-Basics carry most of the value (see [the worked example](#what-the-example-shows), point 3), which is why they go first.
+Basics carry most of the value (see [the worked example](#what-the-example-shows), point 2), which is why they go first.
 
 ## The idea in one line
 
@@ -72,6 +72,7 @@ Reviewed by Parent 1, 2026-09-25.
 | Long shirt | 1 |
 | Hoodie | 1 |
 | Outdoor jacket | 1 |
+| Shoes | 2 |
 | Toothbrush | 1 |
 | Water bottle | 1 |
 | Phone charger | 1 |
@@ -91,6 +92,7 @@ Quick edit by Parent 1; to be reviewed with Parent 2.
 | Jumper | 1 |
 | Pyjamas | 1 |
 | Outdoor jacket | 1 |
+| Shoes | 2 |
 | Toothbrush | 1 |
 | Hairbrush | 1 |
 | Water bottle | 1 |
@@ -113,6 +115,8 @@ Reviewed by Parent 1 and Parent 2, 2026-09-25.
 | Pyjama pants | 1 |
 | Pyjama socks | 1 |
 | Outdoor jacket | 1 |
+| Outdoor overalls | 1 |
+| Shoes | 2 |
 | Toothbrush | 1 |
 | Water bottle | 1 |
 | Small towel | 1 |
@@ -132,6 +136,8 @@ Reviewed by Parent 1 and Parent 2, 2026-09-25.
 | Long-sleeved shirt | 2 |
 | Pyjamas | 1 |
 | Outdoor jacket | 1 |
+| Outdoor overalls | 1 |
+| Shoes | 2 |
 | Toothbrush | 1 |
 | Water bottle | 1 |
 | Comfort toy | 1 |
@@ -161,8 +167,6 @@ The double stroller comes on every trip, with one rain cover per seat ([A14](#op
 ## Where we sleep: out of scope
 
 Decided (Human-PM): an activity is strictly *what we do*, not where we sleep. Cottage, hotel, camping and staying with relatives were drafted here and have been cut. They are a different kind of choice (you pick exactly one, and it mostly changes what the *place* supplies rather than what you do there), so folding them into the same list would have made "select the activities" mean two things at once. If accommodation earns a feature later it gets its own milestone and its own field.
-
-The cut removes the single largest source of Family items from the worked example below, which is worth re-checking once milestone 03 lands.
 
 ---
 
@@ -302,51 +306,83 @@ Named so the list is visibly incomplete on purpose, and so we can see whether th
 
 ## Worked example: does it produce the right list?
 
-**Trip:** cottage in Punkaharju, 4 days / 3 nights, July. **Activities selected:** Swimming, Sauna, Beach day, Long car drive. Basics are always on. Four taps in total. (Where the family sleeps no longer contributes anything, per the cut above.)
+**Trip:** Parainen, Friday to Sunday, 3 days / 2 nights. **Activities selected:** Swimming. Basics are always on. One tap in total. Per-day quantities use 3 (days, not nights).
 
-### What Parent 1 ends up with
+This replaces an earlier 4-day Punkaharju example with four activities, which counted the drafted basics before they were reviewed.
 
-Personal items, 17 of them:
+### The list
 
-| Item | Qty | From |
-|---|---|---|
-| Underwear | 5 | Basics (1/day + 1) |
-| Socks | 5 | Basics (1/day + 1) |
-| T-shirt | 4 | Basics (1/day) |
-| Trousers | 2 | Basics |
-| Jumper | 1 | Basics |
-| Pyjamas | 1 | Basics |
-| Outdoor jacket | 1 | Basics |
-| Toothbrush | 1 | Basics |
-| Water bottle | 1 | Basics |
-| Phone charger | 1 | Basics |
-| Wallet and keys | 1 | Basics |
-| Swimsuit | 1 | Swimming |
-| Towel | 1 | Swimming + Sauna + Beach (collapsed) |
-| Flip flops | 1 | Swimming + Sauna (collapsed) |
-| Goggles | 1 | Swimming |
-| Sun hat | 1 | Beach |
-| Travel pillow | 1 | Car |
+Every member side by side, so a gap between them is visible: a blank cell means that person gets no such item. Quantities are after the per-day multiplication. No name appears in both the basics and swimming for the same person, so nothing collapses on this trip.
 
-Family items, 13 of them: toothpaste, hairbrush, wet wipes, first aid kit, shampoo, bag for wet swimsuits, sunscreen, picnic blanket, cool bag, snacks, window sunshade, car snacks, sick bags.
+| Item | From | Parent 1 | Parent 2 | Child 1 | Child 2 | Family |
+|---|---|---|---|---|---|---|
+| Underwear | Basics | 4 | 4 | 7 |  |  |
+| Socks | Basics | 4 | 5 | 3 | 4 |  |
+| T-shirt | Basics | 3 | 3 |  |  |  |
+| Sweatpants | Basics | 1 |  |  |  |  |
+| Khakis | Basics | 1 |  |  |  |  |
+| Belt | Basics | 1 |  |  |  |  |
+| Long shirt | Basics | 1 |  |  |  |  |
+| Hoodie | Basics | 1 |  |  |  |  |
+| Outdoor jacket | Basics | 1 | 1 | 1 | 1 |  |
+| Shoes | Basics | 2 | 2 | 2 | 2 |  |
+| Toothbrush | Basics | 1 | 1 | 1 | 1 |  |
+| Water bottle | Basics | 1 | 1 | 1 | 1 |  |
+| Phone charger | Basics | 1 | 1 |  |  |  |
+| Wallet and keys | Basics | 1 | 1 |  |  |  |
+| Deodorant | Basics | 1 |  |  |  |  |
+| Trousers | Basics |  | 2 |  |  |  |
+| Jumper | Basics |  | 1 |  |  |  |
+| Pyjamas | Basics |  | 1 |  | 1 |  |
+| Hairbrush | Basics |  | 1 | 1 | 1 |  |
+| Outfit | Basics |  |  | 4 | 4 |  |
+| Long-sleeved shirt | Basics |  |  | 2 | 2 |  |
+| Hat | Basics |  |  | 1 |  |  |
+| Gloves | Basics |  |  | 1 |  |  |
+| Pyjama dress | Basics |  |  | 1 |  |  |
+| Pyjama pants | Basics |  |  | 1 |  |  |
+| Pyjama socks | Basics |  |  | 1 |  |  |
+| Outdoor overalls | Basics |  |  | 1 | 1 |  |
+| Small towel | Basics |  |  | 1 | 1 |  |
+| Sleep bunny | Basics |  |  | 1 |  |  |
+| Hair spray | Basics |  |  | 1 |  |  |
+| Hair tie | Basics |  |  | 3 |  |  |
+| Comfort toy | Basics |  |  |  | 1 |  |
+| Sleeping bag | Basics |  |  |  | 1 |  |
+| Pacifier | Basics |  |  |  | 2 |  |
+| Nappies | Basics |  |  |  | 18 |  |
+| Kids toothpaste | Basics |  |  |  |  | 1 |
+| Adults toothpaste | Basics |  |  |  |  | 1 |
+| Wet wipes | Basics |  |  |  |  | 1 |
+| Painkillers | Basics |  |  |  |  | 1 |
+| Double stroller | Basics |  |  |  |  | 1 |
+| Stroller rain cover | Basics |  |  |  |  | 2 |
+| Swimsuit | Swimming | 1 | 1 | 1 | 1 |  |
+| Towel | Swimming | 1 | 1 | 1 | 1 |  |
+| Flip flops | Swimming | 1 | 1 | 1 | 1 |  |
+| Goggles | Swimming | 1 | 1 | 1 |  |  |
+| Float vest | Swimming |  |  | 1 | 1 |  |
+| Swim nappy | Swimming |  |  |  | 6 |  |
+| Shampoo | Swimming |  |  |  |  | 1 |
+| Bag for wet swimsuits | Swimming |  |  |  |  | 1 |
 
-### Totals for the trip
+### Totals
 
-| Bucket | Items |
-|---|---|
-| Parent 1 | 17 |
-| Parent 2 | 17 |
-| Child 1 | 20 |
-| Child 2 | 21 |
-| Family | 13 |
-| **Total** | **88** |
+| Bucket | From basics | From swimming | Total |
+|---|---|---|---|
+| Parent 1 | 15 | 4 | 19 |
+| Parent 2 | 13 | 4 | 17 |
+| Child 1 | 19 | 5 | 24 |
+| Child 2 | 15 | 5 | 20 |
+| Family | 6 | 2 | 8 |
+| **Total** | **68** | **20** | **88** |
 
 ### What the example shows
 
-1. **Four taps produce ~88 items.** Milestone 02 already sized the packing page for ~120 items, so this is not a new scale problem, but it is a very different feeling: today items arrive one at a time and each one was a decision. Whether an 88-row list is a relief or a wall is the real question, and it is [open item A5](#open-items).
-2. **The Family bucket is 13 rows, a seventh of the trip.** Cutting accommodation took it down from 22, so it is no longer the biggest single block, but it is still more than half of what a parent carries personally. Parked on Parent 1 it would inflate that parent's list by 75% and make milestone 02's "pack only my things" filter misleading. This is why it became milestone 03 and goes first.
-3. **The basics carry the value.** 11 of Parent 1's 17 personal rows come from the always-on list, and the four that scale with duration (underwear, socks, t-shirts) are exactly the ones that are re-decided every trip. If only the basics shipped and no activities at all, most of the "same socks every trip" pain would be gone. Worth knowing when sizing 04.
-4. **Sauna earned its place by being nearly empty.** Its three rows all collapse into rows swimming already added. An activity that adds nothing new is still a correct answer; it just means the catalogue is well factored.
+1. **A weekend with one activity is 88 rows**, the same count the old 4-day, four-activity example reached. The growth came from the reviewed basics, not from activities. So if the list turns out too long ([A5](#open-items)), the basics are where it would have to get leaner.
+2. **The basics carry the value.** 68 of 88 rows come from them, including every row that scales with the trip's length (underwear, socks, t-shirts, outfits, hair ties, nappies). If only the basics shipped, most of the list would already exist.
+3. **Swimming gives each child a second towel.** The basics have "Small towel" and swimming adds "Towel". Different names do not merge, which is right if the small towel is for washing and wrong if it is the swim towel.
+4. **Spares weigh most on short trips.** `1/day + 1` gives 4 pairs of underwear for 2 nights, and Child 2 gets 18 nappies plus 6 swim nappies. Worth a sanity check against what a weekend bag really holds.
 
 ## Design questions the draft ran into
 
@@ -423,5 +459,5 @@ Still open:
 
 | # | Question | Draft's assumption |
 |---|---|---|
-| A5 | Is ~88 generated rows the right outcome, or should activities be leaner? | Complete list, matching what milestone 02 packs. The [worked example](#worked-example-does-it-produce-the-right-list) still counts the old basics; recount once the basics are reviewed with Parent 2. |
+| A5 | Is ~88 generated rows the right outcome, or should the list be leaner? | Complete list, matching what milestone 02 packs. The [worked example](#worked-example-does-it-produce-the-right-list) reaches 88 rows on a one-activity weekend, 68 of them from the basics. |
 | A6 | Is the content right: activities missing, ones you would never pick, wrong items? | Drafted unverified; review before milestone 05. Known clashes with the new basics: Child 1's "Hat" vs Snow play's "Woolly hat" and Beach's "Sun hat"; Parent 1's khakis and long shirt vs Eating out's "Nicer outfit". |
