@@ -55,6 +55,8 @@ Each person has their own list, written out in full, because the lists share onl
 
 Accepted for 04 ([A12](#open-items)): basics ignore the season, and trips created before 04 get no basics. A seasonal item is written generically: Child 1's "Hat" is a woolly hat in winter and a cap in summer, and the parent picks which when packing. Seasonal trip planning is a later milestone.
 
+The children's day clothes are one row, "Outfit", because they are packed as a bundle per day and the bundle is what gets ticked ([A16](#open-items)). An outfit is a top (a t-shirt or a dress) and trousers. Underwear, socks and long-sleeved shirts stay separate rows. What goes into each bundle is decided when packing.
+
 ### Parent 1
 
 Reviewed by Parent 1, 2026-09-25.
@@ -97,35 +99,36 @@ Quick edit by Parent 1; to be reviewed with Parent 2.
 
 ### Child 1
 
-Quick edit by Parent 1; to be reviewed with Parent 2.
+Reviewed by Parent 1 and Parent 2, 2026-09-25.
 
 | Item | Qty |
 |---|---|
-| Underwear | 1/day + 1 |
-| Socks | 1/day + 1 |
-| T-shirt | 1/day |
-| Trousers | 2 |
-| Dress | 2 |
+| Underwear | 2/day + 1 |
+| Socks | 1/day |
+| Outfit | 1/day + 1 |
 | Long-sleeved shirt | 2 |
 | Hat | 1 |
 | Gloves | 1 |
-| Pyjamas | 1 |
+| Pyjama dress | 1 |
+| Pyjama pants | 1 |
+| Pyjama socks | 1 |
 | Outdoor jacket | 1 |
 | Toothbrush | 1 |
 | Water bottle | 1 |
 | Small towel | 1 |
 | Sleep bunny | 1 |
 | Hairbrush | 1 |
+| Hair spray | 1 |
+| Hair tie | 1/day |
 
 ### Child 2
 
-Quick edit by Parent 1; to be reviewed with Parent 2.
+Reviewed by Parent 1 and Parent 2, 2026-09-25.
 
 | Item | Qty |
 |---|---|
 | Socks | 1/day + 1 |
-| T-shirt | 1/day |
-| Trousers | 2 |
+| Outfit | 1/day + 1 |
 | Long-sleeved shirt | 2 |
 | Pyjamas | 1 |
 | Outdoor jacket | 1 |
@@ -414,6 +417,7 @@ Decided by Human-PM, 2026-09-25:
 | A13 | Naming rule for catalogue items? | **Singular names, one name per object** across the whole catalogue. |
 | A14 | Keep Pushchair in City day, now that a double stroller is in the Family basics? | **No, removed.** The double stroller is the default; a light single stroller is added by hand when a trip needs it. |
 | A15 | Family basics dropped the first aid kit. Deliberate? | **Yes.** Medical things are listed as individual items because they do not fit one kit. |
+| A16 | How are the children's day clothes, which vary by day (t-shirt and trousers, or dress and trousers), written? | **One "Outfit, 1/day + 1" row per child**, because the family packs a bundle per day. Outfit = a top (t-shirt or dress) and trousers. Considered and rejected: generic slots (Top / Bottom per day), and outfits as groups of items, which would need a new entity. |
 
 Still open:
 
