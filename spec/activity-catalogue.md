@@ -1,8 +1,22 @@
 # Activity catalogue (draft)
 
-**Status:** draft, not yet specced or built. Feeds **milestone 04**, not 03: drafting this surfaced the Family-items problem (see [open item A3](#open-items)), which was split out into milestone 03 because it changes what an item is. Serves [`user-flows.md`](user-flows.md) step 1 ("plan what activities we're doing") and step 2 ("plan what to pack based on that").
+**Status:** draft, not yet specced or built. Feeds **milestones 04 to 06** (see [How this is split](#how-this-is-split)). Drafting this surfaced the Family-items problem (see [open item A3](#open-items)), which was split out into milestone 03 because it changes what an item is. Serves [`user-flows.md`](user-flows.md) step 1 ("plan what activities we're doing") and step 2 ("plan what to pack based on that").
 
-This file exists to answer one question before any code is written: *if we had this, would the packing list it produces actually be the list we'd write by hand?* It drafts the activities, the items behind them, and a worked example trip so the result can be judged on paper. The milestone spec (`milestones/03-*.md`) comes after this is agreed.
+This file exists to answer one question before any code is written: *if we had this, would the packing list it produces actually be the list we'd write by hand?* It drafts the activities, the items behind them, and a worked example trip so the result can be judged on paper. Each milestone spec comes after its part of this file is agreed.
+
+## How this is split
+
+Three milestones, each usable on its own. "Family" means only the Family bucket from milestone 03 ([A11](#open-items)); the sources of generated items are called Basics, Shared activities and Personal activities.
+
+| # | Milestone | What the family gets | What it adds to the app | Deliberately left out |
+|---|---|---|---|---|
+| 04 | [Basics](#basics) | A new trip already holds each person's basics and the Family bucket's, sized to the trip's length | Items created together with the trip; per-day quantities ([A2](#open-items)) | Choosing anything: basics are always on. Merging duplicate names, since one source per owner cannot overlap with itself. |
+| 05 | [Shared activities](#shared-activities) | Pick swimming, beach, etc. while creating the trip | Choosing activities on the trip form; merging duplicate names across sources ([towel problem](#overlap-the-towel-problem)) | Choosing who takes part |
+| 06 | [Personal activities](#personal-activities) | "I'm going running" brings only the runner's gear | Choosing an activity's participants while creating the trip | Depends on [A8](#open-items) |
+
+Activities are chosen only while creating the trip, and are never added or removed afterwards ([A4](#open-items), [A9](#open-items)). Anything forgotten is added as an individual item, which milestone 01 already supports.
+
+Basics carry most of the value (see [the worked example](#what-the-example-shows), point 3), which is why they go first.
 
 ## The idea in one line
 
@@ -33,31 +47,85 @@ The four members are fixed and seeded: Parent 1, Parent 2, Child 1, Child 2 (see
 
 ---
 
-## Always applied
+## Basics
 
-### Everyday basics
+Milestone 04. Not chosen, always on. This is the part that is boring to redo every trip, so it carries most of the value. It is also where `n/day` matters most: underwear for a weekend and underwear for a week are different lists.
 
-Not chosen, always on. This is the part that is boring to redo every trip, so it carries most of the value. It is also where `n/day` matters most: underwear for a weekend and underwear for a week are different lists.
+Each person has their own fixed list, because one parent's basics are not the other's. Whether they are written out per person or as a shared base plus differences is [A10](#open-items), open until the lists below are adjusted to match reality. They are the drafted shared list expanded per person, unverified.
 
-| Item | Qty | Who |
-|---|---|---|
-| Underwear | 1/day + 1 | Everyone |
-| Socks | 1/day + 1 | Everyone |
-| T-shirt | 1/day | Everyone |
-| Trousers | 2 | Everyone |
-| Jumper | 1 | Everyone |
-| Pyjamas | 1 | Everyone |
-| Outdoor jacket | 1 | Everyone |
-| Toothbrush | 1 | Everyone |
-| Water bottle | 1 | Everyone |
-| Comfort toy | 1 | Children |
-| Nappies | 6/day | Child 2 |
-| Phone charger | 1 | Adults |
-| Wallet and keys | 1 | Adults |
-| Toothpaste | 1 | Family |
-| Hairbrush | 1 | Family |
-| Wet wipes | 1 | Family |
-| First aid kit | 1 | Family |
+Accepted for 04 ([A12](#open-items)): basics ignore the season (a July and a January trip get the same outdoor jacket; winter gear comes from snow play), and trips created before 04 get no basics.
+
+### Parent 1
+
+| Item | Qty |
+|---|---|
+| Underwear | 1/day + 1 |
+| Socks | 1/day + 1 |
+| T-shirt | 1/day |
+| Trousers | 2 |
+| Jumper | 1 |
+| Pyjamas | 1 |
+| Outdoor jacket | 1 |
+| Toothbrush | 1 |
+| Water bottle | 1 |
+| Phone charger | 1 |
+| Wallet and keys | 1 |
+
+### Parent 2
+
+| Item | Qty |
+|---|---|
+| Underwear | 1/day + 1 |
+| Socks | 1/day + 1 |
+| T-shirt | 1/day |
+| Trousers | 2 |
+| Jumper | 1 |
+| Pyjamas | 1 |
+| Outdoor jacket | 1 |
+| Toothbrush | 1 |
+| Water bottle | 1 |
+| Phone charger | 1 |
+| Wallet and keys | 1 |
+
+### Child 1
+
+| Item | Qty |
+|---|---|
+| Underwear | 1/day + 1 |
+| Socks | 1/day + 1 |
+| T-shirt | 1/day |
+| Trousers | 2 |
+| Jumper | 1 |
+| Pyjamas | 1 |
+| Outdoor jacket | 1 |
+| Toothbrush | 1 |
+| Water bottle | 1 |
+| Comfort toy | 1 |
+
+### Child 2
+
+| Item | Qty |
+|---|---|
+| Underwear | 1/day + 1 |
+| Socks | 1/day + 1 |
+| T-shirt | 1/day |
+| Trousers | 2 |
+| Jumper | 1 |
+| Pyjamas | 1 |
+| Outdoor jacket | 1 |
+| Toothbrush | 1 |
+| Water bottle | 1 |
+| Comfort toy | 1 |
+| Nappies | 6/day |
+
+### Family
+
+| Item | Qty |
+|---|---|
+| Toothpaste | 1 |
+| Hairbrush | 1 |
+| Wet wipes | 1 |
+| First aid kit | 1 |
 
 ---
 
@@ -69,7 +137,9 @@ The cut removes the single largest source of Family items from the worked exampl
 
 ---
 
-## What we do there
+## Shared activities
+
+Milestone 05. Things the family does together. A row can still be for a subset (goggles for the adults and Child 1), but the activity itself is picked for the whole family.
 
 ### Swimming
 
@@ -180,6 +250,22 @@ Assumes snow play is also selected; this adds only the gear on top of the warm c
 
 ---
 
+## Personal activities
+
+Milestone 06. Something one or some of us do, not the whole family. Rows have no Who column: they apply to whoever the activity is chosen for on the trip form. Whether this needs its own milestone at all is [A8](#open-items).
+
+### Running
+
+Drafted unverified.
+
+| Item | Qty |
+|---|---|
+| Running shoes | 1 |
+| Running clothes | 1/day |
+| Sports watch | 1 |
+
+---
+
 ## Candidates, not drafted yet
 
 Named so the list is visibly incomplete on purpose, and so we can see whether the shape above stretches to cover them: cycling, fishing, cross-country skiing, berry picking, boating, amusement park, birthday party, ice swimming, festival.
@@ -188,7 +274,7 @@ Named so the list is visibly incomplete on purpose, and so we can see whether th
 
 ## Worked example: does it produce the right list?
 
-**Trip:** cottage in Punkaharju, 4 days / 3 nights, July. **Activities selected:** Swimming, Sauna, Beach day, Long car drive. Everyday basics is always on. Four taps in total. (Where the family sleeps no longer contributes anything, per the cut above.)
+**Trip:** cottage in Punkaharju, 4 days / 3 nights, July. **Activities selected:** Swimming, Sauna, Beach day, Long car drive. Basics are always on. Four taps in total. (Where the family sleeps no longer contributes anything, per the cut above.)
 
 ### What Parent 1 ends up with
 
@@ -252,7 +338,7 @@ Proposal: a row's quantity is either a fixed number or a per-day number, and the
 
 ### When are activities chosen, and can they change
 
-Decided (Human-PM): **activities are chosen while creating the trip, and cannot be changed afterwards** in this milestone. This removes the preset-vs-linked question entirely: with no unselect there is no removal to design, no "which items came from this activity" link to store for that purpose, and no rule needed for items that have been edited, hand-added or already packed. The trip form is also the natural place for it: you know what the trip is for at the moment you create it.
+Decided (Human-PM): **activities are chosen while creating the trip, and cannot be changed afterwards**, and this holds beyond one milestone: activities are never added to an existing trip either ([A9](#open-items)). This removes the preset-vs-linked question entirely: with no unselect there is no removal to design, no "which items came from this activity" link to store for that purpose, and no rule needed for items that have been edited, hand-added or already packed. The trip form is also the natural place for it: you know what the trip is for at the moment you create it.
 
 The escape hatch moves down a level. You cannot un-choose swimming, but you can delete the swimsuit rows it produced, using the per-item remove that milestone 01 already built.
 
@@ -291,9 +377,19 @@ Decided by Human-PM, 2026-09-20:
 | A4 | Preset (one-way add) or linked (unselect removes)? | **Neither: activities are chosen at trip creation and cannot be changed afterwards.** See [When are activities chosen](#when-are-activities-chosen-and-can-they-change). |
 | A7 | One mis-tapped activity can cost ~30 manual deletions, and trips cannot be deleted either. | **Accepted as a known issue, not addressed now.** Revisit if it actually happens on a real trip; the three ways to close it are recorded above, with trip deletion the cheapest. |
 
+Decided by Human-PM, 2026-09-25:
+
+| # | Question | Decision |
+|---|---|---|
+| A9 | Can activities be added to a trip after it is created? | **No.** Activities are chosen only on the trip form. Anything forgotten is added as an individual item. |
+| A11 | "Family" was about to mean the bucket, the basics and the shared activities. Rename? | **Yes.** "Family" means only the bucket. The sources are Basics, Shared activities and Personal activities. |
+| A12 | Basics ignore the season, and trips created before 04 get no basics. OK? | **Yes, both accepted** for milestone 04. |
+
 Still open:
 
 | # | Question | Draft's assumption |
 |---|---|---|
 | A5 | Is ~88 generated rows the right outcome, or should activities be leaner? | Complete list, matching what milestone 02 packs. Parked until milestone 03 lands. |
 | A6 | Is the content right: activities missing, ones you would never pick, wrong items? | Drafted unverified. Kept as-is for review after milestone 03. |
+| A8 | Are personal activities their own milestone (06), with a participant picker on the trip form? | Human-PM leans yes. Counter-argument: an activity only one person ever does (running) can be a shared-activity entry whose rows are all for that person, with no picker. The picker earns its cost only when the same activity has different participants on different trips. |
+| A10 | Basics written per person, or as a shared base plus per-person differences? | Open until Human-PM adjusts the [basics lists](#basics). Recommendation: per person, written out. |
