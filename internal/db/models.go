@@ -9,6 +9,15 @@ type AppUser struct {
 	Name string
 }
 
+type BasicItem struct {
+	ID             int64
+	FamilyMemberID int64
+	Position       int64
+	Name           string
+	PerDay         int64
+	Fixed          int64
+}
+
 type FamilyMember struct {
 	ID   int64
 	Name string

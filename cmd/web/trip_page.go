@@ -21,7 +21,7 @@ func (app *application) handleTrip(w http.ResponseWriter, r *http.Request) {
 		app.tripNotFound(w, r)
 		return
 	}
-	page, err := app.tripPage(r.Context(), tripID)
+	page, err := app.tripPage(r.Context(), tripID, view.ItemEdit{ItemID: editParam(r)})
 	if errors.Is(err, errTripNotFound) {
 		app.tripNotFound(w, r)
 		return
@@ -34,8 +34,10 @@ func (app *application) handleTrip(w http.ResponseWriter, r *http.Request) {
 }
 
 // tripPage loads everything the trip page shows: the trip, each family
-// member's items with an empty add form, and item names to suggest.
-func (app *application) tripPage(ctx context.Context, tripID int64) (view.TripPageData, error) {
+// member's items with an empty add form, and item names to suggest. edit is
+// the row to show in edit mode; it is dropped if the item is not on this
+// trip, and its field starts at the item's quantity unless edit says otherwise.
+func (app *application) tripPage(ctx context.Context, tripID int64, edit view.ItemEdit) (view.TripPageData, error) {
 	row, err := app.queries.GetTrip(ctx, tripID)
 	if errors.Is(err, sql.ErrNoRows) {
 		return view.TripPageData{}, errTripNotFound
@@ -68,10 +70,22 @@ func (app *application) tripPage(ctx context.Context, tripID int64) (view.TripPa
 			if it.FamilyMemberID == m.ID {
 				section.Items = append(section.Items, view.Item{ID: it.ID, Name: it.Name, Quantity: it.Quantity})
 			}
+			if it.ID == edit.ItemID {
+				page.Edit = edit
+				if page.Edit.Quantity == "" {
+					page.Edit.Quantity = strconv.FormatInt(it.Quantity, 10)
+				}
+			}
 		}
 		page.Members = append(page.Members, section)
 	}
 	return page, nil
+}
+
+// editParam is the ?edit= item id, or 0 when absent or not a number.
+func editParam(r *http.Request) int64 {
+	id, _ := strconv.ParseInt(r.URL.Query().Get("edit"), 10, 64)
+	return id
 }
 
 func tripIDFromPath(r *http.Request) (int64, error) {

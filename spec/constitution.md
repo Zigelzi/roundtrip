@@ -23,7 +23,7 @@ Conventions:
 
 ### Workflow:
 1. In a new session, Human-PM describes what to build. The main session scaffolds the milestone: it creates the `feature/<name>` branch off `main`, copies `_template.md` to `NN-<name>.md` with Status and Branch filled, and commits it. Then Human-PM writes the minimal spec (what and why) into the file and the main session commits the draft.
-2. Spawn a red-team agent on the spec: weak points, clarifying questions, usability/feasibility risks.
+2. Spawn a red-team agent on the spec: weak points, clarifying questions, usability/feasibility risks. It also checks the acceptance conditions against the rules in [`README.md`](README.md#milestones): plain language readable without code knowledge, and Given, When and Then in every scenario. The red-team runs before refinement (step 4), so it cannot catch mistakes the refinement introduces; Human-PM asks for a second red-team pass when a refined spec looks like it is drifting.
 3. Human-PM decides which findings to accept. *(checkpoint)*
 4. Main session refines the spec into milestones that deliver a feature/flow E2E, each with Behaviour-Driven Development (BDD) acceptance conditions. Those conditions become acceptance tests before implementation, written independently of the code that will satisfy them.
 5. Main session implements milestone by milestone as vertical slices, sequentially, each slice satisfying its BDD acceptance test. Parallel dev sub-agents only if slices provably share no files. A task is right-sized if one agent can implement and self-verify it in one context without re-loading the whole app. Each slice is committed to the milestone branch once its test is green.

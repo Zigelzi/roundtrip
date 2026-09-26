@@ -25,7 +25,11 @@ func (app *application) handleAddItem(w http.ResponseWriter, r *http.Request) {
 	}
 	// The trip page data is loaded up front: it holds the member's current
 	// items for the duplicate check, and is re-rendered if the input is invalid.
-	page, err := app.tripPage(r.Context(), tripID)
+	// A row being edited stays in edit mode (the form carries ?edit=) in the
+	// htmx reply and when the input is invalid. A plain successful add
+	// redirects to the member's section and closes it; accepted, since it
+	// only happens without JavaScript.
+	page, err := app.tripPage(r.Context(), tripID, view.ItemEdit{ItemID: editParam(r)})
 	if errors.Is(err, errTripNotFound) {
 		app.tripNotFound(w, r)
 		return
@@ -49,7 +53,7 @@ func (app *application) handleAddItem(w http.ResponseWriter, r *http.Request) {
 		form.Errors = errs
 		page.Members[i].Form = form
 		if isHTMX(r) {
-			app.render(w, r, http.StatusUnprocessableEntity, view.MemberItemList(tripID, page.Members[i]))
+			app.render(w, r, http.StatusUnprocessableEntity, view.MemberItemList(tripID, page.Members[i], page.Edit))
 			return
 		}
 		app.render(w, r, http.StatusUnprocessableEntity, view.TripPage(page))
@@ -79,7 +83,7 @@ func (app *application) itemsChanged(w http.ResponseWriter, r *http.Request, tri
 		http.Redirect(w, r, view.MemberURL(tripID, memberID), http.StatusSeeOther)
 		return
 	}
-	page, err := app.tripPage(r.Context(), tripID)
+	page, err := app.tripPage(r.Context(), tripID, view.ItemEdit{ItemID: editParam(r)})
 	if err != nil {
 		app.serverError(w, "load trip page", err)
 		return
@@ -89,7 +93,7 @@ func (app *application) itemsChanged(w http.ResponseWriter, r *http.Request, tri
 		app.serverError(w, "find member", fmt.Errorf("member %d missing from trip %d", memberID, tripID))
 		return
 	}
-	app.render(w, r, http.StatusOK, view.MemberItemList(tripID, page.Members[i]))
+	app.render(w, r, http.StatusOK, view.MemberItemList(tripID, page.Members[i], page.Edit))
 }
 
 // isHTMX reports whether the request came from htmx rather than a plain form.
@@ -117,11 +121,77 @@ func validateItem(form view.ItemForm, member view.MemberItems) (int64, []string)
 			}
 		}
 	}
-	quantity, err := strconv.Atoi(form.Quantity)
-	if err != nil || quantity < 1 {
-		errs = append(errs, "Quantity must be a whole number, at least 1.")
+	quantity, ok := parseQuantity(form.Quantity)
+	if !ok {
+		errs = append(errs, badQuantity)
 	}
-	return int64(quantity), errs
+	return quantity, errs
+}
+
+// badQuantity is the one message for any quantity that isn't a whole number
+// of at least 1, shared by adding an item and changing its quantity.
+const badQuantity = "Quantity must be a whole number, at least 1."
+
+// parseQuantity reads a typed quantity; ok is false unless it is a whole
+// number of at least 1.
+func parseQuantity(s string) (quantity int64, ok bool) {
+	quantity, err := strconv.ParseInt(s, 10, 64)
+	return quantity, err == nil && quantity >= 1
+}
+
+// handleChangeQuantity saves an item's new quantity (S8). Only the quantity
+// changes; a packed item stays packed (R2). An invalid value re-renders the
+// trip page with the row still in edit mode (S9).
+func (app *application) handleChangeQuantity(w http.ResponseWriter, r *http.Request) {
+	tripID, err := tripIDFromPath(r)
+	if err != nil {
+		app.tripNotFound(w, r)
+		return
+	}
+	itemID, err := strconv.ParseInt(r.PathValue("itemID"), 10, 64)
+	if err != nil {
+		app.itemNotFound(w, r)
+		return
+	}
+	input := strings.TrimSpace(r.PostFormValue("quantity"))
+	quantity, ok := parseQuantity(input)
+	if !ok {
+		edit := view.ItemEdit{ItemID: itemID, Quantity: input, Errors: []string{badQuantity}}
+		page, err := app.tripPage(r.Context(), tripID, edit)
+		if errors.Is(err, errTripNotFound) {
+			app.tripNotFound(w, r)
+			return
+		}
+		if err != nil {
+			app.serverError(w, "load trip page", err)
+			return
+		}
+		// tripPage drops an edit for an item that is not on this trip.
+		if page.Edit.ItemID == 0 {
+			app.itemNotFound(w, r)
+			return
+		}
+		app.render(w, r, http.StatusUnprocessableEntity, view.TripPage(page))
+		return
+	}
+	_, err = app.queries.UpdateItemQuantity(r.Context(), db.UpdateItemQuantityParams{
+		Quantity: quantity,
+		ID:       itemID,
+		TripID:   tripID,
+	})
+	if errors.Is(err, sql.ErrNoRows) {
+		app.itemNotFound(w, r)
+		return
+	}
+	if err != nil {
+		app.serverError(w, "update item quantity", err)
+		return
+	}
+	http.Redirect(w, r, view.ItemURL(tripID, itemID), http.StatusSeeOther)
+}
+
+func (app *application) itemNotFound(w http.ResponseWriter, r *http.Request) {
+	app.render(w, r, http.StatusNotFound, view.NotFound("Item not found"))
 }
 
 func (app *application) handleRemoveItem(w http.ResponseWriter, r *http.Request) {

@@ -3,3 +3,54 @@
 /* Scan only the templ templates. source(none) turns off automatic detection,
    which otherwise scans the whole repo (e.g. words in spec/*.md). */
 @source "./view";
+
+/* Opening, saving and cancelling an item edit swap the lists with a view
+   transition (hx-swap transition:true). Each row, section and add form has
+   its own view-transition-name (see transitionName in trip_page.templ), so
+   they slide and resize individually.
+
+   Nothing cross-fades. The browser's default fades each group's old picture
+   out and its new picture in, which should look unchanged when the two are
+   identical, but the old and new pictures are separate snapshots and are not
+   always rasterised the same way. In a headless Edge test at phone pixel
+   density the old snapshot was blurrier than the new one (and on a desktop
+   with ClearType it had colour fringes), so the unchanged header and member
+   names visibly changed sharpness during the fade: at 120ms that reads as a
+   flicker. So only the box moves and resizes, and the new picture shows at
+   once. The old one is hidden.
+
+   Rows (transition class "row") and sections ("section") clip to their box
+   while it grows or shrinks, so an opening row is revealed as it grows and
+   does not paint over the rows sliding below it. A section's white card is
+   drawn by its group instead of being part of its pictures: the section
+   drops its background and shadow while a transition is active (before the
+   old picture is taken), and the group paints them, so the card resizes
+   smoothly with its shadow intact (a clip does not cut an element's own
+   shadow). Otherwise a shrinking section's new, shorter picture would show
+   its bottom edge and shadow in the middle of the still tall box. Browsers
+   without :active-view-transition keep the card in the picture too, which
+   only brings that brief edge back. */
+::view-transition-group(*) {
+  animation-duration: 120ms;
+}
+::view-transition-old(*),
+::view-transition-new(*) {
+  animation: none;
+  mix-blend-mode: normal;
+}
+::view-transition-old(*) {
+  opacity: 0;
+}
+::view-transition-group(*.row),
+::view-transition-group(*.section) {
+  overflow: clip;
+}
+html:active-view-transition #trip-items > section {
+  background: none;
+  box-shadow: none;
+}
+::view-transition-group(*.section) {
+  background: var(--color-white);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+}

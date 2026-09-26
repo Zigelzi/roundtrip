@@ -73,6 +73,18 @@ type TripPageData struct {
 	Members []MemberItems
 	// Suggestions are item names used on any trip, offered while typing.
 	Suggestions []string
+	Edit        ItemEdit
+}
+
+// ItemEdit is the trip page's edit mode (?edit=ITEM_ID): the one item whose
+// quantity is being changed. While ItemID is set, every other row's Change
+// and Remove buttons are disabled (S10). Zero means no row is being edited.
+type ItemEdit struct {
+	ItemID int64
+	// Quantity is the value in the edit field: the item's own, or what was
+	// submitted if it was refused.
+	Quantity string
+	Errors   []string
 }
 
 // MemberItems is one family member's section: their items and add form.
@@ -113,9 +125,30 @@ func MemberURL(tripID, memberID int64) string {
 }
 
 // addItemURL keeps the member's anchor so that if the input is invalid, the
-// re-rendered page scrolls to the form with the error.
-func addItemURL(tripID, memberID int64) string {
-	return fmt.Sprintf("/trips/%d/members/%d/items#%s", tripID, memberID, memberAnchor(memberID))
+// re-rendered page scrolls to the form with the error. While a row is being
+// edited it also carries ?edit=, so adding an item keeps that row open and
+// the others locked.
+func addItemURL(tripID, memberID, editID int64) string {
+	edit := ""
+	if editID != 0 {
+		edit = fmt.Sprintf("?edit=%d", editID)
+	}
+	return fmt.Sprintf("/trips/%d/members/%d/items%s#%s", tripID, memberID, edit, memberAnchor(memberID))
+}
+
+// itemAnchor is the id of an item's row on the trip page.
+func itemAnchor(id int64) string {
+	return fmt.Sprintf("item-%d", id)
+}
+
+// ItemURL points at an item's row on the trip page, so on a long list the
+// browser lands where the parent was working.
+func ItemURL(tripID, itemID int64) string {
+	return TripURL(tripID) + "#" + itemAnchor(itemID)
+}
+
+func quantityURL(tripID, itemID int64) string {
+	return fmt.Sprintf("/trips/%d/items/%d/quantity", tripID, itemID)
 }
 
 func removeItemURL(tripID, itemID int64) string {

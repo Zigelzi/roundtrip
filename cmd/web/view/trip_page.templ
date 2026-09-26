@@ -1,16 +1,19 @@
 package view
 
+import "strconv"
+
 // TripPage shows a trip and each family member's items. Each member is a
-// <section data-member="Name"> with an id for jumping back to it.
+// <section data-member="Name"> with an id for jumping back to it. With
+// page.Edit set, one row is a quantity form and every other row is locked.
 templ TripPage(page TripPageData) {
 	@Layout(page.Trip.Destination) {
 		<a href="/" class="inline-flex min-h-12 items-center text-slate-600">← Trips</a>
 		<h1 class="text-2xl font-bold">{ page.Trip.Destination }</h1>
 		<p class="text-slate-600">{ FormatDateRange(page.Trip.Departure, page.Trip.DurationDays) } · { FormatDays(page.Trip.DurationDays) }</p>
 		<a href={ templ.SafeURL(PackURL(page.Trip.ID)) } class="mt-3 inline-flex min-h-12 items-center rounded-lg bg-slate-900 px-6 font-semibold text-white">Start packing →</a>
-		<div class="mt-4 space-y-4">
+		<div id={ tripItemsID } class="mt-4 space-y-4">
 			for _, m := range page.Members {
-				@memberSection(page.Trip.ID, m)
+				@memberSection(page.Trip.ID, m, page.Edit)
 			}
 		</div>
 		<datalist id="item-names">
@@ -24,17 +27,18 @@ templ TripPage(page TripPageData) {
 // memberSection is one member's items plus the add form. The form sits
 // outside the swapped item list: htmx replaces only the list, so the focused
 // name field (and the phone keyboard) stays put between additions.
-templ memberSection(tripID int64, m MemberItems) {
-	<section id={ memberAnchor(m.ID) } data-member={ m.Name } class="rounded-lg bg-white p-4 shadow-sm">
+templ memberSection(tripID int64, m MemberItems, edit ItemEdit) {
+	<section id={ memberAnchor(m.ID) } data-member={ m.Name } style={ sectionTransition(memberAnchor(m.ID)) } class="rounded-lg bg-white p-4 shadow-sm">
 		<h2 class="text-lg font-semibold">{ m.Name }</h2>
-		@MemberItemList(tripID, m)
+		@MemberItemList(tripID, m, edit)
 		<form
 			method="post"
-			action={ templ.SafeURL(addItemURL(tripID, m.ID)) }
-			hx-post={ addItemURL(tripID, m.ID) }
+			action={ templ.SafeURL(addItemURL(tripID, m.ID, edit.ItemID)) }
+			hx-post={ addItemURL(tripID, m.ID, edit.ItemID) }
 			hx-target={ "#" + itemListID(m.ID) }
 			hx-swap="outerHTML"
 			hx-on::after-request="if (event.detail.xhr.status === 200) { this.reset(); this.elements['name'].focus() }"
+			style={ transitionName("add-" + memberAnchor(m.ID)) }
 			class="mt-3 space-y-2"
 		>
 			<input type="text" name="name" value={ m.Form.Name } placeholder="Add item" list="item-names" autocomplete="off" aria-label={ "Item for " + m.Name } required class={ inputClass }/>
@@ -62,29 +66,118 @@ const quantityClass = "min-h-12 w-14 rounded-lg border border-slate-300 bg-white
 // MemberItemList is the part of a member's section that htmx swaps after an
 // item is added or removed: the items and any validation errors. Without
 // JavaScript the forms still work as plain posts with a redirect.
-templ MemberItemList(tripID int64, m MemberItems) {
+templ MemberItemList(tripID int64, m MemberItems, edit ItemEdit) {
 	<div id={ itemListID(m.ID) }>
 		if len(m.Items) == 0 {
 			<p class="mt-1 text-slate-600">No items yet.</p>
 		} else {
 			<ul class="mt-2 divide-y divide-slate-100">
 				for _, it := range m.Items {
-					<li class="flex min-h-12 items-center gap-2">
-						<span class="grow">{ it.Name }</span>
-						<span class="whitespace-nowrap text-slate-600">{ FormatQuantity(it.Quantity) }</span>
-						<form
-							method="post"
-							action={ templ.SafeURL(removeItemURL(tripID, it.ID)) }
-							hx-post={ removeItemURL(tripID, it.ID) }
-							hx-target={ "#" + itemListID(m.ID) }
-							hx-swap="outerHTML"
-						>
-							<button type="submit" aria-label={ "Remove " + it.Name } class="min-h-12 min-w-12 rounded-lg text-xl text-red-600">✕</button>
-						</form>
-					</li>
+					if it.ID == edit.ItemID {
+						@editItemRow(tripID, it, edit)
+					} else {
+						@itemRow(tripID, m.ID, it, edit.ItemID != 0)
+					}
 				}
 			</ul>
 		}
 		@errorList(m.Form.Errors)
 	</div>
+}
+
+// itemRow is an item with its quantity and remove button. Tapping the
+// quantity reloads the page in edit mode for this row (a plain GET, so the
+// lock can cover every member's section) and lands back on the row. While
+// another row is being edited, both buttons are disabled.
+templ itemRow(tripID, memberID int64, it Item, locked bool) {
+	<li id={ itemAnchor(it.ID) } style={ rowTransition(itemAnchor(it.ID)) } class="flex min-h-12 items-center gap-2">
+		<span class="grow">{ it.Name }</span>
+		<form method="get" action={ templ.SafeURL(ItemURL(tripID, it.ID)) } hx-get={ TripURL(tripID) } { swapTripItems... }>
+			<input type="hidden" name="edit" value={ strconv.FormatInt(it.ID, 10) }/>
+			<button type="submit" aria-label={ "Change quantity of " + it.Name } disabled?={ locked } class={ lockable("min-h-12 whitespace-nowrap rounded-lg px-2", "text-slate-600 underline decoration-dotted underline-offset-4", "text-slate-400", locked) }>{ FormatQuantity(it.Quantity) }</button>
+		</form>
+		<form
+			method="post"
+			action={ templ.SafeURL(removeItemURL(tripID, it.ID)) }
+			hx-post={ removeItemURL(tripID, it.ID) }
+			hx-target={ "#" + itemListID(memberID) }
+			hx-swap="outerHTML"
+		>
+			<button type="submit" aria-label={ "Remove " + it.Name } disabled?={ locked } class={ lockable("min-h-12 min-w-12 rounded-lg text-xl", "text-red-600", "text-slate-300", locked) }>✕</button>
+		</form>
+	</li>
+}
+
+// editItemRow is the row being edited: a small quantity form. Saving is a
+// plain post that redirects back to the row; Cancel is a link to the plain
+// trip page, back at the same row. The row is highlighted and says what is
+// happening, and Cancel looks like a button, because on the phone check
+// neither the open row nor the way out was obvious.
+templ editItemRow(tripID int64, it Item, edit ItemEdit) {
+	<li id={ itemAnchor(it.ID) } style={ rowTransition(itemAnchor(it.ID)) } class="my-2 scroll-mt-4 rounded-lg border-2 border-amber-400 bg-amber-50 p-3">
+		<form method="post" action={ templ.SafeURL(quantityURL(tripID, it.ID)) } hx-post={ quantityURL(tripID, it.ID) } { swapTripItems... } class="flex flex-wrap items-center gap-2">
+			<p class="w-full">
+				<span class="font-semibold">{ it.Name }</span>
+				<span class="text-sm text-amber-800">· change quantity</span>
+			</p>
+			<button type="button" aria-label="Decrease quantity" onclick="this.nextElementSibling.stepDown()" class={ decreaseClass }>−</button>
+			<input type="number" name="quantity" value={ edit.Quantity } min="1" step="1" inputmode="numeric" aria-label={ "New quantity for " + it.Name } required class={ quantityClass }/>
+			<button type="button" aria-label="Increase quantity" onclick="this.previousElementSibling.stepUp()" class={ increaseClass }>+</button>
+			<button type="submit" class="min-h-12 rounded-lg bg-slate-900 px-4 font-semibold text-white">Save</button>
+			<a href={ templ.SafeURL(ItemURL(tripID, it.ID)) } hx-get={ TripURL(tripID) } { swapTripItems... } class="inline-flex min-h-12 items-center rounded-lg border border-slate-300 bg-white px-4 font-semibold text-slate-700">Cancel</a>
+		</form>
+		@errorList(edit.Errors)
+	</li>
+}
+
+// tripItemsID is the container holding every member's section. Opening a
+// row for editing, saving and cancelling replace it in place with the same
+// container from the full page reply (hx-select), instead of loading a new
+// page: nothing above the row changes height, so the view stays where it
+// was. transition:true animates between the two states with the browser's
+// View Transitions API (see tailwind.css); browsers without it just swap.
+// Without JavaScript the same controls fall back to plain page loads.
+const tripItemsID = "trip-items"
+
+var swapTripItems = templ.Attributes{
+	"hx-target": "#" + tripItemsID,
+	"hx-select": "#" + tripItemsID,
+	"hx-swap":   "outerHTML transition:true",
+}
+
+// transitionName gives an element its own view-transition-name, so during
+// the edit swap each row, section and add form moves and resizes on its own
+// instead of the whole list cross-fading as one picture (which showed the
+// rows below the edited one in two places at once). A row keeps the same
+// name in view and edit mode, so the browser morphs one into the other.
+// Names are built from ids, never from user text, so SafeCSS is safe here.
+func transitionName(name string) templ.SafeCSS {
+	return templ.SafeCSS("view-transition-name: " + name)
+}
+
+// rowTransition is transitionName for an item row, plus the "row" transition
+// class that tailwind.css clips, so a growing row does not paint over the
+// rows sliding below it. A clip cuts off box-shadows, which is why the edit
+// row's outline is a border rather than a ring.
+func rowTransition(name string) templ.SafeCSS {
+	return transitionName(name) + "; view-transition-class: row"
+}
+
+// sectionTransition is transitionName for a member's section, plus the
+// "section" transition class: tailwind.css clips it like a row and paints
+// the section's white card on the transition group, so the card resizes
+// smoothly while its contents do not fade.
+func sectionTransition(name string) templ.SafeCSS {
+	return transitionName(name) + "; view-transition-class: section"
+}
+
+// lockable styles a row button: base always, plus active normally or locked
+// while another row is being edited. Locked drops the colour and the
+// underline, so the button no longer looks tappable. No class mentions
+// "disabled", so an unlocked button's markup never contains the word.
+func lockable(base, active, locked string, isLocked bool) string {
+	if isLocked {
+		return base + " " + locked
+	}
+	return base + " " + active
 }

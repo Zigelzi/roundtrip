@@ -125,7 +125,7 @@ ORDER BY id
 
 // The four people, excluding the Family bucket (id 100, cmd/web's
 // familyBucketID). For logic that means "each person" and must not hand the
-// bucket a copy of every personal item, such as milestone 04's activity
+// bucket a copy of every personal item, such as milestone 05's activity
 // expansion.
 func (q *Queries) ListPeople(ctx context.Context) ([]FamilyMember, error) {
 	rows, err := q.db.QueryContext(ctx, listPeople)
@@ -234,4 +234,26 @@ func (q *Queries) UpdateFamilyMemberName(ctx context.Context, arg UpdateFamilyMe
 		return 0, err
 	}
 	return result.RowsAffected()
+}
+
+const updateItemQuantity = `-- name: UpdateItemQuantity :one
+UPDATE item
+SET quantity = ?
+WHERE id = ? AND trip_id = ?
+RETURNING family_member_id
+`
+
+type UpdateItemQuantityParams struct {
+	Quantity int64
+	ID       int64
+	TripID   int64
+}
+
+// Scoped to the trip like DeleteItem. Only the quantity changes: a packed
+// item stays packed (R2). No row means the item is not on this trip.
+func (q *Queries) UpdateItemQuantity(ctx context.Context, arg UpdateItemQuantityParams) (int64, error) {
+	row := q.db.QueryRowContext(ctx, updateItemQuantity, arg.Quantity, arg.ID, arg.TripID)
+	var family_member_id int64
+	err := row.Scan(&family_member_id)
+	return family_member_id, err
 }

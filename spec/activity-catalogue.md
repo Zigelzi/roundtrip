@@ -51,6 +51,8 @@ The four members are fixed and seeded: Parent 1, Parent 2, Child 1, Child 2 (see
 
 Milestone 04. Not chosen, always on. This is the part that is boring to redo every trip, so it carries most of the value. It is also where `n/day` matters most: underwear for a weekend and underwear for a week are different lists.
 
+From milestone 04 on, the app is the source of truth for the basics: they are seeded into its database and will be editable there. This section is where changes are discussed, and it may drift from what the app holds.
+
 Each person has their own list, written out in full, because the lists share only about half their items ([A10](#open-items)). The lists are fixed in 04; letting parents adjust them is a later milestone.
 
 Accepted for 04 ([A12](#open-items)): basics ignore the season, and trips created before 04 get no basics. A seasonal item is written generically: Child 1's "Hat" is a woolly hat in winter and a cap in summer, and the parent picks which when packing. Seasonal trip planning is a later milestone.

@@ -27,7 +27,7 @@ templ NewTrip(form TripForm, today string) {
 				<input type="number" name="duration_days" value={ form.DurationDays } min="1" step="1" inputmode="numeric" class={ inputClass }/>
 			</label>
 			@syncTripDates()
-			<button type="submit" class="min-h-12 w-full rounded-lg bg-slate-900 px-4 font-semibold text-white">Create trip</button>
+			<button type="submit" class="min-h-12 w-full rounded-lg bg-slate-900 px-4 font-semibold text-white disabled:opacity-50">Create trip</button>
 		</form>
 	}
 }
@@ -49,7 +49,8 @@ templ errorList(errs []string) {
 // syncTripDates keeps duration and return date in step while typing:
 // changing the days or the departure moves the return date; changing the
 // return date recalculates the days. Dates are handled as UTC midnight, so
-// there are no daylight-saving surprises in the day arithmetic.
+// there are no daylight-saving surprises in the day arithmetic. It also
+// disables Create once the form is submitted.
 templ syncTripDates() {
 	<script>
 		(() => {
@@ -74,6 +75,14 @@ templ syncTripDates() {
 			departure.addEventListener("input", updateEnd);
 			days.addEventListener("input", updateEnd);
 			end.addEventListener("input", updateDays);
+
+			// One trip per tap: a quick double tap would otherwise post twice.
+			// Re-enable when the browser restores this page from its cache.
+			// The button is looked up when used: this script runs before the
+			// button below it has been parsed.
+			const submit = () => form.querySelector("button[type=submit]");
+			form.addEventListener("submit", () => { submit().disabled = true; });
+			window.addEventListener("pageshow", (e) => { if (e.persisted) submit().disabled = false; });
 		})();
 	</script>
 }

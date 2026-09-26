@@ -1,7 +1,9 @@
 package main
 
 import (
+	"context"
 	"fmt"
+	"log"
 	"net/http"
 	"strconv"
 	"strings"
@@ -15,6 +17,10 @@ import (
 const dateLayout = "2006-01-02"
 
 const defaultDurationDays = "3"
+
+// maxTripDays caps a trip's length, so a typo can't create a trip with
+// hundreds of basics that can't be deleted.
+const maxTripDays = 14
 
 func (app *application) handleNewTrip(w http.ResponseWriter, r *http.Request) {
 	form := view.TripForm{DurationDays: defaultDurationDays}
@@ -35,12 +41,51 @@ func (app *application) handleCreateTrip(w http.ResponseWriter, r *http.Request)
 		app.render(w, r, http.StatusUnprocessableEntity, view.NewTrip(form, today.Format(dateLayout)))
 		return
 	}
-	id, err := app.queries.CreateTrip(r.Context(), params)
+	id, err := app.createTripWithBasics(r.Context(), params)
 	if err != nil {
-		app.serverError(w, "create trip", err)
+		// Nothing was saved, so the parent can simply try again with the
+		// form as they left it.
+		log.Printf("failed to create trip: %v", err)
+		form.Errors = []string{"The trip could not be created. Please try again."}
+		app.render(w, r, http.StatusInternalServerError, view.NewTrip(form, today.Format(dateLayout)))
 		return
 	}
 	http.Redirect(w, r, view.TripURL(id), http.StatusSeeOther)
+}
+
+// createTripWithBasics saves the trip and everyone's basics as its items in
+// one transaction: either the trip arrives with all of them, or nothing is
+// saved. Items are added in ListBasicItems order (owner, then catalogue
+// position), which is the order the trip page lists them.
+func (app *application) createTripWithBasics(ctx context.Context, params db.CreateTripParams) (int64, error) {
+	tx, err := app.database.BeginTx(ctx, nil)
+	if err != nil {
+		return 0, err
+	}
+	defer tx.Rollback() // a no-op once committed
+	qtx := app.queries.WithTx(tx)
+
+	id, err := qtx.CreateTrip(ctx, params)
+	if err != nil {
+		return 0, fmt.Errorf("save trip: %w", err)
+	}
+	basics, err := qtx.ListBasicItems(ctx)
+	if err != nil {
+		return 0, fmt.Errorf("list basics: %w", err)
+	}
+	for _, b := range basics {
+		err := qtx.CreateItem(ctx, db.CreateItemParams{
+			TripID:         id,
+			FamilyMemberID: b.FamilyMemberID,
+			Name:           b.Name,
+			NameKey:        itemKey(b.Name),
+			Quantity:       b.PerDay*params.DurationDays + b.Fixed,
+		})
+		if err != nil {
+			return 0, fmt.Errorf("add basic %q for member %d: %w", b.Name, b.FamilyMemberID, err)
+		}
+	}
+	return id, tx.Commit()
 }
 
 // validateTrip checks the submitted trip form. It returns the values to store,
@@ -77,6 +122,9 @@ func validateTrip(form view.TripForm, today time.Time) (db.CreateTripParams, []s
 		}
 	} else if days, err = strconv.Atoi(form.DurationDays); err != nil || days < 1 {
 		errs = append(errs, "Duration must be a whole number of days, at least 1.")
+	}
+	if days > maxTripDays {
+		errs = append(errs, fmt.Sprintf("A trip can be at most %d days.", maxTripDays))
 	}
 	return db.CreateTripParams{
 		Destination:   form.Destination,

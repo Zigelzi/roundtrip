@@ -9,7 +9,7 @@ ORDER BY id;
 -- name: ListPeople :many
 -- The four people, excluding the Family bucket (id 100, cmd/web's
 -- familyBucketID). For logic that means "each person" and must not hand the
--- bucket a copy of every personal item, such as milestone 04's activity
+-- bucket a copy of every personal item, such as milestone 05's activity
 -- expansion.
 SELECT id, name
 FROM family_member
@@ -51,5 +51,13 @@ RETURNING family_member_id;
 -- name: DeleteItem :one
 -- Scoped to the trip so an item can't be removed through another trip's URL.
 DELETE FROM item
+WHERE id = ? AND trip_id = ?
+RETURNING family_member_id;
+
+-- name: UpdateItemQuantity :one
+-- Scoped to the trip like DeleteItem. Only the quantity changes: a packed
+-- item stays packed (R2). No row means the item is not on this trip.
+UPDATE item
+SET quantity = ?
 WHERE id = ? AND trip_id = ?
 RETURNING family_member_id;

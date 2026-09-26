@@ -225,7 +225,7 @@ func NewTrip(form TripForm, today string) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 17, "<button type=\"submit\" class=\"min-h-12 w-full rounded-lg bg-slate-900 px-4 font-semibold text-white\">Create trip</button></form>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 17, "<button type=\"submit\" class=\"min-h-12 w-full rounded-lg bg-slate-900 px-4 font-semibold text-white disabled:opacity-50\">Create trip</button></form>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -300,7 +300,8 @@ func errorList(errs []string) templ.Component {
 // syncTripDates keeps duration and return date in step while typing:
 // changing the days or the departure moves the return date; changing the
 // return date recalculates the days. Dates are handled as UTC midnight, so
-// there are no daylight-saving surprises in the day arithmetic.
+// there are no daylight-saving surprises in the day arithmetic. It also
+// disables Create once the form is submitted.
 func syncTripDates() templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
@@ -322,7 +323,7 @@ func syncTripDates() templ.Component {
 			templ_7745c5c3_Var19 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 22, "<script>\n\t\t(() => {\n\t\t\tconst form = document.currentScript.closest(\"form\");\n\t\t\tconst departure = form.elements[\"departure_date\"];\n\t\t\tconst end = form.elements[\"end_date\"];\n\t\t\tconst days = form.elements[\"duration_days\"];\n\t\t\tconst dayMs = 24 * 60 * 60 * 1000;\n\n\t\t\tfunction updateEnd() {\n\t\t\t\tconst d = Date.parse(departure.value);\n\t\t\t\tconst n = parseInt(days.value, 10);\n\t\t\t\tif (departure.value) end.min = departure.value;\n\t\t\t\tif (!isNaN(d) && n >= 1) end.value = new Date(d + (n - 1) * dayMs).toISOString().slice(0, 10);\n\t\t\t}\n\t\t\tfunction updateDays() {\n\t\t\t\tconst d = Date.parse(departure.value);\n\t\t\t\tconst e = Date.parse(end.value);\n\t\t\t\tif (!isNaN(d) && !isNaN(e) && e >= d) days.value = Math.round((e - d) / dayMs) + 1;\n\t\t\t}\n\n\t\t\tdeparture.addEventListener(\"input\", updateEnd);\n\t\t\tdays.addEventListener(\"input\", updateEnd);\n\t\t\tend.addEventListener(\"input\", updateDays);\n\t\t})();\n\t</script>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 22, "<script>\n\t\t(() => {\n\t\t\tconst form = document.currentScript.closest(\"form\");\n\t\t\tconst departure = form.elements[\"departure_date\"];\n\t\t\tconst end = form.elements[\"end_date\"];\n\t\t\tconst days = form.elements[\"duration_days\"];\n\t\t\tconst dayMs = 24 * 60 * 60 * 1000;\n\n\t\t\tfunction updateEnd() {\n\t\t\t\tconst d = Date.parse(departure.value);\n\t\t\t\tconst n = parseInt(days.value, 10);\n\t\t\t\tif (departure.value) end.min = departure.value;\n\t\t\t\tif (!isNaN(d) && n >= 1) end.value = new Date(d + (n - 1) * dayMs).toISOString().slice(0, 10);\n\t\t\t}\n\t\t\tfunction updateDays() {\n\t\t\t\tconst d = Date.parse(departure.value);\n\t\t\t\tconst e = Date.parse(end.value);\n\t\t\t\tif (!isNaN(d) && !isNaN(e) && e >= d) days.value = Math.round((e - d) / dayMs) + 1;\n\t\t\t}\n\n\t\t\tdeparture.addEventListener(\"input\", updateEnd);\n\t\t\tdays.addEventListener(\"input\", updateEnd);\n\t\t\tend.addEventListener(\"input\", updateDays);\n\n\t\t\t// One trip per tap: a quick double tap would otherwise post twice.\n\t\t\t// Re-enable when the browser restores this page from its cache.\n\t\t\t// The button is looked up when used: this script runs before the\n\t\t\t// button below it has been parsed.\n\t\t\tconst submit = () => form.querySelector(\"button[type=submit]\");\n\t\t\tform.addEventListener(\"submit\", () => { submit().disabled = true; });\n\t\t\twindow.addEventListener(\"pageshow\", (e) => { if (e.persisted) submit().disabled = false; });\n\t\t})();\n\t</script>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

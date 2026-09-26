@@ -1,6 +1,7 @@
 package main
 
 import (
+	"database/sql"
 	"fmt"
 	"io/fs"
 	"log"
@@ -26,13 +27,16 @@ const familyBucketID int64 = 100
 
 // application holds the dependencies shared across HTTP handlers.
 type application struct {
-	queries *db.Queries
+	// database is kept beside queries for work that must be all or nothing,
+	// such as creating a trip with its basics (see createTripWithBasics).
+	database *sql.DB
+	queries  *db.Queries
 	// now is the clock; tests replace it to pin "today".
 	now func() time.Time
 }
 
-func newApplication(queries *db.Queries) *application {
-	return &application{queries: queries, now: time.Now}
+func newApplication(database *sql.DB) *application {
+	return &application{database: database, queries: db.New(database), now: time.Now}
 }
 
 // helsinki is the family's time zone; "today" means the date in Finland.
@@ -76,6 +80,7 @@ func (app *application) routes() http.Handler {
 	mux.HandleFunc("POST /trips/{id}/members/{memberID}/items/{itemID}/unpack", app.handleUnpackItem)
 	mux.HandleFunc("POST /trips/{id}/members/{memberID}/items", app.handleAddItem)
 	mux.HandleFunc("POST /trips/{id}/items/{itemID}/delete", app.handleRemoveItem)
+	mux.HandleFunc("POST /trips/{id}/items/{itemID}/quantity", app.handleChangeQuantity)
 	return skipDevReloadForHTMX(mux)
 }
 

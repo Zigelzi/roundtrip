@@ -50,7 +50,7 @@ func main() {
 		log.Fatalf("failed to apply family names: %v", err)
 	}
 
-	app := newApplication(queries)
+	app := newApplication(database)
 
 	log.Printf("listening on http://%s", address)
 	if err := http.ListenAndServe(address, app.routes()); err != nil {

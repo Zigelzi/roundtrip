@@ -28,7 +28,7 @@ func newTestApp(t *testing.T) (*application, *sql.DB) {
 	if err := db.RunMigrations(database); err != nil {
 		t.Fatalf("RunMigrations: %v", err)
 	}
-	app := newApplication(db.New(database))
+	app := newApplication(database)
 	// A fixed default clock keeps date-dependent pages deterministic; tests
 	// that care about "today" pin their own.
 	app.now = func() time.Time { return time.Date(2026, 9, 1, 9, 0, 0, 0, time.UTC) }
