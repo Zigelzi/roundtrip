@@ -17,6 +17,17 @@ ln -sf "$D/chrome-headless-shell-linux64/chrome-headless-shell" ~/.local/bin/chr
 sudo apt install -y libnss3 libasound2t64 fonts-liberation   # libraries it needs; real fonts for realistic text
 ```
 
+## Quick check: one screenshot
+
+No protocol needed for a still picture at phone size and density:
+
+```bash
+chrome-headless-shell --no-sandbox --hide-scrollbars --window-size=390,844 \
+  --force-device-scale-factor=3 --screenshot=/tmp/shot.png http://127.0.0.1:8080/trips/1
+```
+
+To keep a running `make dev` and its database untouched, run a separate copy: `go build -o /tmp/rt ./cmd/web && DB_PATH=/tmp/check.db ADDR=127.0.0.1:18080 /tmp/rt`.
+
 ## Run
 
 ```bash
