@@ -57,6 +57,13 @@ Reading the numbers: unchanged content should be 0 (or 1, rounding) at every T. 
 
 Save the mid-transition screenshots too and look at them (the Read tool shows images): a number says something differs, a picture says what.
 
+## Security
+
+- **Localhost only.** Point this browser at the app on 127.0.0.1 and nothing else. It is a manually downloaded copy that does not update itself, and `--no-sandbox` switches off Chrome's main defence against malicious pages (often needed in WSL); both are acceptable for our own pages only.
+- **Stop it when done.** `--remote-debugging-port` lets anything that can reach the port fully control the browser. It listens on this machine only, but with WSL mirrored networking Windows programs can reach it too. Never add a firewall rule for 9222.
+- **Refresh it before reuse** if it has been a while: repeat the setup with the current version from the JSON listing.
+- The system libraries come from Ubuntu's signed repositories and are patched by the normal `apt upgrade`.
+
 ## Limits
 
 - Headless Chrome is Chromium only. Safari/WebKit behaviour is not covered; the phone check is still the final word.
