@@ -54,3 +54,10 @@ html:active-view-transition #trip-items > section {
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-sm);
 }
+/* Below the sm breakpoint a section is a square, edge-to-edge panel
+   (cardClass), so its group must not round the corners mid-transition. */
+@media (width < 40rem) {
+  ::view-transition-group(*.section) {
+    border-radius: 0;
+  }
+}

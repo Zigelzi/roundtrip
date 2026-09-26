@@ -62,6 +62,14 @@ func FormatDays(n int64) string {
 	return fmt.Sprintf("%d days", n)
 }
 
+// FormatItemCount shows how many items a person has: "1 item", "18 items".
+func FormatItemCount(n int) string {
+	if n == 1 {
+		return "1 item"
+	}
+	return fmt.Sprintf("%d items", n)
+}
+
 // TripURL is a trip's page.
 func TripURL(id int64) string {
 	return fmt.Sprintf("/trips/%d", id)

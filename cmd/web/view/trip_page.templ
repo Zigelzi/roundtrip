@@ -5,12 +5,23 @@ import "strconv"
 // TripPage shows a trip and each family member's items. Each member is a
 // <section data-member="Name"> with an id for jumping back to it. With
 // page.Edit set, one row is a quantity form and every other row is locked.
+// The header sticks to the top, and it has its own view-transition-name:
+// during the edit transition every named row is lifted above the page, and
+// without a name of its own the header would be drawn under the rows that
+// are scrolled behind it.
 templ TripPage(page TripPageData) {
 	@Layout(page.Trip.Destination) {
 		<a href="/" class="inline-flex min-h-12 items-center text-slate-600">← Trips</a>
-		<h1 class="text-2xl font-bold">{ page.Trip.Destination }</h1>
-		<p class="text-slate-600">{ FormatDateRange(page.Trip.Departure, page.Trip.DurationDays) } · { FormatDays(page.Trip.DurationDays) }</p>
-		<a href={ templ.SafeURL(PackURL(page.Trip.ID)) } class="mt-3 inline-flex min-h-12 items-center rounded-lg bg-slate-900 px-6 font-semibold text-white">Start packing →</a>
+		<header class={ stickyHeaderClass } style={ transitionName("trip-header") }>
+			<div class="flex items-center gap-3">
+				<div class="min-w-0 grow">
+					<h1 class="truncate text-xl font-bold">{ page.Trip.Destination }</h1>
+					<p class="truncate text-sm text-slate-600">{ FormatDateRange(page.Trip.Departure, page.Trip.DurationDays) } · { FormatDays(page.Trip.DurationDays) }</p>
+				</div>
+				<a href={ templ.SafeURL(PackURL(page.Trip.ID)) } class="inline-flex min-h-12 shrink-0 items-center rounded-lg bg-slate-900 px-4 font-semibold text-white">Start packing →</a>
+			</div>
+			@jumpLinks(page.Members)
+		</header>
 		<div id={ tripItemsID } class="mt-4 space-y-4">
 			for _, m := range page.Members {
 				@memberSection(page.Trip.ID, m, page.Edit)
@@ -24,12 +35,24 @@ templ TripPage(page TripPageData) {
 	}
 }
 
+// jumpLinks are plain #anchor links to each member's section, in page
+// order, so a parent can skip past everyone else's items. One equal-width
+// column per member keeps them on a single line (the header is sticky, so a
+// second line would cost list space on every screen); a long name is cut
+// short with an ellipsis rather than wrapping.
+templ jumpLinks(members []MemberItems) {
+	<nav class="mt-2 grid grid-flow-col auto-cols-fr gap-1">
+		for _, m := range members {
+			<a href={ templ.SafeURL("#" + memberAnchor(m.ID)) } class="flex min-h-11 min-w-0 items-center justify-center rounded-lg border border-slate-300 bg-white px-1 text-sm font-semibold text-slate-700"><span class="truncate">{ m.Name }</span></a>
+		}
+	</nav>
+}
+
 // memberSection is one member's items plus the add form. The form sits
 // outside the swapped item list: htmx replaces only the list, so the focused
 // name field (and the phone keyboard) stays put between additions.
 templ memberSection(tripID int64, m MemberItems, edit ItemEdit) {
-	<section id={ memberAnchor(m.ID) } data-member={ m.Name } style={ sectionTransition(memberAnchor(m.ID)) } class="rounded-lg bg-white p-4 shadow-sm">
-		<h2 class="text-lg font-semibold">{ m.Name }</h2>
+	<section id={ memberAnchor(m.ID) } data-member={ m.Name } style={ sectionTransition(memberAnchor(m.ID)) } class={ cardClass + " " + anchorClass }>
 		@MemberItemList(tripID, m, edit)
 		<form
 			method="post"
@@ -52,6 +75,14 @@ templ memberSection(tripID int64, m MemberItems, edit ItemEdit) {
 	</section>
 }
 
+// anchorClass is on everything the page jumps to by its #id (a section, a
+// row), so it lands just below the sticky header instead of under it. It is
+// the header's height (about 117px) plus a little room; change the two
+// together. The header's title and dates are cut to one line each so that
+// height stays fixed: a long destination that wrapped would push every jump
+// under the header.
+const anchorClass = "scroll-mt-32"
+
 // stepperClass is the − / + quantity buttons: full 48px tap targets.
 const stepperClass = "size-12 shrink-0 rounded-lg border bg-white text-xl font-semibold"
 
@@ -64,10 +95,15 @@ const increaseClass = stepperClass + " border-green-300 text-green-700"
 const quantityClass = "min-h-12 w-14 rounded-lg border border-slate-300 bg-white px-1 text-center text-base [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
 
 // MemberItemList is the part of a member's section that htmx swaps after an
-// item is added or removed: the items and any validation errors. Without
+// item is added or removed: the heading with its item count, the items and
+// any validation errors. The heading is inside so the count stays right. Without
 // JavaScript the forms still work as plain posts with a redirect.
 templ MemberItemList(tripID int64, m MemberItems, edit ItemEdit) {
 	<div id={ itemListID(m.ID) }>
+		<h2 class="flex items-baseline gap-2 text-lg font-semibold">
+			{ m.Name }
+			<span class="text-sm font-normal text-slate-500">{ FormatItemCount(len(m.Items)) }</span>
+		</h2>
 		if len(m.Items) == 0 {
 			<p class="mt-1 text-slate-600">No items yet.</p>
 		} else {
@@ -90,11 +126,11 @@ templ MemberItemList(tripID int64, m MemberItems, edit ItemEdit) {
 // lock can cover every member's section) and lands back on the row. While
 // another row is being edited, both buttons are disabled.
 templ itemRow(tripID, memberID int64, it Item, locked bool) {
-	<li id={ itemAnchor(it.ID) } style={ rowTransition(itemAnchor(it.ID)) } class="flex min-h-12 items-center gap-2">
+	<li id={ itemAnchor(it.ID) } style={ rowTransition(itemAnchor(it.ID)) } class={ "flex min-h-14 items-center gap-2 " + anchorClass }>
 		<span class="grow">{ it.Name }</span>
 		<form method="get" action={ templ.SafeURL(ItemURL(tripID, it.ID)) } hx-get={ TripURL(tripID) } { swapTripItems... }>
 			<input type="hidden" name="edit" value={ strconv.FormatInt(it.ID, 10) }/>
-			<button type="submit" aria-label={ "Change quantity of " + it.Name } disabled?={ locked } class={ lockable("min-h-12 whitespace-nowrap rounded-lg px-2", "text-slate-600 underline decoration-dotted underline-offset-4", "text-slate-400", locked) }>{ FormatQuantity(it.Quantity) }</button>
+			<button type="submit" aria-label={ "Change quantity of " + it.Name } disabled?={ locked } class={ lockable("min-h-14 whitespace-nowrap rounded-lg px-2", "text-slate-600 underline decoration-dotted underline-offset-4", "text-slate-400", locked) }>{ FormatQuantity(it.Quantity) }</button>
 		</form>
 		<form
 			method="post"
@@ -103,7 +139,7 @@ templ itemRow(tripID, memberID int64, it Item, locked bool) {
 			hx-target={ "#" + itemListID(memberID) }
 			hx-swap="outerHTML"
 		>
-			<button type="submit" aria-label={ "Remove " + it.Name } disabled?={ locked } class={ lockable("min-h-12 min-w-12 rounded-lg text-xl", "text-red-600", "text-slate-300", locked) }>✕</button>
+			<button type="submit" aria-label={ "Remove " + it.Name } disabled?={ locked } class={ lockable("min-h-14 min-w-12 rounded-lg text-xl", "text-red-600", "text-slate-300", locked) }>✕</button>
 		</form>
 	</li>
 }
@@ -114,7 +150,7 @@ templ itemRow(tripID, memberID int64, it Item, locked bool) {
 // happening, and Cancel looks like a button, because on the phone check
 // neither the open row nor the way out was obvious.
 templ editItemRow(tripID int64, it Item, edit ItemEdit) {
-	<li id={ itemAnchor(it.ID) } style={ rowTransition(itemAnchor(it.ID)) } class="my-2 scroll-mt-4 rounded-lg border-2 border-amber-400 bg-amber-50 p-3">
+	<li id={ itemAnchor(it.ID) } style={ rowTransition(itemAnchor(it.ID)) } class={ "my-2 rounded-lg border-2 border-amber-400 bg-amber-50 p-3 " + anchorClass }>
 		<form method="post" action={ templ.SafeURL(quantityURL(tripID, it.ID)) } hx-post={ quantityURL(tripID, it.ID) } { swapTripItems... } class="flex flex-wrap items-center gap-2">
 			<p class="w-full">
 				<span class="font-semibold">{ it.Name }</span>

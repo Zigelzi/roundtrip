@@ -1,6 +1,6 @@
 # Activity catalogue (draft)
 
-**Status:** draft, not yet specced or built. Feeds **milestones 04 to 06** (see [How this is split](#how-this-is-split)). Drafting this surfaced the Family-items problem (see [open item A3](#open-items)), which was split out into milestone 03 because it changes what an item is. Serves [`user-flows.md`](user-flows.md) step 1 ("plan what activities we're doing") and step 2 ("plan what to pack based on that").
+**Status:** draft, not yet specced or built. Feeds **milestone 04 and the later activity milestones** (see [How this is split](#how-this-is-split)). Drafting this surfaced the Family-items problem (see [open item A3](#open-items)), which was split out into milestone 03 because it changes what an item is. Serves [`user-flows.md`](user-flows.md) step 1 ("plan what activities we're doing") and step 2 ("plan what to pack based on that").
 
 This file exists to answer one question before any code is written: *if we had this, would the packing list it produces actually be the list we'd write by hand?* It drafts the activities, the items behind them, and a worked example trip so the result can be judged on paper. Each milestone spec comes after its part of this file is agreed.
 
@@ -181,7 +181,7 @@ Decided (Human-PM): an activity is strictly *what we do*, not where we sleep. Co
 
 ## Shared activities
 
-Milestone 05. Things the family does together. A row can still be for a subset (goggles for the adults and Child 1), but the activity itself is picked for the whole family.
+A later milestone. Things the family does together. A row can still be for a subset (goggles for the adults and Child 1), but the activity itself is picked for the whole family.
 
 ### Swimming
 
@@ -293,7 +293,7 @@ Assumes snow play is also selected; this adds only the gear on top of the warm c
 
 ## Personal activities
 
-Milestone 06. Something one or some of us do, not the whole family. Rows have no Who column: they apply to whoever the activity is chosen for on the trip form ([A8](#open-items)).
+A later milestone, after the family activities. Something one or some of us do, not the whole family. Rows have no Who column: they apply to whoever the activity is chosen for on the trip form ([A8](#open-items)).
 
 ### Running
 
@@ -467,4 +467,4 @@ Still open:
 | # | Question | Draft's assumption |
 |---|---|---|
 | A5 | Is ~88 generated rows the right outcome, or should the list be leaner? | Complete list, matching what milestone 02 packs. The [worked example](#worked-example-does-it-produce-the-right-list) reaches 96 rows on a one-activity weekend, 75 of them from the basics. |
-| A6 | Is the content right: activities missing, ones you would never pick, wrong items? | Drafted unverified; review before milestone 05. Known clashes with the new basics: Child 1's "Hat" vs Snow play's "Woolly hat" and Beach's "Sun hat"; Parent 1's khakis and long shirt vs Eating out's "Nicer outfit". |
+| A6 | Is the content right: activities missing, ones you would never pick, wrong items? | Drafted unverified; review before the first activity milestone. Known clashes with the new basics: Child 1's "Hat" vs Snow play's "Woolly hat" and Beach's "Sun hat"; Parent 1's khakis and long shirt vs Eating out's "Nicer outfit". |

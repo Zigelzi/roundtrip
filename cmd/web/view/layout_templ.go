@@ -9,7 +9,9 @@ import "github.com/a-h/templ"
 import templruntime "github.com/a-h/templ/runtime"
 
 // Layout is the shared page shell: mobile viewport, stylesheet and a
-// narrow centred column (the app is used on phones ~99% of the time).
+// centred column. On a phone the column is the whole screen (the app is used
+// on phones ~99% of the time); on a wider screen it stops at a readable
+// width, so a row's name and quantity do not drift apart.
 // htmxConfig keeps htmx's defaults but also swaps 422 replies, so validation
 // errors show up in place (htmx ignores 4xx bodies by default), and lets the
 // browser report empty required fields instead of silently not sending.
@@ -43,7 +45,7 @@ func Layout(title string) templ.Component {
 		var templ_7745c5c3_Var2 string
 		templ_7745c5c3_Var2, templ_7745c5c3_Err = templ.JoinStringErrs(title)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `cmd/web/view/layout.templ`, Line: 16, Col: 17}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `cmd/web/view/layout.templ`, Line: 18, Col: 17}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var2))
 		if templ_7745c5c3_Err != nil {
@@ -56,13 +58,13 @@ func Layout(title string) templ.Component {
 		var templ_7745c5c3_Var3 string
 		templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.JoinStringErrs(htmxConfig)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `cmd/web/view/layout.templ`, Line: 18, Col: 48}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `cmd/web/view/layout.templ`, Line: 20, Col: 48}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var3))
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "\"><script src=\"/static/htmx.min.js\" defer></script></head><body class=\"bg-slate-50 text-slate-900\"><main class=\"mx-auto max-w-md p-4\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "\"><script src=\"/static/htmx.min.js\" defer></script></head><body class=\"bg-slate-50 text-slate-900\"><main class=\"mx-auto max-w-2xl p-4\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -77,5 +79,20 @@ func Layout(title string) templ.Component {
 		return nil
 	})
 }
+
+// cardClass is a white panel holding a list of items. On a phone it bleeds
+// through the page's side padding (-mx-4) to the screen edges, so the list
+// keeps the whole width and only its own small padding keeps text off the
+// edge. From the sm breakpoint up, where the page is narrower than the
+// screen, it sits inside the padding as a rounded card again.
+const cardClass = "-mx-4 bg-white px-3 py-4 shadow-sm sm:mx-0 sm:rounded-lg sm:px-4"
+
+// stickyHeaderClass keeps a page's title bar at the top of the screen while
+// its long list scrolls underneath. It spans the page's side padding, so on
+// a phone it reaches the screen edges like cardClass (on a wider screen it
+// stays 16px wider than the cards, unseen since it matches the page). Its
+// background is solid, so rows pass under it rather than showing through. It is kept to one or two short lines: on a phone with the
+// keyboard open, every pixel it takes is a pixel less of the list.
+const stickyHeaderClass = "sticky top-0 z-10 -mx-4 border-b border-slate-200 bg-slate-50 px-4 py-2"
 
 var _ = templruntime.GeneratedTemplate

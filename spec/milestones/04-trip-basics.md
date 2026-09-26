@@ -21,7 +21,7 @@ The content and the reasoning behind it live in [`../activity-catalogue.md`](../
 7. Updating [`../domain-model.md`](../domain-model.md) with where the basics are stored.
 
 **Out:**
-1. Activities of any kind (milestones 05 and 06).
+1. Activities of any kind (later milestones).
 2. Choosing, skipping or editing basics, per trip or per person ([A10](../activity-catalogue.md#open-items)). Basics are always on.
 3. Season-aware basics ([A12](../activity-catalogue.md#open-items)).
 4. Basics for trips created before this milestone ([A12](../activity-catalogue.md#open-items)).

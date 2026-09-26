@@ -7,12 +7,16 @@ package view
 templ PackPage(page PackPageData) {
 	@Layout("Packing · " + page.Trip.Destination) {
 		<a href={ templ.SafeURL(TripURL(page.Trip.ID)) } class="inline-flex min-h-12 items-center text-slate-600">← { page.Trip.Destination }</a>
-		<h1 class="text-2xl font-bold">Packing</h1>
+		<header class={ stickyHeaderClass }>
+			<h1 class="text-xl font-bold break-words">Packing <span class="font-normal text-slate-600">· { page.Trip.Destination }</span></h1>
+			if page.TripTotal > 0 {
+				@PackProgress(page, false)
+			}
+		</header>
 		if page.TripTotal == 0 {
 			<p class="mt-2 text-slate-600">Nothing to pack yet.</p>
 			<a href={ templ.SafeURL(TripURL(page.Trip.ID)) } class="mt-2 inline-flex min-h-12 items-center font-semibold text-slate-900">Add items to the trip →</a>
 		} else {
-			@PackProgress(page, false)
 			@memberFilter(page)
 			<div class="mt-4 space-y-4">
 				for _, m := range page.Shown() {
@@ -25,14 +29,15 @@ templ PackPage(page PackPageData) {
 }
 
 // PackProgress is how much of the list is in the bag. It is swapped on every
-// tap, so the "everything is packed" message lives here too.
+// tap, so the "everything is packed" message lives here too. It sits in the
+// sticky header, so the messages are kept to a slim line.
 templ PackProgress(page PackPageData, oob bool) {
 	<div id="pack-progress" { oobAttrs(oob)... }>
-		<p class="text-slate-600">{ FormatProgress(page.Packed, page.Total) }</p>
+		<p class="text-sm text-slate-600">{ FormatProgress(page.Packed, page.Total) }</p>
 		if page.TripTotal > 0 && page.TripPacked == page.TripTotal {
-			<p class="mt-2 rounded-lg bg-green-50 p-4 font-semibold text-green-800">Everything is packed.</p>
+			<p class={ doneClass }>Everything is packed.</p>
 		} else if page.Filter != 0 && page.Total > 0 && page.Packed == page.Total {
-			<p class="mt-2 rounded-lg bg-green-50 p-4 font-semibold text-green-800">
+			<p class={ doneClass }>
 				if page.Filter == page.FamilyBucketID {
 					The family's things are packed.
 				} else {
@@ -43,6 +48,8 @@ templ PackProgress(page PackPageData, oob bool) {
 		}
 	</div>
 }
+
+const doneClass = "mt-1 rounded-lg bg-green-50 px-3 py-2 font-semibold text-green-800"
 
 // memberFilter narrows the page to one person, or to the whole family. Plain
 // links, so the choice lives in the URL and survives every tap. Six links no
@@ -80,7 +87,7 @@ const filterClass = filterBaseClass + " border-slate-300 bg-white text-slate-700
 const filterActiveClass = filterBaseClass + " border-slate-900 bg-slate-900 text-white"
 
 templ packMemberSection(page PackPageData, m PackMember) {
-	<section data-member={ m.Name } class="rounded-lg bg-white p-4 shadow-sm">
+	<section data-member={ m.Name } class={ cardClass }>
 		<h2 class="text-lg font-semibold">{ m.Name }</h2>
 		@PackMemberList(page, m)
 	</section>
@@ -115,7 +122,7 @@ templ PackMemberList(page PackPageData, m PackMember) {
 // itself is never swapped, only the list inside it, so it stays open while
 // a parent works through it (S3).
 templ packedSection(page PackPageData) {
-	<details id="packed" class="group mt-4 rounded-lg bg-white p-4 shadow-sm">
+	<details id="packed" class={ "group mt-4 " + cardClass }>
 		@PackedSummary(page, false)
 		@PackedList(page, false)
 	</details>
@@ -187,7 +194,7 @@ templ tapRow(action, targetID, label string) {
 		hx-swap="outerHTML"
 		hx-sync="body:queue all"
 	>
-		<button type="submit" aria-label={ label } class="flex min-h-14 w-full items-center gap-3 text-left">
+		<button type="submit" aria-label={ label } class="flex min-h-16 w-full items-center gap-3 text-left">
 			{ children... }
 		</button>
 	</form>
