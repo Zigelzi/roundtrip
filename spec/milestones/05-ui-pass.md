@@ -4,7 +4,7 @@
 <!-- Status: draft → red-teamed → in-progress → done -->
 
 ## Why
-Flow: Plan what to pack and Pack (`../user-flows.md` steps 2 and 5).
+Flow: Plan what to pack and Pack (`../user-flows.md` steps 3 and 6).
 
 Since milestone 04, a new trip starts with about 75 items, and the screens were built for lists of five. On a phone the items sit inside a card inside a padded page, so about a sixth of the screen width goes to empty margins, and once a parent scrolls down they lose the trip's name, the way to packing, and any sense of whose items they are looking at. After this milestone the items use the whole screen width, rows are a little easier to hit, the top of the page stays in view, and a parent can jump straight to a person's items instead of scrolling past everyone else's.
 

@@ -4,7 +4,7 @@
 <!-- Status: draft → red-teamed → in-progress → done -->
 
 ## Why
-Flow: Plan what to pack (`../user-flows.md` step 2) and pack everything (step 5).
+Flow: Plan what to pack (`../user-flows.md` step 3) and pack everything (step 6).
 
 Not everything we take belongs to a person. Sunscreen, the first aid kit, the board game and the tent are packed once for the family, not once each. Today the app has no place for them: every item must have an owner, so a shared thing has to be parked on one parent, which makes that parent's list wrong and makes milestone 02's "pack only my things" view misleading.
 

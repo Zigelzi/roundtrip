@@ -51,6 +51,15 @@ One letter per kind of thing, so a number is never ambiguous across documents:
 
 All three follow the scenario rule: numbers are stable, a removed one leaves a gap, never renumber. Note that `constitution.md` separately uses "Option A" and "Option B" for the allocation experiment; that is unrelated to the `A` prefix here.
 
+### Flow steps
+
+[`user-flows.md`](user-flows.md) owns the numbered steps of the user flow and is the single source of truth for them. The steps are expected to change as we learn. Other files may refer to a step by number, always together with its name (`step 3, Plan what to pack`), so a number that has gone stale is easy to spot.
+
+Unlike S, Q and A numbers, flow steps may be renumbered. When a step is added, removed or reordered, the same commit updates every reference, including those in finished milestone specs:
+
+1. Find them: `grep -rn "user-flows.md\|step [0-9]" spec CLAUDE.md README.md`, and ignore the workflow steps of `constitution.md`, which are a different numbering.
+2. Update each number to match the step's name, and update the numbers inside `user-flows.md` itself (the success table and the loop diagram).
+
 ## Starting a milestone
 
 Open a fresh session and describe what you want to build; the session creates the `feature/<name>` branch and scaffolds the spec file from the template, then you write the spec into it. (Mechanics live in the workflow in `constitution.md`; this section is about the describing.)

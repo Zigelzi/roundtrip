@@ -1,6 +1,6 @@
 # Activity catalogue (draft)
 
-**Status:** draft, not yet specced or built. Feeds **milestone 04 and the later activity milestones** (see [How this is split](#how-this-is-split)). Drafting this surfaced the Family-items problem (see [open item A3](#open-items)), which was split out into milestone 03 because it changes what an item is. Serves [`user-flows.md`](user-flows.md) step 1 ("plan what activities we're doing") and step 2 ("plan what to pack based on that").
+**Status:** draft, not yet specced or built. Feeds **milestone 04 and the later activity milestones** (see [How this is split](#how-this-is-split)). Drafting this surfaced the Family-items problem (see [open item A3](#open-items)), which was split out into milestone 03 because it changes what an item is. Serves [`user-flows.md`](user-flows.md) step 2 ("plan what activities we're doing") and step 3 ("plan what to pack based on that").
 
 This file exists to answer one question before any code is written: *if we had this, would the packing list it produces actually be the list we'd write by hand?* It drafts the activities, the items behind them, and a worked example trip so the result can be judged on paper. Each milestone spec comes after its part of this file is agreed.
 

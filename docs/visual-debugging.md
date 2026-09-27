@@ -26,6 +26,8 @@ chrome-headless-shell --no-sandbox --hide-scrollbars --window-size=390,844 \
   --force-device-scale-factor=3 --screenshot=/tmp/shot.png http://127.0.0.1:8080/trips/1
 ```
 
+The screenshot is taken at the top of the page: a URL with a `#anchor` comes out blank (seen in milestone 05), so for a scrolled view use the protocol route below.
+
 To keep a running `make dev` and its database untouched, run a separate copy: `go build -o /tmp/rt ./cmd/web && DB_PATH=/tmp/check.db ADDR=127.0.0.1:18080 /tmp/rt`.
 
 ## Run

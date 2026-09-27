@@ -30,7 +30,7 @@ Stack (decided; see `spec/constitution.md` for the per-choice rationale): Go + [
 
 A packing app for a single family that travels in Finland. It is a two-player collaboration app (the two parents pack together), intentionally not multi-tenant, with minimal configuration and ideally login via Google account only. See `README.md` and `spec/user-flows.md`.
 
-Core user flow (`spec/user-flows.md`): plan trip activities → derive a packing list from them → gather items in one place → review what's missing and needs buying → pack once confirmed. A distinguishing goal is the post-trip review: mark which packed items were actually useful so the future packing list improves over time, something the user finds too time-consuming with current tools.
+Core user flow: the numbered steps live only in `spec/user-flows.md` (not restated here, since they change; `spec/README.md` has the rule for keeping step references in sync). A distinguishing goal is the post-trip review: mark which packed items were actually useful so the future packing list improves over time, something the user finds too time-consuming with current tools.
 
 ## How work is meant to be done here
 

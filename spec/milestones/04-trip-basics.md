@@ -4,7 +4,7 @@
 <!-- Status: draft → red-teamed → in-progress → done -->
 
 ## Why
-Flow: Plan what to pack (`../user-flows.md` step 2).
+Flow: Plan what to pack (`../user-flows.md` step 3).
 
 Every trip starts with the same boring list: underwear, socks, toothbrushes, nappies, the stroller. Today a parent types all of it by hand on every trip and re-decides how many of each for the trip's length. After this milestone a new trip already holds each person's basics and the Family bucket's, with per-day items sized to the trip's duration, so the parent starts from a nearly complete list and only adds what is special about this trip.
 

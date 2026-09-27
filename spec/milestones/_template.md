@@ -5,7 +5,7 @@
 
 ## Why
 The problem and the user value, in 1–3 sentences.
-Which `../user-flows.md` step this serves.
+Which `../user-flows.md` step this serves, by number and name.
 
 ## Scope
 - **In:** what this milestone delivers end-to-end

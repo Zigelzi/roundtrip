@@ -4,7 +4,7 @@
 <!-- Status: draft → red-teamed → in-progress → done -->
 
 ## Why
-Flow: Pack everything (`../user-flows.md` step 5).
+Flow: Pack everything (`../user-flows.md` step 6).
 As a parent I want to tick off items as I put them in the bag, so that I can see what is still left to pack and nothing is forgotten.
 
 Planning and packing are separate activities, in the app and in real life: planning is sitting down and deciding what to bring, packing is standing at the bed with the bag. They happen at different times and need different screens, so packing gets its own page, and the trip page stays the planning view. Packing also varies: sometimes the whole family is packed in one go, sometimes one parent packs only their own things and the other members' items are noise.

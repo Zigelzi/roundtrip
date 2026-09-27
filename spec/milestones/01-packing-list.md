@@ -4,10 +4,10 @@
 <!-- Status: draft → red-teamed → in-progress → done -->
 
 ## Why
-Flow: Plan what to pack (`../user-flows.md` step 2).
+Flow: Plan what to pack (`../user-flows.md` step 3).
 As a parent I want to start a new trip and write down the items each family member needs on it, so that we can keep track of everything we need to bring.
 
-This comes before step 1 (planning activities) on purpose: a packing list is the most valuable part on its own, and activity-based planning later needs a packing list to feed into. It is intentionally a single-player milestone: learning the basics with one user before adding the second parent.
+This comes before step 2 (planning activities) on purpose: a packing list is the most valuable part on its own, and activity-based planning later needs a packing list to feed into. It is intentionally a single-player milestone: learning the basics with one user before adding the second parent.
 
 ## Scope
 **In:**
