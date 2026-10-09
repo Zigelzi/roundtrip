@@ -22,9 +22,60 @@ const defaultDurationDays = "3"
 // hundreds of basics that can't be deleted.
 const maxTripDays = 14
 
+// choosePerson is the message for a trip with nobody going.
+const choosePerson = "Choose at least one person who is going."
+
 func (app *application) handleNewTrip(w http.ResponseWriter, r *http.Request) {
-	form := view.TripForm{DurationDays: defaultDurationDays}
+	people, err := app.queries.ListPeople(r.Context())
+	if err != nil {
+		app.serverError(w, "list people", err)
+		return
+	}
+	form := view.TripForm{DurationDays: defaultDurationDays, People: tripPeople(people, nil)}
+	for i := range form.People {
+		form.People[i].Ticked = true // everyone goes unless the parent unticks them
+	}
 	app.render(w, r, http.StatusOK, view.NewTrip(form, app.today().Format(dateLayout)))
+}
+
+// tripPeople turns the people into tick boxes, ticking those in going.
+func tripPeople(people []db.FamilyMember, going map[int64]bool) []view.TripPerson {
+	boxes := make([]view.TripPerson, len(people))
+	for i, p := range people {
+		boxes[i] = view.TripPerson{ID: p.ID, Name: p.Name, Ticked: going[p.ID]}
+	}
+	return boxes
+}
+
+// goingFromForm reads the ticked boxes. Only ids of real people count: a
+// forged or stale value, and the Family bucket's id, are ignored, because the
+// Family follows the children. A repeated id counts once.
+func goingFromForm(r *http.Request, people []db.FamilyMember) map[int64]bool {
+	known := make(map[int64]bool, len(people))
+	for _, p := range people {
+		known[p.ID] = true
+	}
+	going := map[int64]bool{}
+	for _, v := range r.PostForm["members"] {
+		if id, err := strconv.ParseInt(v, 10, 64); err == nil && known[id] {
+			going[id] = true
+		}
+	}
+	return going
+}
+
+// wantsBasicsOf says whether the basics owned by owner go on a trip with these
+// people going. The Family bucket's basics need both children.
+func wantsBasicsOf(owner int64, going map[int64]bool) bool {
+	if owner != familyBucketID {
+		return going[owner]
+	}
+	for _, child := range childIDs {
+		if !going[child] {
+			return false
+		}
+	}
+	return true
 }
 
 func (app *application) handleCreateTrip(w http.ResponseWriter, r *http.Request) {
@@ -34,14 +85,24 @@ func (app *application) handleCreateTrip(w http.ResponseWriter, r *http.Request)
 		EndDate:       r.PostFormValue("end_date"),
 		DurationDays:  strings.TrimSpace(r.PostFormValue("duration_days")),
 	}
+	people, err := app.queries.ListPeople(r.Context())
+	if err != nil {
+		app.serverError(w, "list people", err)
+		return
+	}
+	going := goingFromForm(r, people)
+	form.People = tripPeople(people, going)
 	today := app.today()
 	params, errs := validateTrip(form, today)
+	if len(going) == 0 {
+		errs = append(errs, choosePerson)
+	}
 	if len(errs) > 0 {
 		form.Errors = errs
 		app.render(w, r, http.StatusUnprocessableEntity, view.NewTrip(form, today.Format(dateLayout)))
 		return
 	}
-	id, err := app.createTripWithBasics(r.Context(), params)
+	id, err := app.createTripWithBasics(r.Context(), params, going)
 	if err != nil {
 		// Nothing was saved, so the parent can simply try again with the
 		// form as they left it.
@@ -53,11 +114,12 @@ func (app *application) handleCreateTrip(w http.ResponseWriter, r *http.Request)
 	http.Redirect(w, r, view.TripURL(id), http.StatusSeeOther)
 }
 
-// createTripWithBasics saves the trip and everyone's basics as its items in
-// one transaction: either the trip arrives with all of them, or nothing is
-// saved. Items are added in ListBasicItems order (owner, then catalogue
-// position), which is the order the trip page lists them.
-func (app *application) createTripWithBasics(ctx context.Context, params db.CreateTripParams) (int64, error) {
+// createTripWithBasics saves the trip and the basics of the people going (see
+// wantsBasicsOf) as its items in one transaction: either the trip arrives with
+// all of them, or nothing is saved. Items are added in ListBasicItems order
+// (owner, then catalogue position), which is the order the trip page lists
+// them.
+func (app *application) createTripWithBasics(ctx context.Context, params db.CreateTripParams, going map[int64]bool) (int64, error) {
 	tx, err := app.database.BeginTx(ctx, nil)
 	if err != nil {
 		return 0, err
@@ -74,6 +136,9 @@ func (app *application) createTripWithBasics(ctx context.Context, params db.Crea
 		return 0, fmt.Errorf("list basics: %w", err)
 	}
 	for _, b := range basics {
+		if !wantsBasicsOf(b.FamilyMemberID, going) {
+			continue
+		}
 		err := qtx.CreateItem(ctx, db.CreateItemParams{
 			TripID:         id,
 			FamilyMemberID: b.FamilyMemberID,

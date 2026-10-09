@@ -126,6 +126,7 @@ func createTripOf(t *testing.T, app *application, database *sql.DB, days int) in
 		"destination":    {"Parainen"},
 		"departure_date": {"2026-09-20"},
 		"duration_days":  {strconv.Itoa(days)},
+		"members":        everyone,
 	})
 	if rec.Code != http.StatusSeeOther {
 		t.Fatalf("create %d-day trip: status = %d, want 303", days, rec.Code)
@@ -302,6 +303,7 @@ func TestFailedTripCreationLeavesNothing(t *testing.T) {
 		"destination":    {"Parainen"},
 		"departure_date": {"2026-09-20"},
 		"duration_days":  {"3"},
+		"members":        everyone,
 	})
 
 	if rec.Code == http.StatusSeeOther {

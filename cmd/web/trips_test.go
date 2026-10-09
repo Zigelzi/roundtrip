@@ -80,6 +80,7 @@ func TestCreateTrip(t *testing.T) {
 		"destination":    {"Parainen"},
 		"departure_date": {"2026-09-20"},
 		"duration_days":  {"3"},
+		"members":        everyone,
 	})
 
 	if rec.Code != http.StatusSeeOther {
@@ -111,6 +112,7 @@ func TestCreateTripDepartingToday(t *testing.T) {
 		"destination":    {"Parainen"},
 		"departure_date": {"2026-09-20"},
 		"duration_days":  {"3"},
+		"members":        everyone,
 	})
 
 	if rec.Code != http.StatusSeeOther {
@@ -150,6 +152,7 @@ func TestCreateTripRejectsInvalidInput(t *testing.T) {
 				"departure_date": {tt.departure},
 				"end_date":       {tt.end},
 				"duration_days":  {tt.duration},
+				"members":        everyone,
 			})
 
 			if rec.Code != http.StatusUnprocessableEntity {
@@ -196,6 +199,7 @@ func TestCreateTripWithReturnDate(t *testing.T) {
 				"departure_date": {"2026-12-20"},
 				"end_date":       {"2026-12-27"},
 				"duration_days":  {tt.duration},
+				"members":        everyone,
 			})
 
 			if rec.Code != http.StatusSeeOther {

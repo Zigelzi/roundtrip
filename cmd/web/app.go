@@ -25,6 +25,12 @@ import (
 // keeps the two in step.
 const familyBucketID int64 = 100
 
+// childIDs are the two children's family_member ids, in seed order (see
+// sql/schema/20260919130000_add_family_member_and_item.sql). Found by id,
+// never by name, because FAMILY_NAMES renames people at startup. A new trip
+// gets the Family bucket's basics only when both are going.
+var childIDs = []int64{3, 4}
+
 // application holds the dependencies shared across HTTP handlers.
 type application struct {
 	// database is kept beside queries for work that must be all or nothing,

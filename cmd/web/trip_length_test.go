@@ -33,6 +33,7 @@ func TestTripIsAtMostFourteenDays(t *testing.T) {
 				"departure_date": {"2027-06-01"},
 				"end_date":       {tt.end},
 				"duration_days":  {tt.duration},
+				"members":        everyone,
 			})
 
 			if tt.created {

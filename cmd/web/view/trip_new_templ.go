@@ -8,8 +8,12 @@ package view
 import "github.com/a-h/templ"
 import templruntime "github.com/a-h/templ/runtime"
 
+import "strconv"
+
 // NewTrip is the create-trip form. today (YYYY-MM-DD) greys out past dates in
-// the phone's date picker; the server still enforces the rule.
+// the phone's date picker; the server still enforces the rule. The form is
+// novalidate: the browser's own popups are easy to miss on a phone, so the
+// server checks everything and shows all problems in one red box.
 func NewTrip(form TripForm, today string) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
@@ -51,7 +55,7 @@ func NewTrip(form TripForm, today string) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, " <form method=\"post\" action=\"/trips\" class=\"mt-4 space-y-4\"><label class=\"block\"><span class=\"font-semibold\">Destination</span> ")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, " <form method=\"post\" action=\"/trips\" novalidate class=\"mt-4 space-y-4\"><label class=\"block\"><span class=\"font-semibold\">Destination</span> ")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -67,7 +71,7 @@ func NewTrip(form TripForm, today string) templ.Component {
 			var templ_7745c5c3_Var4 string
 			templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.JoinStringErrs(form.Destination)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `cmd/web/view/trip_new.templ`, Line: 13, Col: 66}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `cmd/web/view/trip_new.templ`, Line: 17, Col: 66}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var4))
 			if templ_7745c5c3_Err != nil {
@@ -102,7 +106,7 @@ func NewTrip(form TripForm, today string) templ.Component {
 			var templ_7745c5c3_Var7 string
 			templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.JoinStringErrs(form.DepartureDate)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `cmd/web/view/trip_new.templ`, Line: 18, Col: 72}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `cmd/web/view/trip_new.templ`, Line: 22, Col: 72}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var7))
 			if templ_7745c5c3_Err != nil {
@@ -115,7 +119,7 @@ func NewTrip(form TripForm, today string) templ.Component {
 			var templ_7745c5c3_Var8 string
 			templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.JoinStringErrs(today)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `cmd/web/view/trip_new.templ`, Line: 18, Col: 86}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `cmd/web/view/trip_new.templ`, Line: 22, Col: 86}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var8))
 			if templ_7745c5c3_Err != nil {
@@ -150,7 +154,7 @@ func NewTrip(form TripForm, today string) templ.Component {
 			var templ_7745c5c3_Var11 string
 			templ_7745c5c3_Var11, templ_7745c5c3_Err = templ.JoinStringErrs(form.EndDate)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `cmd/web/view/trip_new.templ`, Line: 22, Col: 60}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `cmd/web/view/trip_new.templ`, Line: 26, Col: 60}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var11))
 			if templ_7745c5c3_Err != nil {
@@ -163,7 +167,7 @@ func NewTrip(form TripForm, today string) templ.Component {
 			var templ_7745c5c3_Var12 string
 			templ_7745c5c3_Var12, templ_7745c5c3_Err = templ.JoinStringErrs(today)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `cmd/web/view/trip_new.templ`, Line: 22, Col: 74}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `cmd/web/view/trip_new.templ`, Line: 26, Col: 74}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var12))
 			if templ_7745c5c3_Err != nil {
@@ -198,7 +202,7 @@ func NewTrip(form TripForm, today string) templ.Component {
 			var templ_7745c5c3_Var15 string
 			templ_7745c5c3_Var15, templ_7745c5c3_Err = templ.JoinStringErrs(form.DurationDays)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `cmd/web/view/trip_new.templ`, Line: 27, Col: 71}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `cmd/web/view/trip_new.templ`, Line: 31, Col: 71}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var15))
 			if templ_7745c5c3_Err != nil {
@@ -217,7 +221,75 @@ func NewTrip(form TripForm, today string) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 16, "\"></label>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 16, "\"></label><fieldset><legend class=\"font-semibold\">Who is going</legend><div class=\"mt-1 grid grid-cols-2 gap-2\">")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			for _, p := range form.People {
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 17, "<label class=\"group\"><input type=\"checkbox\" name=\"members\" value=\"")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				var templ_7745c5c3_Var17 string
+				templ_7745c5c3_Var17, templ_7745c5c3_Err = templ.JoinStringErrs(strconv.FormatInt(p.ID, 10))
+				if templ_7745c5c3_Err != nil {
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `cmd/web/view/trip_new.templ`, Line: 38, Col: 80}
+				}
+				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var17))
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 18, "\"")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				if p.Ticked {
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 19, " checked")
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+				}
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 20, " class=\"peer sr-only\"> ")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				var templ_7745c5c3_Var18 = []any{personPillClass}
+				templ_7745c5c3_Err = templ.RenderCSSItems(ctx, templ_7745c5c3_Buffer, templ_7745c5c3_Var18...)
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 21, "<span class=\"")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				var templ_7745c5c3_Var19 string
+				templ_7745c5c3_Var19, templ_7745c5c3_Err = templ.JoinStringErrs(templ.CSSClasses(templ_7745c5c3_Var18).String())
+				if templ_7745c5c3_Err != nil {
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `cmd/web/view/trip_new.templ`, Line: 1, Col: 0}
+				}
+				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var19))
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 22, "\"><span aria-hidden=\"true\" class=\"mr-2 hidden group-has-[:checked]:inline\">✓</span> ")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				var templ_7745c5c3_Var20 string
+				templ_7745c5c3_Var20, templ_7745c5c3_Err = templ.JoinStringErrs(p.Name)
+				if templ_7745c5c3_Err != nil {
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `cmd/web/view/trip_new.templ`, Line: 41, Col: 16}
+				}
+				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var20))
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 23, "</span></label>")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 24, "</div></fieldset>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -225,7 +297,7 @@ func NewTrip(form TripForm, today string) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 17, "<button type=\"submit\" class=\"min-h-12 w-full rounded-lg bg-slate-900 px-4 font-semibold text-white disabled:opacity-50\">Create trip</button></form>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 25, "<button type=\"submit\" class=\"min-h-12 w-full rounded-lg bg-slate-900 px-4 font-semibold text-white disabled:opacity-50\">Create trip</button></form>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -238,6 +310,15 @@ func NewTrip(form TripForm, today string) templ.Component {
 		return nil
 	})
 }
+
+// personPillClass is the member filter's pill (filterBaseClass in
+// pack_page.templ) driven by the hidden checkbox before it. Ticked is a light
+// fill, a dark outline and a check mark, not the filter's solid dark fill, so
+// the solid dark Create button stays the one primary action on the page. The
+// check mark means ticked does not rely on colour alone; it is its own
+// aria-hidden span (not CSS content) so a screen reader, which already says
+// "checked" for the box, does not read it too.
+const personPillClass = filterBaseClass + " border-slate-300 bg-white text-slate-700 peer-checked:border-slate-900 peer-checked:bg-slate-100 peer-checked:text-slate-900 peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-slate-900"
 
 // inputClass keeps inputs large enough to tap and at 16px text, which stops
 // iOS from zooming in on focus.
@@ -259,36 +340,36 @@ func errorList(errs []string) templ.Component {
 			}()
 		}
 		ctx = templ.InitializeContext(ctx)
-		templ_7745c5c3_Var17 := templ.GetChildren(ctx)
-		if templ_7745c5c3_Var17 == nil {
-			templ_7745c5c3_Var17 = templ.NopComponent
+		templ_7745c5c3_Var21 := templ.GetChildren(ctx)
+		if templ_7745c5c3_Var21 == nil {
+			templ_7745c5c3_Var21 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
 		if len(errs) > 0 {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 18, "<ul role=\"alert\" class=\"mt-4 rounded-lg bg-red-50 p-3 text-red-800\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 26, "<ul role=\"alert\" class=\"mt-4 rounded-lg bg-red-50 p-3 text-red-800\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			for _, e := range errs {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 19, "<li>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 27, "<li>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				var templ_7745c5c3_Var18 string
-				templ_7745c5c3_Var18, templ_7745c5c3_Err = templ.JoinStringErrs(e)
+				var templ_7745c5c3_Var22 string
+				templ_7745c5c3_Var22, templ_7745c5c3_Err = templ.JoinStringErrs(e)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `cmd/web/view/trip_new.templ`, Line: 43, Col: 11}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `cmd/web/view/trip_new.templ`, Line: 70, Col: 11}
 				}
-				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var18))
+				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var22))
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 20, "</li>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 28, "</li>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 21, "</ul>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 29, "</ul>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -318,12 +399,12 @@ func syncTripDates() templ.Component {
 			}()
 		}
 		ctx = templ.InitializeContext(ctx)
-		templ_7745c5c3_Var19 := templ.GetChildren(ctx)
-		if templ_7745c5c3_Var19 == nil {
-			templ_7745c5c3_Var19 = templ.NopComponent
+		templ_7745c5c3_Var23 := templ.GetChildren(ctx)
+		if templ_7745c5c3_Var23 == nil {
+			templ_7745c5c3_Var23 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 22, "<script>\n\t\t(() => {\n\t\t\tconst form = document.currentScript.closest(\"form\");\n\t\t\tconst departure = form.elements[\"departure_date\"];\n\t\t\tconst end = form.elements[\"end_date\"];\n\t\t\tconst days = form.elements[\"duration_days\"];\n\t\t\tconst dayMs = 24 * 60 * 60 * 1000;\n\n\t\t\tfunction updateEnd() {\n\t\t\t\tconst d = Date.parse(departure.value);\n\t\t\t\tconst n = parseInt(days.value, 10);\n\t\t\t\tif (departure.value) end.min = departure.value;\n\t\t\t\tif (!isNaN(d) && n >= 1) end.value = new Date(d + (n - 1) * dayMs).toISOString().slice(0, 10);\n\t\t\t}\n\t\t\tfunction updateDays() {\n\t\t\t\tconst d = Date.parse(departure.value);\n\t\t\t\tconst e = Date.parse(end.value);\n\t\t\t\tif (!isNaN(d) && !isNaN(e) && e >= d) days.value = Math.round((e - d) / dayMs) + 1;\n\t\t\t}\n\n\t\t\tdeparture.addEventListener(\"input\", updateEnd);\n\t\t\tdays.addEventListener(\"input\", updateEnd);\n\t\t\tend.addEventListener(\"input\", updateDays);\n\n\t\t\t// One trip per tap: a quick double tap would otherwise post twice.\n\t\t\t// Re-enable when the browser restores this page from its cache.\n\t\t\t// The button is looked up when used: this script runs before the\n\t\t\t// button below it has been parsed.\n\t\t\tconst submit = () => form.querySelector(\"button[type=submit]\");\n\t\t\tform.addEventListener(\"submit\", () => { submit().disabled = true; });\n\t\t\twindow.addEventListener(\"pageshow\", (e) => { if (e.persisted) submit().disabled = false; });\n\t\t})();\n\t</script>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 30, "<script>\n\t\t(() => {\n\t\t\tconst form = document.currentScript.closest(\"form\");\n\t\t\tconst departure = form.elements[\"departure_date\"];\n\t\t\tconst end = form.elements[\"end_date\"];\n\t\t\tconst days = form.elements[\"duration_days\"];\n\t\t\tconst dayMs = 24 * 60 * 60 * 1000;\n\n\t\t\tfunction updateEnd() {\n\t\t\t\tconst d = Date.parse(departure.value);\n\t\t\t\tconst n = parseInt(days.value, 10);\n\t\t\t\tif (departure.value) end.min = departure.value;\n\t\t\t\tif (!isNaN(d) && n >= 1) end.value = new Date(d + (n - 1) * dayMs).toISOString().slice(0, 10);\n\t\t\t}\n\t\t\tfunction updateDays() {\n\t\t\t\tconst d = Date.parse(departure.value);\n\t\t\t\tconst e = Date.parse(end.value);\n\t\t\t\tif (!isNaN(d) && !isNaN(e) && e >= d) days.value = Math.round((e - d) / dayMs) + 1;\n\t\t\t}\n\n\t\t\tdeparture.addEventListener(\"input\", updateEnd);\n\t\t\tdays.addEventListener(\"input\", updateEnd);\n\t\t\tend.addEventListener(\"input\", updateDays);\n\n\t\t\t// One trip per tap: a quick double tap would otherwise post twice.\n\t\t\t// Re-enable when the browser restores this page from its cache.\n\t\t\t// The button is looked up when used: this script runs before the\n\t\t\t// button below it has been parsed.\n\t\t\tconst submit = () => form.querySelector(\"button[type=submit]\");\n\t\t\tform.addEventListener(\"submit\", () => { submit().disabled = true; });\n\t\t\twindow.addEventListener(\"pageshow\", (e) => { if (e.persisted) submit().disabled = false; });\n\t\t})();\n\t</script>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

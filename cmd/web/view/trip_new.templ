@@ -1,13 +1,17 @@
 package view
 
+import "strconv"
+
 // NewTrip is the create-trip form. today (YYYY-MM-DD) greys out past dates in
-// the phone's date picker; the server still enforces the rule.
+// the phone's date picker; the server still enforces the rule. The form is
+// novalidate: the browser's own popups are easy to miss on a phone, so the
+// server checks everything and shows all problems in one red box.
 templ NewTrip(form TripForm, today string) {
 	@Layout("New trip") {
 		<a href="/" class="inline-flex min-h-12 items-center text-slate-600">← Trips</a>
 		<h1 class="text-2xl font-bold">New trip</h1>
 		@errorList(form.Errors)
-		<form method="post" action="/trips" class="mt-4 space-y-4">
+		<form method="post" action="/trips" novalidate class="mt-4 space-y-4">
 			<label class="block">
 				<span class="font-semibold">Destination</span>
 				<input type="text" name="destination" value={ form.Destination } required class={ inputClass }/>
@@ -26,11 +30,34 @@ templ NewTrip(form TripForm, today string) {
 				<span class="font-semibold">Days</span>
 				<input type="number" name="duration_days" value={ form.DurationDays } min="1" step="1" inputmode="numeric" class={ inputClass }/>
 			</label>
+			<fieldset>
+				<legend class="font-semibold">Who is going</legend>
+				<div class="mt-1 grid grid-cols-2 gap-2">
+					for _, p := range form.People {
+						<label class="group">
+							<input type="checkbox" name="members" value={ strconv.FormatInt(p.ID, 10) } checked?={ p.Ticked } class="peer sr-only"/>
+							<span class={ personPillClass }>
+								<span aria-hidden="true" class="mr-2 hidden group-has-[:checked]:inline">✓</span>
+								{ p.Name }
+							</span>
+						</label>
+					}
+				</div>
+			</fieldset>
 			@syncTripDates()
 			<button type="submit" class="min-h-12 w-full rounded-lg bg-slate-900 px-4 font-semibold text-white disabled:opacity-50">Create trip</button>
 		</form>
 	}
 }
+
+// personPillClass is the member filter's pill (filterBaseClass in
+// pack_page.templ) driven by the hidden checkbox before it. Ticked is a light
+// fill, a dark outline and a check mark, not the filter's solid dark fill, so
+// the solid dark Create button stays the one primary action on the page. The
+// check mark means ticked does not rely on colour alone; it is its own
+// aria-hidden span (not CSS content) so a screen reader, which already says
+// "checked" for the box, does not read it too.
+const personPillClass = filterBaseClass + " border-slate-300 bg-white text-slate-700 peer-checked:border-slate-900 peer-checked:bg-slate-100 peer-checked:text-slate-900 peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-slate-900"
 
 // inputClass keeps inputs large enough to tap and at 16px text, which stops
 // iOS from zooming in on focus.

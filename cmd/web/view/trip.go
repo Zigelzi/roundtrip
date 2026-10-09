@@ -20,7 +20,16 @@ type TripForm struct {
 	DepartureDate string
 	EndDate       string
 	DurationDays  string
+	People        []TripPerson
 	Errors        []string
+}
+
+// TripPerson is one tick box on the create-trip form: a person, and whether
+// they are going.
+type TripPerson struct {
+	ID     int64
+	Name   string
+	Ticked bool
 }
 
 // FormatDate shows a date the Finnish way: 20.9.2026.
