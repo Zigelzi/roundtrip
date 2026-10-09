@@ -16,6 +16,7 @@ type BasicItem struct {
 	Name           string
 	PerDay         int64
 	Fixed          int64
+	NameKey        string
 }
 
 type FamilyMember struct {

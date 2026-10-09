@@ -5,6 +5,7 @@ templ Index(trips []Trip) {
 	@Layout("Trips") {
 		<h1 class="text-3xl font-bold">Roundtrip</h1>
 		<a href="/trips/new" class="mt-4 flex min-h-12 items-center justify-center rounded-lg bg-slate-900 px-4 font-semibold text-white">New trip</a>
+		<a href={ templ.SafeURL(BasicsURL) } class="mt-2 flex min-h-12 items-center justify-center rounded-lg border border-slate-300 bg-white px-4 font-semibold text-slate-700">Basics</a>
 		if len(trips) == 0 {
 			<p class="mt-6 text-slate-600">No trips yet. Create your first trip to start packing.</p>
 		} else {

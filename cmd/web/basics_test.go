@@ -290,11 +290,12 @@ func TestExistingTripsGetNoBasics(t *testing.T) {
 // S7: A failed trip creation leaves nothing behind.
 func TestFailedTripCreationLeavesNothing(t *testing.T) {
 	app, database := newTestApp(t)
-	// A second "underwear" for Parent 1 collides with "Underwear" under the
-	// item table's per-owner unique name, so saving the basics fails partway.
-	if _, err := database.Exec(`INSERT INTO basic_item (family_member_id, position, name, per_day, fixed)
-		VALUES (1, 999, 'underwear', 0, 1)`); err != nil {
-		t.Fatalf("seed a clashing basics row: %v", err)
+	// Since milestone 06 the app cannot save two basics of one name, so the
+	// failure is forced instead: the item table refuses one of the basics
+	// partway through, as a clash used to.
+	if _, err := database.Exec(`CREATE TRIGGER refuse_item BEFORE INSERT ON item
+		WHEN NEW.name = 'Hairbrush' BEGIN SELECT RAISE(ABORT, 'forced failure'); END`); err != nil {
+		t.Fatalf("create trigger: %v", err)
 	}
 
 	rec := send(t, app, http.MethodPost, "/trips", url.Values{

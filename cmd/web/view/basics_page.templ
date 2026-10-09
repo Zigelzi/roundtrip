@@ -1,0 +1,118 @@
+package view
+
+import "strconv"
+
+// BasicsPage lists each family member's basics, in the order a new trip gets
+// them. It reuses the trip page's layout (spec Q6): a sticky header with
+// jump links, and one <section data-member="Name"> card per member.
+templ BasicsPage(members []MemberBasics, edit BasicEdit) {
+	@Layout("Basics") {
+		<a href="/" class="inline-flex min-h-12 items-center text-slate-600">← Trips</a>
+		<header class={ stickyHeaderClass } style={ transitionName("trip-header") }>
+			<h1 class="text-xl font-bold">Basics</h1>
+			<p class="text-sm text-slate-600">Every new trip starts with these.</p>
+			@jumpLinks(basicsLinks(members))
+		</header>
+		<div id={ basicsItemsID } class="mt-4 space-y-4">
+			for _, m := range members {
+				<section id={ memberAnchor(m.ID) } data-member={ m.Name } style={ sectionTransition(memberAnchor(m.ID)) } class={ cardClass + " " + anchorClass }>
+					<h2 class="flex items-baseline gap-2 text-lg font-semibold">
+						{ m.Name }
+						<span class="text-sm font-normal text-slate-500">{ FormatItemCount(len(m.Basics)) }</span>
+					</h2>
+					if len(m.Basics) == 0 {
+						<p class="mt-1 text-slate-600">No basics yet.</p>
+					} else {
+						<ul class="mt-2 divide-y divide-slate-100">
+							for _, b := range m.Basics {
+								if b.ID == edit.ID {
+									@editBasicRow(b, edit)
+								} else {
+									@basicRow(b, edit.ID != 0)
+								}
+							}
+						</ul>
+					}
+					@addBasicForm(m)
+				</section>
+			}
+		</div>
+	}
+}
+
+func basicsLinks(members []MemberBasics) []MemberLink {
+	links := make([]MemberLink, len(members))
+	for i, m := range members {
+		links[i] = MemberLink{ID: m.ID, Name: m.Name}
+	}
+	return links
+}
+
+// basicRow is a basic with its quantity as a button: tapping it opens the
+// row for editing (a plain GET, so the lock can cover every row). While
+// another row is being edited the button is disabled.
+templ basicRow(b Basic, locked bool) {
+	<li id={ basicAnchor(b.ID) } style={ rowTransition(basicAnchor(b.ID)) } class={ "flex min-h-14 items-center gap-2 " + anchorClass }>
+		<span class="grow">{ b.Name }</span>
+		<form method="get" action={ templ.SafeURL(BasicsURL) } hx-get={ BasicsURL } { swapBasics... }>
+			<input type="hidden" name="edit" value={ strconv.FormatInt(b.ID, 10) }/>
+			<button type="submit" aria-label={ "Change quantity of " + b.Name } disabled?={ locked } class={ lockable("min-h-14 whitespace-nowrap rounded-lg px-2", "text-slate-600 underline decoration-dotted underline-offset-4", "text-slate-400", locked) }>{ FormatBasicQuantity(b.PerDay, b.Fixed) }</button>
+		</form>
+		<form method="post" action={ templ.SafeURL(removeBasicURL(b.ID)) } hx-post={ removeBasicURL(b.ID) } { swapBasics... }>
+			<button type="submit" aria-label={ "Remove " + b.Name } disabled?={ locked } class={ lockable("min-h-14 min-w-12 rounded-lg text-xl", "text-red-600", "text-slate-300", locked) }>✕</button>
+		</form>
+	</li>
+}
+
+// addBasicForm adds a basic last in the member's list. Same fields as the
+// edit row: a name, "/ day" and "extra". A refused add keeps what was typed
+// and shows the messages under the form.
+templ addBasicForm(m MemberBasics) {
+	<form method="post" action={ templ.SafeURL(addBasicURL(m.ID)) } hx-post={ addBasicURL(m.ID) } { swapBasics... } class="mt-3 flex flex-wrap items-center gap-2 border-t border-slate-100 pt-3">
+		<input type="text" name="name" value={ m.Form.Name } placeholder="Add basic" autocomplete="off" aria-label={ "Basic for " + m.Name } class={ nameClass }/>
+		<input type="number" name="per_day" value={ m.Form.PerDay } step="1" inputmode="numeric" aria-label={ "Daily quantity for new basic of " + m.Name } class={ quantityClass }/>
+		<span>/ day +</span>
+		<input type="number" name="fixed" value={ m.Form.Fixed } step="1" inputmode="numeric" aria-label={ "Extra quantity for new basic of " + m.Name } class={ quantityClass }/>
+		<span>extra</span>
+		<button type="submit" class="min-h-12 rounded-lg bg-slate-900 px-4 font-semibold text-white">Add</button>
+	</form>
+	@errorList(m.Form.Errors)
+}
+
+// editBasicRow is the row being edited: "[ 1 ] / day + [ 1 ] extra". Same
+// look as the trip page's edit row. Saving is a plain post that redirects
+// back to the row; Cancel is a link back to the plain page.
+templ editBasicRow(b Basic, edit BasicEdit) {
+	<li id={ basicAnchor(b.ID) } style={ rowTransition(basicAnchor(b.ID)) } class={ "my-2 rounded-lg border-2 border-amber-400 bg-amber-50 p-3 " + anchorClass }>
+		<form method="post" action={ templ.SafeURL(basicSaveURL(b.ID)) } hx-post={ basicSaveURL(b.ID) } { swapBasics... } class="flex flex-wrap items-center gap-2">
+			<p class="w-full">
+				<span class="font-semibold">{ b.Name }</span>
+				<span class="text-sm text-amber-800">· edit basic</span>
+			</p>
+			<input type="text" name="name" value={ edit.Name } autocomplete="off" aria-label={ "Name of " + b.Name } class={ nameClass }/>
+			<input type="number" name="per_day" value={ edit.PerDay } step="1" inputmode="numeric" aria-label={ "New daily quantity for " + b.Name } class={ quantityClass }/>
+			<span>/ day +</span>
+			<input type="number" name="fixed" value={ edit.Fixed } step="1" inputmode="numeric" aria-label={ "New extra quantity for " + b.Name } class={ quantityClass }/>
+			<span>extra</span>
+			<div class="flex w-full gap-2">
+				<button type="submit" class="min-h-12 rounded-lg bg-slate-900 px-4 font-semibold text-white">Save</button>
+				<a href={ templ.SafeURL(BasicURL(b.ID)) } hx-get={ BasicsURL } { swapBasics... } class="inline-flex min-h-12 items-center rounded-lg border border-slate-300 bg-white px-4 font-semibold text-slate-700">Cancel</a>
+			</div>
+		</form>
+		@errorList(edit.Errors)
+	</li>
+}
+
+// nameClass is the name field in the edit row, full width above the numbers.
+const nameClass = "min-h-12 w-full rounded-lg border border-slate-300 bg-white px-3 text-base"
+
+// basicsItemsID is the container holding every member's section. Opening a
+// row, saving and cancelling replace it in place from the full page reply
+// (hx-select), the same pattern as the trip page's tripItemsID.
+const basicsItemsID = "basics-items"
+
+var swapBasics = templ.Attributes{
+	"hx-target": "#" + basicsItemsID,
+	"hx-select": "#" + basicsItemsID,
+	"hx-swap":   "outerHTML transition:true",
+}

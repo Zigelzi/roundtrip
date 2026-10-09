@@ -9,14 +9,62 @@ import (
 	"context"
 )
 
+const createBasicItem = `-- name: CreateBasicItem :exec
+INSERT INTO basic_item (family_member_id, position, name, name_key, per_day, fixed)
+VALUES (
+    ?1,
+    (SELECT COALESCE(MAX(position), 0) + 1 FROM basic_item WHERE family_member_id = ?1),
+    ?2, ?3, ?4, ?5
+)
+`
+
+type CreateBasicItemParams struct {
+	FamilyMemberID int64
+	Name           string
+	NameKey        string
+	PerDay         int64
+	Fixed          int64
+}
+
+// The position is worked out inside the statement (last for that family
+// member), so two adds at once cannot both read the same highest number and
+// clash on UNIQUE (family_member_id, position). Removing leaves gaps, which
+// is harmless: only the order matters.
+func (q *Queries) CreateBasicItem(ctx context.Context, arg CreateBasicItemParams) error {
+	_, err := q.db.ExecContext(ctx, createBasicItem,
+		arg.FamilyMemberID,
+		arg.Name,
+		arg.NameKey,
+		arg.PerDay,
+		arg.Fixed,
+	)
+	return err
+}
+
+const deleteBasicItem = `-- name: DeleteBasicItem :one
+DELETE FROM basic_item
+WHERE id = ?
+RETURNING family_member_id
+`
+
+// Returning the owner says whose section to go back to; no row means the
+// basic is already gone (R5).
+func (q *Queries) DeleteBasicItem(ctx context.Context, id int64) (int64, error) {
+	row := q.db.QueryRowContext(ctx, deleteBasicItem, id)
+	var family_member_id int64
+	err := row.Scan(&family_member_id)
+	return family_member_id, err
+}
+
 const listBasicItems = `-- name: ListBasicItems :many
 
-SELECT family_member_id, name, per_day, fixed
+SELECT id, family_member_id, name, per_day, fixed
 FROM basic_item
 ORDER BY family_member_id, position
 `
 
 type ListBasicItemsRow struct {
+	ID             int64
 	FamilyMemberID int64
 	Name           string
 	PerDay         int64
@@ -36,6 +84,7 @@ func (q *Queries) ListBasicItems(ctx context.Context) ([]ListBasicItemsRow, erro
 	for rows.Next() {
 		var i ListBasicItemsRow
 		if err := rows.Scan(
+			&i.ID,
 			&i.FamilyMemberID,
 			&i.Name,
 			&i.PerDay,
@@ -52,4 +101,35 @@ func (q *Queries) ListBasicItems(ctx context.Context) ([]ListBasicItemsRow, erro
 		return nil, err
 	}
 	return items, nil
+}
+
+const updateBasicItem = `-- name: UpdateBasicItem :execrows
+UPDATE basic_item
+SET name = ?, name_key = ?, per_day = ?, fixed = ?
+WHERE id = ?
+`
+
+type UpdateBasicItemParams struct {
+	Name    string
+	NameKey string
+	PerDay  int64
+	Fixed   int64
+	ID      int64
+}
+
+// The name (with its comparison key) and both quantities change together, as
+// the edit form saves them. Zero rows means the basic is gone (the other
+// parent removed it), which is not an error.
+func (q *Queries) UpdateBasicItem(ctx context.Context, arg UpdateBasicItemParams) (int64, error) {
+	result, err := q.db.ExecContext(ctx, updateBasicItem,
+		arg.Name,
+		arg.NameKey,
+		arg.PerDay,
+		arg.Fixed,
+		arg.ID,
+	)
+	if err != nil {
+		return 0, err
+	}
+	return result.RowsAffected()
 }

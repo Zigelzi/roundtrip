@@ -20,7 +20,7 @@ templ TripPage(page TripPageData) {
 				</div>
 				<a href={ templ.SafeURL(PackURL(page.Trip.ID)) } class="inline-flex min-h-12 shrink-0 items-center rounded-lg bg-slate-900 px-4 font-semibold text-white">Start packing →</a>
 			</div>
-			@jumpLinks(page.Members)
+			@jumpLinks(tripLinks(page.Members))
 		</header>
 		<div id={ tripItemsID } class="mt-4 space-y-4">
 			for _, m := range page.Members {
@@ -39,8 +39,8 @@ templ TripPage(page TripPageData) {
 // order, so a parent can skip past everyone else's items. One equal-width
 // column per member keeps them on a single line (the header is sticky, so a
 // second line would cost list space on every screen); a long name is cut
-// short with an ellipsis rather than wrapping.
-templ jumpLinks(members []MemberItems) {
+// short with an ellipsis rather than wrapping. The basics page uses them too.
+templ jumpLinks(members []MemberLink) {
 	<nav class="mt-2 grid grid-flow-col auto-cols-fr gap-1">
 		for _, m := range members {
 			<a href={ templ.SafeURL("#" + memberAnchor(m.ID)) } class="flex min-h-11 min-w-0 items-center justify-center rounded-lg border border-slate-300 bg-white px-1 text-sm font-semibold text-slate-700"><span class="truncate">{ m.Name }</span></a>

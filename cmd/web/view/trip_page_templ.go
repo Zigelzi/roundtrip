@@ -141,7 +141,7 @@ func TripPage(page TripPageData) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = jumpLinks(page.Members).Render(ctx, templ_7745c5c3_Buffer)
+			templ_7745c5c3_Err = jumpLinks(tripLinks(page.Members)).Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -209,8 +209,8 @@ func TripPage(page TripPageData) templ.Component {
 // order, so a parent can skip past everyone else's items. One equal-width
 // column per member keeps them on a single line (the header is sticky, so a
 // second line would cost list space on every screen); a long name is cut
-// short with an ellipsis rather than wrapping.
-func jumpLinks(members []MemberItems) templ.Component {
+// short with an ellipsis rather than wrapping. The basics page uses them too.
+func jumpLinks(members []MemberLink) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {

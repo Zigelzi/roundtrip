@@ -116,7 +116,21 @@ type ItemForm struct {
 	Errors   []string
 }
 
-// memberAnchor is the id of a member's section on the trip page.
+// MemberLink is what a jump link needs: the member's section and its label.
+type MemberLink struct {
+	ID   int64
+	Name string
+}
+
+func tripLinks(members []MemberItems) []MemberLink {
+	links := make([]MemberLink, len(members))
+	for i, m := range members {
+		links[i] = MemberLink{ID: m.ID, Name: m.Name}
+	}
+	return links
+}
+
+// memberAnchor is the id of a member's section on the trip and basics pages.
 func memberAnchor(id int64) string {
 	return fmt.Sprintf("member-%d", id)
 }
