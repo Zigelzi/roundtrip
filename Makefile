@@ -15,7 +15,7 @@ export
 TAILWIND_IN  = ./cmd/web/tailwind.css
 TAILWIND_OUT = ./cmd/web/static/tailwind.css
 
-.PHONY: generate build run run-lan test dev dev/templ dev/server dev/tailwind
+.PHONY: generate build run run-lan test reset-trips dev dev/templ dev/server dev/tailwind
 
 generate:
 	sqlc generate
@@ -38,6 +38,11 @@ run-lan: generate
 
 test: generate
 	go test ./...
+
+# reset-trips deletes trips created while testing (basics are kept). It lists
+# what goes, asks first and backs up to backups/. Keep some with KEEP=2,9.
+reset-trips:
+	./scripts/reset-trips.sh $(if $(KEEP),--keep $(KEEP))
 
 # dev runs three watchers in parallel so changes show up without restarting:
 #   templ:    regenerates templates and runs a live-reload proxy on :8080

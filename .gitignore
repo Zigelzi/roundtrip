@@ -3,6 +3,9 @@
 *.db-shm
 *.db-wal
 
+# Database backups taken by scripts/reset-trips.sh
+/backups/
+
 # Build output
 /build/
 
