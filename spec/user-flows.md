@@ -36,9 +36,9 @@ Each step has a value moment (when the app has clearly helped) and a rough measu
 | 1. Define the basics | A new trip's list needs few changes, because the basics already fit each person | How many basics rows we change on each trip (seen in step 3) | **Most problematic.** Each person's basics are fixed in the app and cannot be reviewed or tuned ([A10](activity-catalogue.md#open-items)) |
 | 2. Plan activities | Picking what we will do takes a minute, and the list follows from it | Minutes from "new trip" to activities chosen | Not built yet |
 | 3. Plan what to pack | The generated list is nearly right for this trip, so we only adjust for what is special about it | How much of the list we had to review and edit by hand; energy spent | Long list; most of the editing is correcting the basics (step 1) |
-| 4. Gather items | We walk the house once, in an order that matches where things are | Trips around the house; time to gather | Works, not measured |
+| 4. Gather items | We walk the house once, in an order that matches where things are | Trips around the house; time to gather | Works, but which items are already in the pile is kept in our heads: an item is either packed or not, with no "prepared" state between (2026-10-10) |
 | 5. Review what is missing | What needs buying is obvious without reading the whole list | Time to a shopping list | Not built yet |
-| 6. Pack | Packing each person's bag is quick and nothing is packed twice | Time to pack; taps that went to the wrong row | Works; improved by milestone 05 |
+| 6. Pack | Packing each person's bag is quick and nothing is packed twice | Time to pack; taps that went to the wrong row | **Worst step after testing (2026-10-10).** Packed items move to one section at the end of the page instead of staying under each person, so checking a person's bag means looking in two places. The long list is tiring to review |
 | After the trip | Saying what was not used, or was missing, takes a couple of minutes | Whether we actually do it; fewer basics changes needed on the next trip | Not built yet |
 
 ## Keeping a growing list manageable
@@ -53,3 +53,5 @@ The number of items grows with every activity and trip. What limits the app is o
 6. **Categories as lists within the list.** Group each person's items into categories (outdoor, hygiene, sports, general), as the old Notion page did, so a whole category can be checked as packed and correct in one go. Fewer things to review at once, which helps steps 1 and 3. Wanted since milestone 04.
 
 Each person packs their own bag, so the packing page's person filter already matches how we pack.
+
+Learning from use (2026-10-10): milestone 02 moved packed items into one collapsed section at the end of the page, so that what is left to pack shrinks as packing goes on. That serves "what is left?" but works against a second job that showed up in real use, "is this person's bag right?", which needs a person's packed items next to their unpacked ones.
