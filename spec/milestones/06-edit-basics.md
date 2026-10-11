@@ -12,7 +12,7 @@ Each person's basics are fixed in the app since milestone 04, so changing one ("
 2. The basics stay accurate as the family's needs change.
 3. Both parents can review and update them together, without code changes.
 
-This also resolves [A10](../activity-catalogue.md#open-items) ("parents adjusting their basics is a later milestone") and is the prerequisite for the post-trip review (idea 2 in `../user-flows.md`).
+This also resolves [A10](../activity-catalogue.md#open-items) ("parents adjusting their basics is a later milestone") and is the prerequisite for the post-trip review (I2 in `../product-notes.md`).
 
 ## Scope
 **In:**
@@ -26,10 +26,10 @@ This also resolves [A10](../activity-catalogue.md#open-items) ("parents adjustin
 **Out:**
 1. Changing trips that already exist when the basics change (by design, see In 5).
 2. Reordering basics, or moving a basic from one family member to another.
-3. Categories within a person's basics (idea 6 in `../user-flows.md`).
+3. Categories within a person's basics (I6 in `../product-notes.md`).
 4. Season-aware basics ([A12](../activity-catalogue.md#open-items)).
 5. Choosing or skipping basics per trip.
-6. The post-trip review (idea 2 in `../user-flows.md`).
+6. The post-trip review (I2 in `../product-notes.md`).
 7. Adding or removing family members.
 8. Keeping `../activity-catalogue.md` in sync with the app. The app is the source of truth for the basics; the catalogue's Basics section is a historical record from 2026-09-25.
 9. Undo or a history of changes to the basics.

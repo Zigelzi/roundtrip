@@ -31,27 +31,14 @@ We rarely forget anything today. The cost is that preparing is an intensive task
 
 Each step has a value moment (when the app has clearly helped) and a rough measure. The measures are a gut-feel way for us to pick which step to improve next, assessed by us after a trip, not something the app tracks.
 
-| Step | Value moment | Rough measure | Current feel (2026-09-27) |
-|---|---|---|---|
-| 1. Define the basics | A new trip's list needs few changes, because the basics already fit each person | How many basics rows we change on each trip (seen in step 3) | **Most problematic.** Each person's basics are fixed in the app and cannot be reviewed or tuned ([A10](activity-catalogue.md#open-items)) |
-| 2. Plan activities | Picking what we will do takes a minute, and the list follows from it | Minutes from "new trip" to activities chosen | Not built yet |
-| 3. Plan what to pack | The generated list is nearly right for this trip, so we only adjust for what is special about it | How much of the list we had to review and edit by hand; energy spent | Long list; most of the editing is correcting the basics (step 1) |
-| 4. Gather items | We walk the house once, in an order that matches where things are | Trips around the house; time to gather | Works, but which items are already in the pile is kept in our heads: an item is either packed or not, with no "prepared" state between (2026-10-10) |
-| 5. Review what is missing | What needs buying is obvious without reading the whole list | Time to a shopping list | Not built yet |
-| 6. Pack | Packing each person's bag is quick and nothing is packed twice | Time to pack; taps that went to the wrong row | **Worst step after testing (2026-10-10).** Packed items move to one section at the end of the page instead of staying under each person, so checking a person's bag means looking in two places. The long list is tiring to review |
-| After the trip | Saying what was not used, or was missing, takes a couple of minutes | Whether we actually do it; fewer basics changes needed on the next trip | Not built yet |
+**Rating** is how the step feels right now, 1 to 5: 1 is draining, 5 is effortless. The lowest rating is the next candidate to improve. Ratings are Human-PM's alone: agents never fill in or change them, and propose a re-rating in conversation instead. Why a step feels the way it does, and the ideas for improving it, are in [`product-notes.md`](product-notes.md).
 
-## Keeping a growing list manageable
-
-The number of items grows with every activity and trip. What limits the app is our attention on a phone screen, not the data. Milestone 05 made long lists easier to move through. Beyond that, the lever is showing fewer things that need attention, not showing more of them. Ideas, none of them decided or scheduled:
-
-1. **Editable basics per person.** Review and tune each person's basics once (add, remove, change quantities) instead of correcting the same rows on every trip ([A10](activity-catalogue.md#open-items)). Serves step 1, the weakest step today. The post-trip review (idea 2) changes the same basics.
-2. **Post-trip review by exception.** Assume everything was useful and only ask "what did you not use?" and "what was missing?". This keeps the review to a couple of minutes, and it is what shrinks the list over time instead of only growing it. Its answers adjust the basics (step 1), so it needs idea 1 first.
-3. **Kits.** One row that stands for a set of things packed together (toiletry bag, nappy bag), checked when the kit is restocked rather than on every trip. We already keep some kits, but not everything is in one. Changes what an item is, so it is a larger change.
-4. **Group by where things are gathered.** Order a list by where in the house things are picked up (bathroom, wardrobe, storage room), as grocery apps order by store aisle, rather than by category. Serves step 4. Weigh against categories (idea 6): categories help check, locations help gather.
-5. **Essentials check.** A short "don't leave without" list (ID, medicine, chargers) kept apart from the bulk. Low priority, since we rarely forget things.
-6. **Categories as lists within the list.** Group each person's items into categories (outdoor, hygiene, sports, general), as the old Notion page did, so a whole category can be checked as packed and correct in one go. Fewer things to review at once, which helps steps 1 and 3. Wanted since milestone 04.
-
-Each person packs their own bag, so the packing page's person filter already matches how we pack.
-
-Learning from use (2026-10-10): milestone 02 moved packed items into one collapsed section at the end of the page, so that what is left to pack shrinks as packing goes on. That serves "what is left?" but works against a second job that showed up in real use, "is this person's bag right?", which needs a person's packed items next to their unpacked ones.
+| Step | Value moment | Rough measure | Rating | Rated on |
+|---|---|---|---|---|
+| 1. Define the basics | A new trip's list needs few changes, because the basics already fit each person | How many basics rows we change on each trip (seen in step 3) | | |
+| 2. Plan activities | Picking what we will do takes a minute, and the list follows from it | Minutes from "new trip" to activities chosen | | |
+| 3. Plan what to pack | The generated list is nearly right for this trip, so we only adjust for what is special about it | How much of the list we had to review and edit by hand; energy spent | | |
+| 4. Gather items | We walk the house once, in an order that matches where things are | Trips around the house; time to gather | | |
+| 5. Review what is missing | What needs buying is obvious without reading the whole list | Time to a shopping list | | |
+| 6. Pack | Packing each person's bag is quick and nothing is packed twice | Time to pack; taps that went to the wrong row | | |
+| After the trip | Saying what was not used, or was missing, takes a couple of minutes | Whether we actually do it; fewer basics changes needed on the next trip | | |

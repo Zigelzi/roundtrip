@@ -29,7 +29,8 @@ The process lives in [`spec/`](spec/) and is the actual subject of the experimen
 
 - [`spec/constitution.md`](spec/constitution.md): how the work is done: the agentic workflow, the two points where sub-agents are worth their token cost, git conventions, the tech stack and why each piece was chosen.
 - [`spec/README.md`](spec/README.md): how specs are written and structured.
-- [`spec/user-flows.md`](spec/user-flows.md): who uses this and what they are trying to do.
+- [`spec/user-flows.md`](spec/user-flows.md): who uses this, what they are trying to do, and how each step of the flow feels today (rated 1 to 5).
+- [`spec/product-notes.md`](spec/product-notes.md): the observations behind those ratings and the ideas for improving them.
 - [`spec/milestones/`](spec/milestones/): one file per unit of work, each with Given/When/Then acceptance conditions that become Go tests before any implementation exists.
 
 One milestone = one spec file = one branch = one squashed commit, so a milestone can be reviewed by reading one spec against one diff.

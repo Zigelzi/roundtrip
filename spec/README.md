@@ -11,7 +11,8 @@ One fact lives in exactly one file. When two files would state the same thing, o
 | File | Responsibility |
 |---|---|
 | `constitution.md` | How we work: agentic workflow, tech stack, git conventions, Milestone 0. Governance. |
-| `user-flows.md` | Who / why at product level: the family, the high-level flows. |
+| `user-flows.md` | Human-PM's file: the family, the high-level flow, and each step's success measure and current rating (1 to 5). Agents read it, and edit it only to keep step numbers in sync; the ratings are Human-PM's alone. |
+| `product-notes.md` | Reference for agents: dated observations behind each step's rating, learning from use, and the ideas list (`I1`, `I2`, ...). Agents keep it up to date. |
 | `domain-model.md` | Shared entities (Trip, Item, …). Each entity and how it is stored. |
 | `activity-catalogue.md` | The activities and their default items, plus the design decisions behind them. Feeds milestone 04 and the activity milestones after it. |
 | `allocation-log.md` | Running record of the main-session vs sub-agent experiment, one row per slice. |
@@ -49,10 +50,11 @@ One letter per kind of thing, so a number is never ambiguous across documents:
 | `Q` | An open question about that milestone | The same milestone spec. |
 | `A` | An open item about the activity catalogue | [`activity-catalogue.md`](activity-catalogue.md), because those questions outlive any one milestone. |
 | `R` | A red-team finding and the decision on it | The milestone spec's decisions log. Prefix the milestone outside it: `04/R2`. |
+| `I` | An idea for improving the product | [`product-notes.md`](product-notes.md), because ideas outlive any one milestone. |
 
 Code comments are always outside the spec, so they always carry the milestone: `04/R2`, never a bare `R2`, since every milestone numbers from 1.
 
-All four follow the scenario rule: numbers are stable, a removed one leaves a gap, never renumber. Note that `constitution.md` separately uses "Option A" and "Option B" for the allocation experiment; that is unrelated to the `A` prefix here.
+All five follow the scenario rule: numbers are stable, a removed one leaves a gap, never renumber. Note that `constitution.md` separately uses "Option A" and "Option B" for the allocation experiment; that is unrelated to the `A` prefix here.
 
 ### Flow steps
 
@@ -61,7 +63,7 @@ All four follow the scenario rule: numbers are stable, a removed one leaves a ga
 Unlike S, Q and A numbers, flow steps may be renumbered. When a step is added, removed or reordered, the same commit updates every reference, including those in finished milestone specs:
 
 1. Find them: `grep -rn "user-flows.md\|step [0-9]" spec CLAUDE.md README.md`, and ignore the workflow steps of `constitution.md`, which are a different numbering.
-2. Update each number to match the step's name, and update the numbers inside `user-flows.md` itself (the success table and the loop diagram).
+2. Update each number to match the step's name, and update the numbers inside `user-flows.md` itself (the success table and the loop diagram) and in `product-notes.md`.
 
 ## Starting a milestone
 

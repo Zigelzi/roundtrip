@@ -6,7 +6,7 @@
 ## Why
 Flow: Gather items (`../user-flows.md` step 4) and Pack (step 6).
 
-After testing, packing became the worst step (recorded in `../user-flows.md`, 2026-10-10). Two problems sit on the same page. An item is either packed or not, so while gathering we keep in our heads which things are already prepared on the bed. And a ticked item moves to one Packed section at the end of the page, so checking whether one person's bag is right means looking in two places. After this milestone each item can be marked as prepared (gathered on the bed, where we review it) before it goes into the bag, and each person's packed things stay in that person's section.
+After testing, packing became the worst step (recorded in `../product-notes.md`, 2026-10-10). Two problems sit on the same page. An item is either packed or not, so while gathering we keep in our heads which things are already prepared on the bed. And a ticked item moves to one Packed section at the end of the page, so checking whether one person's bag is right means looking in two places. After this milestone each item can be marked as prepared (gathered on the bed, where we review it) before it goes into the bag, and each person's packed things stay in that person's section.
 
 The milestone 02 design that moved packed items to the end was deliberate: it shrank what is left to pack as packing went on. That still matters, so packed items stay out of the way (collapsed), just inside their owner's section instead of a shared one.
 
@@ -23,9 +23,9 @@ The milestone 02 design that moved packed items to the end was deliberate: it sh
 9. Slice 3, taking a prepared item back to planned (Q6): a prepared row has a small back button at its end, beside the row's tap area. It shows an icon, not ✕, which on the trip page means "remove from the trip"; its spoken label names the step ("Back to planned: Swimsuit"). Planned and packed rows have no back button. Added after testing slice 2 (Q10, Q11).
 
 **Out:**
-1. Categories within a person's list (idea 6 in `../user-flows.md`). Its own milestone after this one.
+1. Categories within a person's list (I6 in `../product-notes.md`). Its own milestone after this one.
 2. Needs buying and bought (step 5, Review what is missing). The lifecycle keeps room for them, nothing is built.
-3. Grouping by where things are in the house (idea 4).
+3. Grouping by where things are in the house (I4).
 4. Showing the prepared or packed state on the trip page (planning). The trip page stays as it is.
 5. Remembering which collapsed sections were open between visits.
 6. Moving several items at once (for example "all of Child 1's things are prepared").
@@ -37,7 +37,7 @@ Same shape as a product hypothesis, sized for two users: the evidence is our own
 
 - **Hypothesis:** with prepared items marked and packed items kept under each person, gathering and packing take less mental effort.
 - **Baseline (2026-10-10):** packing is the worst step; what is already on the bed lives in our heads; checking a bag means looking in two places.
-- **Target, after the next trip:** we no longer keep what is prepared in our heads, and we check a person's bag by looking at their section alone. The step 4 and step 6 rows in `../user-flows.md` get updated with the result.
+- **Target, after the next trip:** we no longer keep what is prepared in our heads, and we check a person's bag by looking at their section alone. Human-PM re-rates steps 4 and 6 in `../user-flows.md`.
 - **Guardrail:** every item now takes two taps instead of one. If that feels slower than the effort it saves, the strict "always prepare first" rule is the first thing to revisit.
 - **Guardrail:** items marked as prepared that were not on the bed. Slice 3 lets a parent take them back (Q6). Watch for the opposite slip: aiming for the back button and packing the item instead.
 - **Watch:** finding what is still to gather means scanning each person's list for unprepared marks (Q8). If that feels like the same head-work in a new place, a per-person "N still to gather" line is the first fix.
@@ -159,12 +159,12 @@ Same shape as a product hypothesis, sized for two users: the evidence is our own
 
 ## Decisions log
 
-Kickoff (Human-PM, 2026-10-10), from a PM review of the packing step after testing (the problems are recorded in `../user-flows.md`, steps 4 and 6):
+Kickoff (Human-PM, 2026-10-10), from a PM review of the packing step after testing (the problems are recorded in `../product-notes.md`, steps 4 and 6):
 
 - This milestone covers two problems on the same page, built as two slices: first, each person's packed items stay in that person's section (collapsed) instead of one section at the end of the page; second, the `prepared` state from `../domain-model.md` (the pile on the bed), between planned and packed.
 - Every item goes through prepared: planned → prepared → packed. Mistakes can be undone step by step back: packed → prepared → planned. `../domain-model.md` lists only packed → prepared today, so it gains prepared → planned.
 - Explore how to show the three states, for example a Gather / Pack switch beside the person filter where each phase shows only what still needs attention. No reference designs chosen yet.
-- Out: categories (idea 6 in `../user-flows.md`), its own milestone after this one. Needs-buying and bought (step 5, Review what is missing).
+- Out: categories (I6 in `../product-notes.md`), its own milestone after this one. Needs-buying and bought (step 5, Review what is missing).
 
 Open questions resolved (Human-PM, 2026-10-10):
 
