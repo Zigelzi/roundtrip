@@ -15,6 +15,7 @@ One fact lives in exactly one file. When two files would state the same thing, o
 | `product-notes.md` | Reference for agents: dated observations behind each step's rating, learning from use, and the ideas list (`I1`, `I2`, ...). Agents keep it up to date. |
 | `domain-model.md` | Shared entities (Trip, Item, …). Each entity and how it is stored. |
 | `activity-catalogue.md` | The activities and their default items, plus the design decisions behind them. Feeds milestone 04 and the activity milestones after it. |
+| `mobile-redesign.md` | The plan for the mobile redesign: decisions made on the design canvas, and the build order and scope of milestones 09 to 15. Each milestone's spec owns its own status. |
 | `allocation-log.md` | Running record of the main-session vs sub-agent experiment, one row per slice. |
 | `milestones/NN-name.md` | One unit of work. See below. |
 | `milestones/_template.md` | The template new milestone specs are copied from. |
