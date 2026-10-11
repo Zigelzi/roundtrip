@@ -23,7 +23,6 @@ templ PackPage(page PackPageData) {
 					@packMemberSection(page, m)
 				}
 			</div>
-			@packedSection(page)
 		}
 	}
 }
@@ -90,6 +89,7 @@ templ packMemberSection(page PackPageData, m PackMember) {
 	<section data-member={ m.Name } class={ cardClass }>
 		<h2 class="text-lg font-semibold">{ m.Name }</h2>
 		@PackMemberList(page, m)
+		@PackedPart(page, m, false)
 	</section>
 }
 
@@ -106,11 +106,7 @@ templ PackMemberList(page PackPageData, m PackMember) {
 			<ul class="mt-2 divide-y divide-slate-100">
 				for _, it := range m.ToPack {
 					<li>
-						@tapRow(packItemURL(page.Trip.ID, m.ID, it.ID, page.Filter), toPackListID(m.ID), "Pack "+it.Name) {
-							<span class={ boxClass }></span>
-							<span class="grow">{ it.Name }</span>
-							<span class="whitespace-nowrap text-slate-600">{ FormatQuantity(it.Quantity) }</span>
-						}
+						@toPackRow(page, m, it)
 					</li>
 				}
 			</ul>
@@ -118,88 +114,152 @@ templ PackMemberList(page PackPageData, m PackMember) {
 	</div>
 }
 
-// packedSection holds everything already in the bag. The <details> element
-// itself is never swapped, only the list inside it, so it stays open while
-// a parent works through it (S3).
-templ packedSection(page PackPageData) {
-	<details id="packed" class={ "group mt-4 " + cardClass }>
-		@PackedSummary(page, false)
-		@PackedList(page, false)
-	</details>
+// toPackRow is one item still to pack. A planned item offers to prepare it,
+// a prepared one offers to pack it and says so under its name, and has a small
+// back button at its end that takes it back to planned. The two marks differ
+// in shape (a square box and a circle with a dot), not only in colour, and
+// each row's spoken label names the step its tap takes. The back button is a
+// form of its own beside the row's tap, because a button cannot hold a button.
+// It sits left of the quantity, which therefore moves out of the tap, so the
+// quantity stays at the row's end whether the item is planned or prepared.
+templ toPackRow(page PackPageData, m PackMember, it Item) {
+	if it.Prepared {
+		<div class="flex items-center">
+			<div class="grow">
+				@tapRow(packItemURL(page.Trip.ID, m.ID, it.ID, page.Filter), m, "Pack "+it.Name) {
+					<span class={ preparedMarkClass }><span class="size-2.5 rounded-full bg-sky-600"></span></span>
+					<span class="grow">
+						{ it.Name }
+						<span class="block text-sm font-semibold text-sky-700">Prepared</span>
+					</span>
+				}
+			</div>
+			@backButton(unprepareItemURL(page.Trip.ID, m.ID, it.ID, page.Filter), m, it.Name)
+			<span class="whitespace-nowrap text-slate-600">{ FormatQuantity(it.Quantity) }</span>
+		</div>
+	} else {
+		@tapRow(prepareItemURL(page.Trip.ID, m.ID, it.ID, page.Filter), m, "Prepare "+it.Name) {
+			<span class={ boxClass }></span>
+			<span class="grow">{ it.Name }</span>
+			<span class="whitespace-nowrap text-slate-600">{ FormatQuantity(it.Quantity) }</span>
+		}
+	}
 }
 
-// PackedSummary is the only thing saying the packed section can be opened
-// and what is inside it. Flexing a <summary> drops the browser's own
-// disclosure triangle, so the chevron here replaces it rather than
-// decorating it. Swapped on every tap to keep the count honest.
-templ PackedSummary(page PackPageData, oob bool) {
+// PackedPart holds what one member already has in the bag. The wrapper is
+// always on the page, so there is a stable place to swap it into when the
+// first item is packed; the <details> inside exists only while something is
+// packed, so a member with nothing packed shows no "Packed (0)" (08/S1).
+// Once it exists, a tap swaps only the count and the list inside it, never
+// the <details> itself, so it stays open while a parent works through it
+// (02/S3). The whole wrapper is sent only when the part appears or goes.
+templ PackedPart(page PackPageData, m PackMember, oob bool) {
+	<div id={ packedPartID(m.ID) } { oobAttrs(oob)... }>
+		if len(m.Packed) > 0 {
+			<details class="group mt-2 border-t border-slate-100">
+				@PackedSummary(page, m, false)
+				@PackedList(page, m, false)
+			</details>
+		}
+	</div>
+}
+
+// PackedSummary is the only thing saying the packed part can be opened and
+// what is inside it. Flexing a <summary> drops the browser's own disclosure
+// triangle, so the chevron here replaces it rather than decorating it.
+// Swapped on every tap to keep the count honest.
+templ PackedSummary(page PackPageData, m PackMember, oob bool) {
 	<summary
-		id="packed-summary"
+		id={ packedSummaryID(m.ID) }
 		{ oobAttrs(oob)... }
 		class="flex min-h-12 cursor-pointer list-none items-center gap-2 font-semibold text-slate-600 [&::-webkit-details-marker]:hidden"
 	>
 		<span class="inline-block text-slate-400 transition-transform group-open:rotate-90">▸</span>
-		<span>Packed ({ FormatCount(page.Packed) })</span>
+		<span>Packed ({ FormatCount(len(m.Packed)) })</span>
 		<span class="ml-auto text-sm font-normal text-slate-500 group-open:hidden">Show</span>
 		<span class="ml-auto hidden text-sm font-normal text-slate-500 group-open:inline">Hide</span>
 	</summary>
 }
 
-// PackedList is grouped by member in the same order as the lists above, so
-// an item can be found where the parent expects it.
-templ PackedList(page PackPageData, oob bool) {
-	<div id="packed-list" { oobAttrs(oob)... }>
-		if page.Packed == 0 {
-			<p class="mt-1 text-slate-600">Nothing packed yet.</p>
-		} else {
-			for _, m := range page.Shown() {
-				if len(m.Packed) > 0 {
-					<p class="mt-3 text-sm font-semibold text-slate-500">{ m.Name }</p>
-					<ul class="divide-y divide-slate-100">
-						for _, it := range m.Packed {
-							<li>
-								@tapRow(unpackItemURL(page.Trip.ID, m.ID, it.ID, page.Filter), toPackListID(m.ID), "Unpack "+it.Name) {
-									<span class={ tickedClass }>✓</span>
-									<span class="grow text-slate-500 line-through">{ it.Name }</span>
-									<span class="whitespace-nowrap text-slate-500">{ FormatQuantity(it.Quantity) }</span>
-								}
-							</li>
-						}
-					</ul>
-				}
+// PackedList is the member's packed items, each one a tap to take it back.
+templ PackedList(page PackPageData, m PackMember, oob bool) {
+	<div id={ packedListID(m.ID) } { oobAttrs(oob)... }>
+		<ul class="divide-y divide-slate-100">
+			for _, it := range m.Packed {
+				<li>
+					@tapRow(unpackItemURL(page.Trip.ID, m.ID, it.ID, page.Filter), m, "Unpack "+it.Name) {
+						<span class={ tickedClass }>✓</span>
+						<span class="grow text-slate-500 line-through">{ it.Name }</span>
+						<span class="whitespace-nowrap text-slate-500">{ FormatQuantity(it.Quantity) }</span>
+					}
+				</li>
 			}
-		}
+		</ul>
 	</div>
 }
 
 // PackChanged answers a tap: the member's own list is swapped into place,
-// and the packed section and the progress are updated out of band. The
-// <details> wrapper is deliberately not part of the reply.
-templ PackChanged(page PackPageData, m PackMember) {
+// and their packed part and the progress are updated out of band. wholePart
+// says the page that sent the tap may not show the part as it now is (it
+// appeared, went, or the page was out of date), so the wrapper is swapped;
+// otherwise only the count and the list are, because sending the <details>
+// again would close it.
+templ PackChanged(page PackPageData, m PackMember, wholePart bool) {
 	@PackMemberList(page, m)
-	@PackedSummary(page, true)
-	@PackedList(page, true)
+	if wholePart {
+		@PackedPart(page, m, true)
+	} else {
+		@PackedSummary(page, m, true)
+		@PackedList(page, m, true)
+	}
 	@PackProgress(page, true)
 }
 
 // tapRow makes a whole row the tap target: a full-width submit button, so
-// packing works one-handed with a bag in the other. Without JavaScript it is
-// still a plain form post.
-templ tapRow(action, targetID, label string) {
+// packing works one-handed with a bag in the other.
+templ tapRow(action string, m PackMember, label string) {
+	@tapForm(action, m) {
+		<button type="submit" aria-label={ label } class="flex min-h-16 w-full items-center gap-3 text-left">
+			{ children... }
+		</button>
+	}
+}
+
+// backButton takes a prepared item back to planned. It shows an arrow, not
+// ✕, which on the trip page means "remove", in a bordered box like the app's
+// other secondary buttons so it reads as something to tap. The tap target is
+// the full row height, larger than the box, so a near miss still lands.
+templ backButton(action string, m PackMember, name string) {
+	@tapForm(action, m) {
+		<button type="submit" aria-label={ "Back to planned: " + name } class="flex min-h-16 min-w-14 items-center justify-center">
+			<span class="flex size-11 items-center justify-center rounded-lg border border-slate-300 bg-white text-xl text-slate-700">↶</span>
+		</button>
+	}
+}
+
+// tapForm is what every tap on the packing page shares: it swaps the
+// member's list and queues behind earlier taps. It also tells the server
+// whether this page shows the member's packed part, so the reply knows
+// whether it can update only the count and the list inside it (see
+// PackChanged). Every reply re-renders the member's list together with
+// their packed part, so the field stays true to the page. Without
+// JavaScript it is still a plain form post.
+templ tapForm(action string, m PackMember) {
 	<form
 		method="post"
 		action={ templ.SafeURL(action) }
 		hx-post={ action }
-		hx-target={ "#" + targetID }
+		hx-target={ "#" + toPackListID(m.ID) }
 		hx-swap="outerHTML"
 		hx-sync="body:queue all"
 	>
-		<button type="submit" aria-label={ label } class="flex min-h-16 w-full items-center gap-3 text-left">
-			{ children... }
-		</button>
+		<input type="hidden" name="packed_shown" value={ packedShown(m) }/>
+		{ children... }
 	</form>
 }
 
-// boxClass is the empty tick box; tickedClass its packed counterpart.
+// boxClass is the empty tick box of a planned item, preparedMarkClass the
+// circle of a prepared one and tickedClass the tick of a packed one.
 const boxClass = "size-6 shrink-0 rounded border-2 border-slate-300"
+const preparedMarkClass = "flex size-6 shrink-0 items-center justify-center rounded-full border-2 border-sky-600"
 const tickedClass = "flex size-6 shrink-0 items-center justify-center rounded border-2 border-green-600 text-green-700"

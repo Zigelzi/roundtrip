@@ -52,6 +52,26 @@ func (q *Queries) DeleteItem(ctx context.Context, arg DeleteItemParams) (int64, 
 	return family_member_id, err
 }
 
+const getItemOwner = `-- name: GetItemOwner :one
+SELECT family_member_id
+FROM item
+WHERE id = ? AND trip_id = ?
+`
+
+type GetItemOwnerParams struct {
+	ID     int64
+	TripID int64
+}
+
+// Whose list to re-render when a step moved nothing. No row means the item
+// is not on this trip (removed, or an id from another trip).
+func (q *Queries) GetItemOwner(ctx context.Context, arg GetItemOwnerParams) (int64, error) {
+	row := q.db.QueryRowContext(ctx, getItemOwner, arg.ID, arg.TripID)
+	var family_member_id int64
+	err := row.Scan(&family_member_id)
+	return family_member_id, err
+}
+
 const listFamilyMembers = `-- name: ListFamilyMembers :many
 
 SELECT id, name
@@ -194,24 +214,35 @@ func (q *Queries) ListTripItems(ctx context.Context, tripID int64) ([]ListTripIt
 	return items, nil
 }
 
-const setItemStatus = `-- name: SetItemStatus :one
+const moveItemStatus = `-- name: MoveItemStatus :one
 UPDATE item
-SET status = ?
-WHERE id = ? AND trip_id = ?
+SET status = ?1
+WHERE id = ?2 AND trip_id = ?3 AND status = ?4
 RETURNING family_member_id
 `
 
-type SetItemStatusParams struct {
-	Status string
-	ID     int64
-	TripID int64
+type MoveItemStatusParams struct {
+	ToStatus   string
+	ID         int64
+	TripID     int64
+	FromStatus string
 }
 
-// Scoped to the trip for the same reason DeleteItem is: an item id from
-// another trip must not be reachable through this trip's page. Returning the
-// member says whose list to re-render; no row means the item is gone.
-func (q *Queries) SetItemStatus(ctx context.Context, arg SetItemStatusParams) (int64, error) {
-	row := q.db.QueryRowContext(ctx, setItemStatus, arg.Status, arg.ID, arg.TripID)
+// One step of the lifecycle (08 Scope 6): the item moves only if it is in the
+// status the step starts from, so a parent whose page is out of date cannot
+// move an item backwards or two steps at once. The check lives in the UPDATE
+// so two phones tapping at once cannot both win. Scoped to the trip for the
+// same reason DeleteItem is: an item id from another trip must not be
+// reachable through this trip's page. No row means nothing moved, either
+// because the item is gone or because it was in another status (see
+// GetItemOwner).
+func (q *Queries) MoveItemStatus(ctx context.Context, arg MoveItemStatusParams) (int64, error) {
+	row := q.db.QueryRowContext(ctx, moveItemStatus,
+		arg.ToStatus,
+		arg.ID,
+		arg.TripID,
+		arg.FromStatus,
+	)
 	var family_member_id int64
 	err := row.Scan(&family_member_id)
 	return family_member_id, err

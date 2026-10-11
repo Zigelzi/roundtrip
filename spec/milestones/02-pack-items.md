@@ -3,6 +3,8 @@
 **Status:** done · **Branch:** feature/pack-items
 <!-- Status: draft → red-teamed → in-progress → done -->
 
+> Milestone 08 ([`08-gather-and-pack.md`](08-gather-and-pack.md)) replaces S1, S2 and S3 below: packed items stay under each person, and an item is prepared before it is packed. The other scenarios still hold.
+
 ## Why
 Flow: Pack everything (`../user-flows.md` step 6).
 As a parent I want to tick off items as I put them in the bag, so that I can see what is still left to pack and nothing is forgotten.

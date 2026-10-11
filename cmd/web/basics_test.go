@@ -252,6 +252,9 @@ func TestBasicsBehaveLikeOtherItems(t *testing.T) {
 	if rec := send(t, app, http.MethodPost, fmt.Sprintf("/trips/%d/items/%d/delete", tripID, belt), nil); rec.Code >= 400 {
 		t.Fatalf("remove Belt: status = %d", rec.Code)
 	}
+	if rec := send(t, app, http.MethodPost, prepareItemURL(tripID, 1, toothbrush), nil); rec.Code >= 400 {
+		t.Fatalf("prepare Toothbrush: status = %d", rec.Code)
+	}
 	if rec := send(t, app, http.MethodPost, packItemURL(tripID, 1, toothbrush), nil); rec.Code >= 400 {
 		t.Fatalf("pack Toothbrush: status = %d", rec.Code)
 	}

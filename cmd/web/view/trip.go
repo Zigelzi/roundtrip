@@ -116,6 +116,9 @@ type Item struct {
 	ID       int64
 	Name     string
 	Quantity int64
+	// Prepared is set on the packing page for an item gathered but not yet
+	// in the bag. The trip page leaves it false: planning does not show it.
+	Prepared bool
 }
 
 // ItemForm holds a member's add-item form values as typed.

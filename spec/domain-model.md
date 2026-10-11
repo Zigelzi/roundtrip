@@ -27,6 +27,7 @@ stateDiagram-v2
     bought --> prepared : into the pile with everything else
     prepared --> packed : into the bag
     packed --> prepared : taken back out
+    prepared --> planned : not on the pile after all
 ```
 
 `Needs to be bought → Bought` is a detour off the main line, not a second route to the bag. Only `Prepared` leads to `Packed`.
@@ -35,6 +36,8 @@ stateDiagram-v2
 
 Items come back out of the bag, and an unpacked item always returns to `Prepared`: it is back in the pile, not back to being an open question. Because every packed item came from `Prepared`, undoing is unambiguous.
 
+A prepared item can also go back to `Planned`, when it was marked by mistake or turns out not to be on the pile. That is unambiguous only while `Planned` is the one way into `Prepared`. Once `Bought` leads there too, the status alone does not say whether a prepared item should go back to `Planned` or to `Bought`; the needs-buying milestone has to decide.
+
 What the lifecycle does not keep is *why* an item is in the pile. The moment a bought item moves to `Prepared`, the fact that it was bought for this trip is gone. If the post-trip review wants "what did we have to buy", that has to be recorded separately, and it is not recoverable from the status, whichever option below is chosen.
 
 ### How this is stored
@@ -42,8 +45,8 @@ What the lifecycle does not keep is *why* an item is in the pile. The moment a b
 **One status field per item**, walking the diagram above: `planned` → `prepared` → `packed`, with the `needs_buying` → `bought` detour off `planned`. The diagram is the schema.
 
 - Nothing contradictory is representable: an item cannot be packed while we don't own it.
-- Undoing is a plain transition back (`packed` → `prepared`), not a restore from history, because every packed item came from the same place.
+- Undoing is a plain transition back (`packed` → `prepared`, `prepared` → `planned`), not a restore from history, because every packed item came from the same place.
 
 The alternative considered was a separate `packed` yes/no flag alongside an availability status. It was rejected once the lifecycle converged on `Prepared`: a second field earns its keep only when unpacking has more than one possible destination, which it does not.
 
-Milestone 02 (`milestones/02-pack-items.md`) implements the `planned` ⇄ `packed` part of this field only; `prepared`, `needs_buying` and `bought` arrive in a later milestone. Until `prepared` exists, an unpacked item returns to `planned`, the same transition, with the middle of the chain not yet built.
+Milestone 02 (`milestones/02-pack-items.md`) built `planned` ⇄ `packed`, and milestone 08 (`milestones/08-gather-and-pack.md`) put `prepared` between them: an item goes `planned` → `prepared` → `packed`, and an unpacked item returns to `prepared`. A prepared item can be taken back to `planned` (08 slice 3). Each step only moves an item that is in the state the step starts from (08 Scope 6). `needs_buying` and `bought` arrive in a later milestone.

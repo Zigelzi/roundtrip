@@ -39,14 +39,26 @@ ORDER BY name_key;
 INSERT INTO item (trip_id, family_member_id, name, name_key, quantity)
 VALUES (?, ?, ?, ?, ?);
 
--- name: SetItemStatus :one
--- Scoped to the trip for the same reason DeleteItem is: an item id from
--- another trip must not be reachable through this trip's page. Returning the
--- member says whose list to re-render; no row means the item is gone.
+-- name: MoveItemStatus :one
+-- One step of the lifecycle (08 Scope 6): the item moves only if it is in the
+-- status the step starts from, so a parent whose page is out of date cannot
+-- move an item backwards or two steps at once. The check lives in the UPDATE
+-- so two phones tapping at once cannot both win. Scoped to the trip for the
+-- same reason DeleteItem is: an item id from another trip must not be
+-- reachable through this trip's page. No row means nothing moved, either
+-- because the item is gone or because it was in another status (see
+-- GetItemOwner).
 UPDATE item
-SET status = ?
-WHERE id = ? AND trip_id = ?
+SET status = sqlc.arg(to_status)
+WHERE id = sqlc.arg(id) AND trip_id = sqlc.arg(trip_id) AND status = sqlc.arg(from_status)
 RETURNING family_member_id;
+
+-- name: GetItemOwner :one
+-- Whose list to re-render when a step moved nothing. No row means the item
+-- is not on this trip (removed, or an id from another trip).
+SELECT family_member_id
+FROM item
+WHERE id = ? AND trip_id = ?;
 
 -- name: DeleteItem :one
 -- Scoped to the trip so an item can't be removed through another trip's URL.

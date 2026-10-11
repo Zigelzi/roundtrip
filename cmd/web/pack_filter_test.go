@@ -44,6 +44,7 @@ func TestPackingWhileNarrowedStaysNarrowed(t *testing.T) {
 	tripID := insertTrip(t, database, "Parainen", "2026-09-20", 3)
 	first := memberID(t, database, familyMembers[0])
 	underwear := insertItem(t, database, tripID, familyMembers[0], "Underwear", 4)
+	prepareItem(t, database, underwear)
 	insertItem(t, database, tripID, familyMembers[0], "Toothbrush", 1)
 	insertItem(t, database, tripID, familyMembers[1], "Raincoat", 1)
 
@@ -59,8 +60,8 @@ func TestPackingWhileNarrowedStaysNarrowed(t *testing.T) {
 	if progress := packFragment(t, body, "pack-progress"); !strings.Contains(progress, "1 of 2 packed") {
 		t.Errorf("after a tap the progress is no longer narrowed:\n%s", progress)
 	}
-	if packed := packFragment(t, body, "packed-list"); strings.Contains(packed, "Raincoat") {
-		t.Errorf("after a tap another member's items appeared:\n%s", packed)
+	if strings.Contains(body, "Raincoat") {
+		t.Errorf("after a tap another member's items appeared:\n%s", body)
 	}
 }
 

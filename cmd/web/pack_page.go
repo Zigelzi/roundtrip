@@ -12,10 +12,11 @@ import (
 )
 
 // Item lifecycle values stored in item.status (see spec/domain-model.md).
-// Milestone 02 implements these two; prepared / needs_buying / bought follow.
+// Milestone 08 implements these three; needs_buying / bought follow.
 const (
-	statusPlanned = "planned"
-	statusPacked  = "packed"
+	statusPlanned  = "planned"
+	statusPrepared = "prepared"
+	statusPacked   = "packed"
 )
 
 func (app *application) handlePackPage(w http.ResponseWriter, r *http.Request) {
@@ -36,18 +37,29 @@ func (app *application) handlePackPage(w http.ResponseWriter, r *http.Request) {
 	app.render(w, r, http.StatusOK, view.PackPage(page))
 }
 
+// Each handler names its step: the item moves only if it is in the state the
+// step starts from (08 Scope 6).
+
+func (app *application) handlePrepareItem(w http.ResponseWriter, r *http.Request) {
+	app.moveItem(w, r, statusPlanned, statusPrepared)
+}
+
 func (app *application) handlePackItem(w http.ResponseWriter, r *http.Request) {
-	app.setItemStatus(w, r, statusPacked)
+	app.moveItem(w, r, statusPrepared, statusPacked)
 }
 
 func (app *application) handleUnpackItem(w http.ResponseWriter, r *http.Request) {
-	app.setItemStatus(w, r, statusPlanned)
+	app.moveItem(w, r, statusPacked, statusPrepared)
 }
 
-// setItemStatus ticks an item packed or back again. The list to re-render is
-// the item's own member; the path's member is the fallback for when the item
-// has since been removed and there is no row left to ask.
-func (app *application) setItemStatus(w http.ResponseWriter, r *http.Request, status string) {
+func (app *application) handleUnprepareItem(w http.ResponseWriter, r *http.Request) {
+	app.moveItem(w, r, statusPrepared, statusPlanned)
+}
+
+// moveItem takes an item one step, from one status to the next. The list to
+// re-render is the item's own member; the path's member is the fallback for
+// when the item has since been removed and there is no row left to ask.
+func (app *application) moveItem(w http.ResponseWriter, r *http.Request, from, to string) {
 	tripID, err := tripIDFromPath(r)
 	if err != nil {
 		app.tripNotFound(w, r)
@@ -64,16 +76,24 @@ func (app *application) setItemStatus(w http.ResponseWriter, r *http.Request, st
 		return
 	}
 
-	owner, err := app.queries.SetItemStatus(r.Context(), db.SetItemStatusParams{Status: status, ID: itemID, TripID: tripID})
-	switch {
-	case errors.Is(err, sql.ErrNoRows):
-		// The item is gone: removed on the trip page by the other parent, or
-		// an id from another trip. Nothing is saved; the parent gets the list
-		// as it now stands and carries on packing (S10). With no row to ask,
-		// the path says which list that is.
-		owner = memberID
-	case err != nil:
-		app.serverError(w, "set item status", err)
+	owner, err := app.queries.MoveItemStatus(r.Context(), db.MoveItemStatusParams{
+		ToStatus: to, ID: itemID, TripID: tripID, FromStatus: from,
+	})
+	if errors.Is(err, sql.ErrNoRows) {
+		// Nothing moved. Either the item is in another state (the other
+		// parent got there first: S8, S9, S10) or it is gone (02/S10).
+		// Either way the reply shows the list as it really is, so ask whose
+		// list that is.
+		owner, err = app.queries.GetItemOwner(r.Context(), db.GetItemOwnerParams{ID: itemID, TripID: tripID})
+		if errors.Is(err, sql.ErrNoRows) {
+			// Removed on the trip page by the other parent, or an id from
+			// another trip. With no row to ask, the path says which list
+			// the parent was looking at.
+			owner, err = memberID, nil
+		}
+	}
+	if err != nil {
+		app.serverError(w, "move item status", err)
 		return
 	}
 	// Re-render the item's real owner, not whoever the path claims: the
@@ -100,7 +120,21 @@ func (app *application) packingChanged(w http.ResponseWriter, r *http.Request, t
 		app.render(w, r, http.StatusNotFound, view.NotFound("Family member not found"))
 		return
 	}
-	app.render(w, r, http.StatusOK, view.PackChanged(page, page.Members[i]))
+	owner := page.Members[i]
+	app.render(w, r, http.StatusOK, view.PackChanged(page, owner, wholePartSwap(r, len(owner.Packed))))
+}
+
+// wholePartSwap says whether a member's packed part has to be sent whole.
+// Every tap form says whether its page shows the part (packed_shown). Only
+// when it does, and the member still has something packed, are the count
+// and the list swapped alone, so an open part stays open (02/S3, 08/S5,
+// also for a repeated tap that changes nothing). Otherwise the whole wrapper
+// goes: the part appears or goes, or the page was out of date and has
+// nowhere to put a count and a list (S9, S10, or the other parent packed
+// this member's first item). A tap without the field gets the whole part:
+// it may close an open part, but it never leaves the page wrong.
+func wholePartSwap(r *http.Request, packedCount int) bool {
+	return r.PostFormValue("packed_shown") != "1" || packedCount == 0
 }
 
 func packMemberIndex(members []view.PackMember, id int64) int {
@@ -113,7 +147,8 @@ func packMemberIndex(members []view.PackMember, id int64) int {
 }
 
 // packPage loads the trip and splits each member's items into what is still
-// to pack and what is already in the bag.
+// to pack (planned and prepared, in the order they were added) and what is
+// already in the bag (their packed part).
 func (app *application) packPage(ctx context.Context, tripID, filter int64) (view.PackPageData, error) {
 	row, err := app.queries.GetTrip(ctx, tripID)
 	if errors.Is(err, sql.ErrNoRows) {
@@ -142,7 +177,7 @@ func (app *application) packPage(ctx context.Context, tripID, filter int64) (vie
 			if it.FamilyMemberID != m.ID {
 				continue
 			}
-			item := view.Item{ID: it.ID, Name: it.Name, Quantity: it.Quantity}
+			item := view.Item{ID: it.ID, Name: it.Name, Quantity: it.Quantity, Prepared: it.Status == statusPrepared}
 			if it.Status == statusPacked {
 				section.Packed = append(section.Packed, item)
 			} else {

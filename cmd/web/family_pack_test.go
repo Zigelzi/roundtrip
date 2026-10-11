@@ -95,13 +95,15 @@ func TestFamilyFilterComesSecond(t *testing.T) {
 	}
 }
 
-// S3: Parent packs a family item. It behaves like any other item: out of the
-// list to pack, into the packed section, progress up by one.
+// S3, now milestone 08's S7: Parent packs a prepared family item. It behaves
+// like any other item: out of the list to pack, into the Family section's
+// packed part, progress up by one.
 func TestPackFamilyItem(t *testing.T) {
 	app, database := newTestApp(t)
 	tripID := insertTrip(t, database, "Parainen", "2026-09-20", 3)
 	insertItem(t, database, tripID, familyMembers[0], "Toothbrush", 1)
 	sunscreen := insertItem(t, database, tripID, "Family", "Sunscreen", 1)
+	prepareItem(t, database, sunscreen)
 	insertItem(t, database, tripID, "Family", "First aid kit", 1)
 
 	body := sendHTMX(t, app, packItemURL(tripID, familyBucketID, sunscreen), nil).Body.String()
@@ -113,8 +115,8 @@ func TestPackFamilyItem(t *testing.T) {
 	if !strings.Contains(toPack, "First aid kit") {
 		t.Errorf("the family's other item vanished from the list:\n%s", toPack)
 	}
-	if packed := packFragment(t, body, "packed-list"); !strings.Contains(packed, "Sunscreen") {
-		t.Errorf("packed family item is not in the packed section:\n%s", packed)
+	if packed := packedPart(t, body, familyBucketID); !strings.Contains(packed, "Sunscreen") {
+		t.Errorf("packed family item is not in the Family section's packed part:\n%s", packed)
 	}
 	if progress := packFragment(t, body, "pack-progress"); !strings.Contains(progress, "1 of 3 packed") {
 		t.Errorf("progress does not say 1 of 3 packed:\n%s", progress)

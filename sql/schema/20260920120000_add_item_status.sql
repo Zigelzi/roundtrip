@@ -1,7 +1,8 @@
 -- +goose Up
--- Where an item is in its lifecycle (see spec/domain-model.md). Milestone 02
--- implements 'planned' <-> 'packed'; 'prepared', 'needs_buying' and 'bought'
--- arrive with the rest of the chain.
+-- Where an item is in its lifecycle (see spec/domain-model.md). Milestones 02
+-- and 08 implement 'planned' -> 'prepared' -> 'packed' (and back one step at
+-- a time: 'packed' to 'prepared', 'prepared' to 'planned'); 'needs_buying' and
+-- 'bought' arrive with the rest of the chain.
 --
 -- Deliberately no CHECK on the allowed values: the set grows in a later
 -- milestone, and changing a CHECK in SQLite means rebuilding the table. The

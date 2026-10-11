@@ -80,7 +80,8 @@ func (p PackPageData) FilterOrder() []PackMember {
 }
 
 // PackMember is one family member's section on the packing page: what is
-// still to pack, and what is already in the bag.
+// still to pack (planned and prepared items, in the order they were added),
+// and what is already in the bag (their packed part).
 type PackMember struct {
 	ID     int64
 	Name   string
@@ -105,14 +106,23 @@ func packMemberURL(tripID, memberID int64) string {
 	return fmt.Sprintf("%s?member=%d", PackURL(tripID), memberID)
 }
 
-// packItemURL and unpackItemURL carry the narrowing, so a tap comes back
-// with the same slice of the page the parent is looking at.
+// prepareItemURL, packItemURL, unpackItemURL and unprepareItemURL carry the
+// narrowing, so a tap comes back with the same slice of the page the parent
+// is looking at.
+func prepareItemURL(tripID, memberID, itemID, filter int64) string {
+	return WithFilter(fmt.Sprintf("/trips/%d/members/%d/items/%d/prepare", tripID, memberID, itemID), filter)
+}
+
 func packItemURL(tripID, memberID, itemID, filter int64) string {
 	return WithFilter(fmt.Sprintf("/trips/%d/members/%d/items/%d/pack", tripID, memberID, itemID), filter)
 }
 
 func unpackItemURL(tripID, memberID, itemID, filter int64) string {
 	return WithFilter(fmt.Sprintf("/trips/%d/members/%d/items/%d/unpack", tripID, memberID, itemID), filter)
+}
+
+func unprepareItemURL(tripID, memberID, itemID, filter int64) string {
+	return WithFilter(fmt.Sprintf("/trips/%d/members/%d/items/%d/unprepare", tripID, memberID, itemID), filter)
 }
 
 // WithFilter keeps the page narrowed to one member across a request.
@@ -128,9 +138,24 @@ func toPackListID(memberID int64) string {
 	return fmt.Sprintf("topack-member-%d", memberID)
 }
 
-// oobAttrs marks a fragment as an out-of-band swap. One tap changes three
-// places (the member's list, the packed section and the progress), and
-// htmx swaps the extra two by id wherever they sit on the page.
+// packedPartID is the always-present wrapper of one member's packed part.
+// Inside it, only while something is packed, sit the <details>, its count
+// (packedSummaryID) and its list (packedListID).
+func packedPartID(memberID int64) string {
+	return fmt.Sprintf("packed-member-%d", memberID)
+}
+
+func packedSummaryID(memberID int64) string {
+	return fmt.Sprintf("packed-summary-member-%d", memberID)
+}
+
+func packedListID(memberID int64) string {
+	return fmt.Sprintf("packed-list-member-%d", memberID)
+}
+
+// oobAttrs marks a fragment as an out-of-band swap. One tap changes several
+// places (the member's list, their packed part and the progress), and htmx
+// swaps the extras by id wherever they sit on the page.
 func oobAttrs(oob bool) templ.Attributes {
 	if oob {
 		return templ.Attributes{"hx-swap-oob": "true"}
@@ -147,4 +172,13 @@ func FormatCount(n int) string {
 // FormatProgress shows how much of the list is in the bag: "7 of 12 packed".
 func FormatProgress(packed, total int) string {
 	return fmt.Sprintf("%d of %d packed", packed, total)
+}
+
+// packedShown is what a tap form says about the member's packed part: "1"
+// when the page shows it, which is when the member has something packed.
+func packedShown(m PackMember) string {
+	if len(m.Packed) > 0 {
+		return "1"
+	}
+	return "0"
 }
