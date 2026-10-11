@@ -187,21 +187,6 @@ func TestOnlyOneItemIsEditedAtATime(t *testing.T) {
 	}
 }
 
-// inputTagLabelled returns the <input ...> tag with the given aria-label.
-func inputTagLabelled(t *testing.T, body, label string) string {
-	t.Helper()
-	i := strings.Index(body, `aria-label="`+label+`"`)
-	if i < 0 {
-		t.Fatalf("no input labelled %q", label)
-	}
-	start := strings.LastIndex(body[:i], "<input")
-	end := strings.Index(body[i:], ">")
-	if start < 0 || end < 0 {
-		t.Fatalf("%q is not an <input> tag", label)
-	}
-	return body[start : i+end+1]
-}
-
 // submitTag returns the add form's submit button in a member section.
 func submitTag(t *testing.T, section string) string {
 	t.Helper()
@@ -242,22 +227,6 @@ func TestEditingSwapsListsInPlace(t *testing.T) {
 	if !strings.Contains(cancel, "hx-get=") {
 		t.Errorf("Cancel does not go back with htmx: %s", cancel)
 	}
-}
-
-// enclosingTag returns the opening tag (starting with open, e.g. "<form")
-// that comes last before marker in body.
-func enclosingTag(t *testing.T, body, marker, open string) string {
-	t.Helper()
-	i := strings.Index(body, marker)
-	if i < 0 {
-		t.Fatalf("page has no %s", marker)
-	}
-	start := strings.LastIndex(body[:i], open)
-	if start < 0 {
-		t.Fatalf("no %s before %s", open, marker)
-	}
-	end := strings.Index(body[start:], ">")
-	return body[start : start+end+1]
 }
 
 func assertSwapsTripItems(t *testing.T, what, tag string) {

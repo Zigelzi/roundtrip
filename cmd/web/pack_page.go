@@ -81,7 +81,7 @@ func (app *application) moveItem(w http.ResponseWriter, r *http.Request, from, t
 	})
 	if errors.Is(err, sql.ErrNoRows) {
 		// Nothing moved. Either the item is in another state (the other
-		// parent got there first: S8, S9, S10) or it is gone (02/S10).
+		// parent got there first: 08/S8, 08/S9, 08/S10) or it is gone (02/S10).
 		// Either way the reply shows the list as it really is, so ask whose
 		// list that is.
 		owner, err = app.queries.GetItemOwner(r.Context(), db.GetItemOwnerParams{ID: itemID, TripID: tripID})
@@ -130,7 +130,7 @@ func (app *application) packingChanged(w http.ResponseWriter, r *http.Request, t
 // and the list swapped alone, so an open part stays open (02/S3, 08/S5,
 // also for a repeated tap that changes nothing). Otherwise the whole wrapper
 // goes: the part appears or goes, or the page was out of date and has
-// nowhere to put a count and a list (S9, S10, or the other parent packed
+// nowhere to put a count and a list (08/S9, 08/S10, or the other parent packed
 // this member's first item). A tap without the field gets the whole part:
 // it may close an open part, but it never leaves the page wrong.
 func wholePartSwap(r *http.Request, packedCount int) bool {
@@ -194,7 +194,7 @@ func (app *application) packPage(ctx context.Context, tripID, filter int64) (vie
 		page.Filter = 0
 	}
 	// The progress counts what is on screen: narrowed to one member, it is
-	// that member's own progress (S5).
+	// that member's own progress (02/S5).
 	for _, m := range page.Shown() {
 		page.Packed += len(m.Packed)
 		page.Total += len(m.Packed) + len(m.ToPack)

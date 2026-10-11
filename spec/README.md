@@ -12,7 +12,7 @@ One fact lives in exactly one file. When two files would state the same thing, o
 |---|---|
 | `constitution.md` | How we work: agentic workflow, tech stack, git conventions, Milestone 0. Governance. |
 | `user-flows.md` | Who / why at product level: the family, the high-level flows. |
-| `domain-model.md` | Shared entities (Trip, Item, …). Created lazily, only when the first feature introduces real entities. Until then it does not exist. |
+| `domain-model.md` | Shared entities (Trip, Item, …). Each entity and how it is stored. |
 | `activity-catalogue.md` | The activities and their default items, plus the design decisions behind them. Feeds milestone 04 and the activity milestones after it. |
 | `allocation-log.md` | Running record of the main-session vs sub-agent experiment, one row per slice. |
 | `milestones/NN-name.md` | One unit of work. See below. |
@@ -48,8 +48,11 @@ One letter per kind of thing, so a number is never ambiguous across documents:
 | `S` | A BDD scenario | A milestone spec. Prefix the milestone outside it: `03/S8`. |
 | `Q` | An open question about that milestone | The same milestone spec. |
 | `A` | An open item about the activity catalogue | [`activity-catalogue.md`](activity-catalogue.md), because those questions outlive any one milestone. |
+| `R` | A red-team finding and the decision on it | The milestone spec's decisions log. Prefix the milestone outside it: `04/R2`. |
 
-All three follow the scenario rule: numbers are stable, a removed one leaves a gap, never renumber. Note that `constitution.md` separately uses "Option A" and "Option B" for the allocation experiment; that is unrelated to the `A` prefix here.
+Code comments are always outside the spec, so they always carry the milestone: `04/R2`, never a bare `R2`, since every milestone numbers from 1.
+
+All four follow the scenario rule: numbers are stable, a removed one leaves a gap, never renumber. Note that `constitution.md` separately uses "Option A" and "Option B" for the allocation experiment; that is unrelated to the `A` prefix here.
 
 ### Flow steps
 

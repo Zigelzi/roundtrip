@@ -1,13 +1,11 @@
 package main
 
 import (
-	"database/sql"
 	"html"
 	"net/http"
 	"net/url"
 	"strings"
 	"testing"
-	"time"
 )
 
 // Milestone 01 (spec/milestones/01-packing-list.md), trip scenarios S1–S6.
@@ -214,33 +212,4 @@ func TestCreateTripWithReturnDate(t *testing.T) {
 			}
 		})
 	}
-}
-
-// fixedNow parses an RFC 3339 instant for pinning the app's clock.
-func fixedNow(t *testing.T, instant string) func() time.Time {
-	t.Helper()
-	at, err := time.Parse(time.RFC3339, instant)
-	if err != nil {
-		t.Fatalf("parse %q: %v", instant, err)
-	}
-	return func() time.Time { return at }
-}
-
-func insertTrip(t *testing.T, database *sql.DB, destination, departure string, days int) int64 {
-	t.Helper()
-	res, err := database.Exec("INSERT INTO trip (destination, departure_date, duration_days) VALUES (?, ?, ?)", destination, departure, days)
-	if err != nil {
-		t.Fatalf("insert trip: %v", err)
-	}
-	id, _ := res.LastInsertId()
-	return id
-}
-
-func count(t *testing.T, database *sql.DB, table string) int {
-	t.Helper()
-	var n int
-	if err := database.QueryRow("SELECT COUNT(*) FROM " + table).Scan(&n); err != nil {
-		t.Fatalf("count %s: %v", table, err)
-	}
-	return n
 }

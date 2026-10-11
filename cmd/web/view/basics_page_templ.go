@@ -11,7 +11,7 @@ import templruntime "github.com/a-h/templ/runtime"
 import "strconv"
 
 // BasicsPage lists each family member's basics, in the order a new trip gets
-// them. It reuses the trip page's layout (spec Q6): a sticky header with
+// them. It reuses the trip page's layout (06/Q6): a sticky header with
 // jump links, and one <section data-member="Name"> card per member.
 func BasicsPage(members []MemberBasics, edit BasicEdit) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {

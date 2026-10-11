@@ -312,71 +312,13 @@ func NewTrip(form TripForm, today string) templ.Component {
 }
 
 // personPillClass is the member filter's pill (filterBaseClass in
-// pack_page.templ) driven by the hidden checkbox before it. Ticked is a light
+// shared.templ) driven by the hidden checkbox before it. Ticked is a light
 // fill, a dark outline and a check mark, not the filter's solid dark fill, so
 // the solid dark Create button stays the one primary action on the page. The
 // check mark means ticked does not rely on colour alone; it is its own
 // aria-hidden span (not CSS content) so a screen reader, which already says
 // "checked" for the box, does not read it too.
 const personPillClass = filterBaseClass + " border-slate-300 bg-white text-slate-700 peer-checked:border-slate-900 peer-checked:bg-slate-100 peer-checked:text-slate-900 peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-slate-900"
-
-// inputClass keeps inputs large enough to tap and at 16px text, which stops
-// iOS from zooming in on focus.
-const inputClass = "mt-1 block min-h-12 w-full rounded-lg border border-slate-300 bg-white px-3 text-base"
-
-func errorList(errs []string) templ.Component {
-	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
-		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
-		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
-			return templ_7745c5c3_CtxErr
-		}
-		templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templruntime.GetBuffer(templ_7745c5c3_W)
-		if !templ_7745c5c3_IsBuffer {
-			defer func() {
-				templ_7745c5c3_BufErr := templruntime.ReleaseBuffer(templ_7745c5c3_Buffer)
-				if templ_7745c5c3_Err == nil {
-					templ_7745c5c3_Err = templ_7745c5c3_BufErr
-				}
-			}()
-		}
-		ctx = templ.InitializeContext(ctx)
-		templ_7745c5c3_Var21 := templ.GetChildren(ctx)
-		if templ_7745c5c3_Var21 == nil {
-			templ_7745c5c3_Var21 = templ.NopComponent
-		}
-		ctx = templ.ClearChildren(ctx)
-		if len(errs) > 0 {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 26, "<ul role=\"alert\" class=\"mt-4 rounded-lg bg-red-50 p-3 text-red-800\">")
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			for _, e := range errs {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 27, "<li>")
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				var templ_7745c5c3_Var22 string
-				templ_7745c5c3_Var22, templ_7745c5c3_Err = templ.JoinStringErrs(e)
-				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `cmd/web/view/trip_new.templ`, Line: 70, Col: 11}
-				}
-				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var22))
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 28, "</li>")
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 29, "</ul>")
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-		}
-		return nil
-	})
-}
 
 // syncTripDates keeps duration and return date in step while typing:
 // changing the days or the departure moves the return date; changing the
@@ -399,12 +341,12 @@ func syncTripDates() templ.Component {
 			}()
 		}
 		ctx = templ.InitializeContext(ctx)
-		templ_7745c5c3_Var23 := templ.GetChildren(ctx)
-		if templ_7745c5c3_Var23 == nil {
-			templ_7745c5c3_Var23 = templ.NopComponent
+		templ_7745c5c3_Var21 := templ.GetChildren(ctx)
+		if templ_7745c5c3_Var21 == nil {
+			templ_7745c5c3_Var21 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 30, "<script>\n\t\t(() => {\n\t\t\tconst form = document.currentScript.closest(\"form\");\n\t\t\tconst departure = form.elements[\"departure_date\"];\n\t\t\tconst end = form.elements[\"end_date\"];\n\t\t\tconst days = form.elements[\"duration_days\"];\n\t\t\tconst dayMs = 24 * 60 * 60 * 1000;\n\n\t\t\tfunction updateEnd() {\n\t\t\t\tconst d = Date.parse(departure.value);\n\t\t\t\tconst n = parseInt(days.value, 10);\n\t\t\t\tif (departure.value) end.min = departure.value;\n\t\t\t\tif (!isNaN(d) && n >= 1) end.value = new Date(d + (n - 1) * dayMs).toISOString().slice(0, 10);\n\t\t\t}\n\t\t\tfunction updateDays() {\n\t\t\t\tconst d = Date.parse(departure.value);\n\t\t\t\tconst e = Date.parse(end.value);\n\t\t\t\tif (!isNaN(d) && !isNaN(e) && e >= d) days.value = Math.round((e - d) / dayMs) + 1;\n\t\t\t}\n\n\t\t\tdeparture.addEventListener(\"input\", updateEnd);\n\t\t\tdays.addEventListener(\"input\", updateEnd);\n\t\t\tend.addEventListener(\"input\", updateDays);\n\n\t\t\t// One trip per tap: a quick double tap would otherwise post twice.\n\t\t\t// Re-enable when the browser restores this page from its cache.\n\t\t\t// The button is looked up when used: this script runs before the\n\t\t\t// button below it has been parsed.\n\t\t\tconst submit = () => form.querySelector(\"button[type=submit]\");\n\t\t\tform.addEventListener(\"submit\", () => { submit().disabled = true; });\n\t\t\twindow.addEventListener(\"pageshow\", (e) => { if (e.persisted) submit().disabled = false; });\n\t\t})();\n\t</script>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 26, "<script>\n\t\t(() => {\n\t\t\tconst form = document.currentScript.closest(\"form\");\n\t\t\tconst departure = form.elements[\"departure_date\"];\n\t\t\tconst end = form.elements[\"end_date\"];\n\t\t\tconst days = form.elements[\"duration_days\"];\n\t\t\tconst dayMs = 24 * 60 * 60 * 1000;\n\n\t\t\tfunction updateEnd() {\n\t\t\t\tconst d = Date.parse(departure.value);\n\t\t\t\tconst n = parseInt(days.value, 10);\n\t\t\t\tif (departure.value) end.min = departure.value;\n\t\t\t\tif (!isNaN(d) && n >= 1) end.value = new Date(d + (n - 1) * dayMs).toISOString().slice(0, 10);\n\t\t\t}\n\t\t\tfunction updateDays() {\n\t\t\t\tconst d = Date.parse(departure.value);\n\t\t\t\tconst e = Date.parse(end.value);\n\t\t\t\tif (!isNaN(d) && !isNaN(e) && e >= d) days.value = Math.round((e - d) / dayMs) + 1;\n\t\t\t}\n\n\t\t\tdeparture.addEventListener(\"input\", updateEnd);\n\t\t\tdays.addEventListener(\"input\", updateEnd);\n\t\t\tend.addEventListener(\"input\", updateDays);\n\n\t\t\t// One trip per tap: a quick double tap would otherwise post twice.\n\t\t\t// Re-enable when the browser restores this page from its cache.\n\t\t\t// The button is looked up when used: this script runs before the\n\t\t\t// button below it has been parsed.\n\t\t\tconst submit = () => form.querySelector(\"button[type=submit]\");\n\t\t\tform.addEventListener(\"submit\", () => { submit().disabled = true; });\n\t\t\twindow.addEventListener(\"pageshow\", (e) => { if (e.persisted) submit().disabled = false; });\n\t\t})();\n\t</script>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

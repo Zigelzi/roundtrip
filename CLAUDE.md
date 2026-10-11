@@ -12,7 +12,7 @@ Deliberately not restated here. This file is loaded every session, which makes i
 
 Do not restate any of that here. Add to the file it belongs in and let this section keep pointing.
 
-Code layout (stable): entrypoint in `cmd/web` (`main.go`, `app.go`, `view/` templ templates), SQLite access in `internal/db` (sqlc-generated), Goose migrations + sqlc queries under `sql/`. Mirrors go-tiimit.
+Code layout (stable): entrypoint in `cmd/web` (`main.go`, `app.go`, `view/` templ templates), SQLite access in `internal/db` (sqlc output plus `config.go`; view models and formatters in `cmd/web/view/*.go`), Goose migrations + sqlc queries under `sql/`. Mirrors go-tiimit.
 
 Commands (`make`, all wrap codegen via the `generate` target: sqlc, templ and the standalone Tailwind CLI):
 - `make test`: run `go test ./...` (BDD scenarios live in `cmd/web/*_test.go`)
@@ -23,7 +23,7 @@ Commands (`make`, all wrap codegen via the `generate` target: sqlc, templ and th
 - `make reset-trips`: delete trips created while testing (basics and family members stay). Lists what goes, asks y/N, backs up to `backups/` first. Keep some with `KEEP=2,9`. Needs the `sqlite3` CLI
 - Run a single test: `go test ./cmd/web/ -run TestName -v`
 
-Generated Go code (sqlc `internal/db`, `*_templ.go`) is committed so it can be read and reviewed; `make generate` refreshes it. The built Tailwind bundle (`cmd/web/static/tailwind.css`) is gitignored (only the input `cmd/web/tailwind.css` is tracked), so on a fresh checkout run `make generate` once before a plain `go build`/`go test` (the `//go:embed static` fails without it). The runtime SQLite file and `build/` are also gitignored.
+Generated Go code is committed so it can be read and reviewed; `make generate` refreshes it. A file is generated if, and only if, its first line is `// Code generated ... DO NOT EDIT.` (templ's `*_templ.go`, sqlc's `internal/db/*.sql.go`, `db.go`, `models.go`): change its source (`.templ`, `sql/`) instead. Everything else, including `internal/db/config.go`, is edited directly. The built Tailwind bundle (`cmd/web/static/tailwind.css`) is gitignored (only the input `cmd/web/tailwind.css` is tracked), so on a fresh checkout run `make generate` once before a plain `go build`/`go test` (the `//go:embed static` fails without it). The runtime SQLite file and `build/` are also gitignored.
 
 Stack (decided; see `spec/constitution.md` for the per-choice rationale): Go + [templ](https://templ.guide/llms.md) + HTMX + TailwindCSS, backed by SQLite (single file, no server process), with Goose migrations and sqlc for type-safe DB access (same tooling as go-tiimit). Alpine.js is the chosen tool for client-side reactive interactions but is added only when a milestone first needs one; prefer native HTML (`<details>`, `<dialog>`) for simple toggles/modals. The stack optimizes for interpretability, few dependencies, and single-binary deploy to the Pi; live sync is not a v1 requirement.
 

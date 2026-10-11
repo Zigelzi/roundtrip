@@ -1,8 +1,6 @@
 package main
 
 import (
-	"database/sql"
-	"fmt"
 	"net/http"
 	"strings"
 	"testing"
@@ -65,44 +63,4 @@ func TestViewMissingTrip(t *testing.T) {
 			t.Errorf("GET %s: page has no link back to the front page", path)
 		}
 	}
-}
-
-func tripURLFor(id int64) string {
-	return fmt.Sprintf("/trips/%d", id)
-}
-
-func memberID(t *testing.T, database *sql.DB, name string) int64 {
-	t.Helper()
-	var id int64
-	if err := database.QueryRow("SELECT id FROM family_member WHERE name = ?", name).Scan(&id); err != nil {
-		t.Fatalf("family member %q: %v", name, err)
-	}
-	return id
-}
-
-func insertItem(t *testing.T, database *sql.DB, tripID int64, member, name string, quantity int) int64 {
-	t.Helper()
-	res, err := database.Exec("INSERT INTO item (trip_id, family_member_id, name, name_key, quantity) VALUES (?, ?, ?, ?, ?)",
-		tripID, memberID(t, database, member), name, strings.ToLower(name), quantity)
-	if err != nil {
-		t.Fatalf("insert item: %v", err)
-	}
-	id, _ := res.LastInsertId()
-	return id
-}
-
-// memberSection returns the HTML of one family member's section on the trip
-// page. The page contract: each member is a <section data-member="Name">.
-func memberSection(t *testing.T, body, member string) string {
-	t.Helper()
-	i := strings.Index(body, `data-member="`+member+`"`)
-	if i < 0 {
-		t.Fatalf("no section for family member %q", member)
-	}
-	start := strings.LastIndex(body[:i], "<section")
-	end := strings.Index(body[i:], "</section>")
-	if start < 0 || end < 0 {
-		t.Fatalf("section for %q is malformed", member)
-	}
-	return body[start : i+end]
 }

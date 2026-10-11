@@ -51,27 +51,13 @@ templ NewTrip(form TripForm, today string) {
 }
 
 // personPillClass is the member filter's pill (filterBaseClass in
-// pack_page.templ) driven by the hidden checkbox before it. Ticked is a light
+// shared.templ) driven by the hidden checkbox before it. Ticked is a light
 // fill, a dark outline and a check mark, not the filter's solid dark fill, so
 // the solid dark Create button stays the one primary action on the page. The
 // check mark means ticked does not rely on colour alone; it is its own
 // aria-hidden span (not CSS content) so a screen reader, which already says
 // "checked" for the box, does not read it too.
 const personPillClass = filterBaseClass + " border-slate-300 bg-white text-slate-700 peer-checked:border-slate-900 peer-checked:bg-slate-100 peer-checked:text-slate-900 peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-slate-900"
-
-// inputClass keeps inputs large enough to tap and at 16px text, which stops
-// iOS from zooming in on focus.
-const inputClass = "mt-1 block min-h-12 w-full rounded-lg border border-slate-300 bg-white px-3 text-base"
-
-templ errorList(errs []string) {
-	if len(errs) > 0 {
-		<ul role="alert" class="mt-4 rounded-lg bg-red-50 p-3 text-red-800">
-			for _, e := range errs {
-				<li>{ e }</li>
-			}
-		</ul>
-	}
-}
 
 // syncTripDates keeps duration and return date in step while typing:
 // changing the days or the departure moves the return date; changing the

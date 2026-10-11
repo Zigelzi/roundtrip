@@ -1,6 +1,6 @@
 -- +goose Up
 -- Basic names are unique per family member, ignoring capitalisation, the same
--- rule as item (spec/milestones/06-edit-basics.md, R1). Without it a double-
+-- rule as item (06/R1). Without it a double-
 -- tapped Add, or two parents adding at once, could save two rows of one name,
 -- and then every new trip would fail: creating a trip copies the basics in one
 -- transaction and the item table refuses the duplicate.

@@ -4,11 +4,13 @@ import (
 	"fmt"
 	"html"
 	"net/http"
-	"net/http/httptest"
 	"net/url"
 	"strings"
 	"testing"
 )
+
+// Milestone 01 (spec/milestones/01-packing-list.md), adding and removing items
+// with htmx, in place.
 
 // S15 (automated part): adding and removing items in place. Whether the name
 // field keeps focus on a phone is checked manually (see the spec).
@@ -100,17 +102,6 @@ func assertOnlyMemberList(t *testing.T, body string, memberID int64) {
 	}
 }
 
-// sendHTMX posts a form the way htmx does, marked with the HX-Request header.
-func sendHTMX(t *testing.T, app *application, path string, form url.Values) *httptest.ResponseRecorder {
-	t.Helper()
-	req := httptest.NewRequest(http.MethodPost, path, strings.NewReader(form.Encode()))
-	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
-	req.Header.Set("HX-Request", "true")
-	rec := httptest.NewRecorder()
-	app.routes().ServeHTTP(rec, req)
-	return rec
-}
-
 // S16 (automated part): the − and + buttons exist next to the quantity and
 // are type="button". A button's default type is submit, so otherwise a
 // tap would add the item instead of changing the number.
@@ -126,21 +117,6 @@ func TestQuantityStepperButtonsDoNotSubmit(t *testing.T) {
 			t.Errorf("%q button would submit the form: %s", label, tag)
 		}
 	}
-}
-
-// buttonTag returns the <button ...> opening tag with the given aria-label.
-func buttonTag(t *testing.T, body, label string) string {
-	t.Helper()
-	i := strings.Index(body, `aria-label="`+label+`"`)
-	if i < 0 {
-		t.Fatalf("no button labelled %q", label)
-	}
-	start := strings.LastIndex(body[:i], "<button")
-	end := strings.Index(body[i:], ">")
-	if start < 0 || end < 0 {
-		t.Fatalf("%q is not a <button>", label)
-	}
-	return body[start : i+end+1]
 }
 
 // In `make dev`, templ's live-reload proxy injects a script into every HTML

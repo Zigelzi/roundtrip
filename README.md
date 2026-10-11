@@ -71,7 +71,7 @@ Copy `.env.example` to `.env` and fill it in; `make` loads it automatically and 
 
 ```
 cmd/web/        entrypoint, HTTP handlers, templ templates in view/
-internal/db/    sqlc-generated SQLite access
+internal/db/    SQLite access: sqlc output, plus config.go (opening the database, migrations)
 sql/            Goose migrations + the hand-written queries sqlc generates from
 spec/           the specs and the workflow described above
 ```

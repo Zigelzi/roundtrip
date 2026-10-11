@@ -21,7 +21,7 @@ type PackPageData struct {
 	// empty trip.
 	TripTotal int
 	// TripPacked counts how much of the whole trip is packed, regardless of
-	// narrowing. Paired with TripTotal for S8's "34 of 61 packed on the
+	// narrowing. Paired with TripTotal for 03/S8's "34 of 61 packed on the
 	// trip" line, so finishing a narrowed bucket does not read as the whole
 	// trip being done when it is not.
 	TripPacked int
@@ -63,7 +63,7 @@ func (p PackPageData) FilteredName() string {
 // second, directly after Everyone, even though its section (Members) keeps
 // it last. The filter is navigation and the sections are the work order, so
 // they deliberately do not match: the bucket nobody owns should not be the
-// one a parent has to hunt for (S2).
+// one a parent has to hunt for (03/S2).
 func (p PackPageData) FilterOrder() []PackMember {
 	ordered := make([]PackMember, 0, len(p.Members))
 	for _, m := range p.Members {
@@ -91,7 +91,7 @@ type PackMember struct {
 
 // HasItems says whether the member is on the trip at all. A member with
 // nothing planned and a member who is finished both show an empty to-pack
-// list, and they must not read the same (S9).
+// list, and they must not read the same (02/S9).
 func (m PackMember) HasItems() bool {
 	return len(m.ToPack)+len(m.Packed) > 0
 }

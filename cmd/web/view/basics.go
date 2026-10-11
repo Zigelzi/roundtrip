@@ -21,7 +21,7 @@ type MemberBasics struct {
 
 // Basic is one of the items every new trip starts with. Its quantity on a
 // trip is PerDay x trip days + Fixed; a basic with nothing a day is a
-// fixed-quantity basic (spec/milestones/06-edit-basics.md, Q8).
+// fixed-quantity basic (06/Q8).
 type Basic struct {
 	ID     int64
 	Name   string
@@ -43,7 +43,7 @@ func FormatBasicQuantity(perDay, fixed int64) string {
 	}
 }
 
-// MaxBasicQuantity is the most either quantity field takes (R7). No family
+// MaxBasicQuantity is the most either quantity field takes (06/R7). No family
 // packs more than 20 of one thing a day or as a fixed number, and a cap keeps
 // a typo from breaking trip creation (per day x days + fixed must not
 // overflow). Loosen it if a real case turns up. Only the handler checks it:
@@ -57,7 +57,7 @@ type BasicEdit struct {
 	ID int64
 	// Name, PerDay and Fixed are the values in the fields: the basic's own, or
 	// what was submitted if it was refused. A zero shows as an empty field,
-	// so an empty "/ day" is what marks a fixed basic (Q8).
+	// so an empty "/ day" is what marks a fixed basic (06/Q8).
 	Name   string
 	PerDay string
 	Fixed  string
@@ -84,11 +84,6 @@ func basicAnchor(id int64) string {
 // was working.
 func BasicURL(id int64) string {
 	return BasicsURL + "#" + basicAnchor(id)
-}
-
-// BasicEditURL opens a basic's row for editing.
-func BasicEditURL(id int64) string {
-	return fmt.Sprintf("%s?edit=%d#%s", BasicsURL, id, basicAnchor(id))
 }
 
 func basicSaveURL(id int64) string {

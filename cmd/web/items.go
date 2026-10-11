@@ -139,9 +139,9 @@ func parseQuantity(s string) (quantity int64, ok bool) {
 	return quantity, err == nil && quantity >= 1
 }
 
-// handleChangeQuantity saves an item's new quantity (S8). Only the quantity
-// changes; a packed item stays packed (R2). An invalid value re-renders the
-// trip page with the row still in edit mode (S9).
+// handleChangeQuantity saves an item's new quantity (04/S8). Only the quantity
+// changes; a packed item stays packed (04/R2). An invalid value re-renders the
+// trip page with the row still in edit mode (04/S9).
 func (app *application) handleChangeQuantity(w http.ResponseWriter, r *http.Request) {
 	tripID, err := tripIDFromPath(r)
 	if err != nil {

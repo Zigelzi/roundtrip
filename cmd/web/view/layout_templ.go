@@ -80,19 +80,4 @@ func Layout(title string) templ.Component {
 	})
 }
 
-// cardClass is a white panel holding a list of items. On a phone it bleeds
-// through the page's side padding (-mx-4) to the screen edges, so the list
-// keeps the whole width and only its own small padding keeps text off the
-// edge. From the sm breakpoint up, where the page is narrower than the
-// screen, it sits inside the padding as a rounded card again.
-const cardClass = "-mx-4 bg-white px-3 py-4 shadow-sm sm:mx-0 sm:rounded-lg sm:px-4"
-
-// stickyHeaderClass keeps a page's title bar at the top of the screen while
-// its long list scrolls underneath. It spans the page's side padding, so on
-// a phone it reaches the screen edges like cardClass (on a wider screen it
-// stays 16px wider than the cards, unseen since it matches the page). Its
-// background is solid, so rows pass under it rather than showing through. It is kept to one or two short lines: on a phone with the
-// keyboard open, every pixel it takes is a pixel less of the list.
-const stickyHeaderClass = "sticky top-0 z-10 -mx-4 border-b border-slate-200 bg-slate-50 px-4 py-2"
-
 var _ = templruntime.GeneratedTemplate

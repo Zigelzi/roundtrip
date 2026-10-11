@@ -1,26 +1,6 @@
 -- Keep query files ASCII-only: a multi-byte character (even in a comment)
 -- made sqlc slice the following queries at the wrong offsets.
 
--- name: ListFamilyMembers :many
-SELECT id, name
-FROM family_member
-ORDER BY id;
-
--- name: ListPeople :many
--- The four people, excluding the Family bucket (id 100, cmd/web's
--- familyBucketID). For logic that means "each person" and must not hand the
--- bucket a copy of every personal item, such as milestone 05's activity
--- expansion.
-SELECT id, name
-FROM family_member
-WHERE id != 100
-ORDER BY id;
-
--- name: UpdateFamilyMemberName :execrows
-UPDATE family_member
-SET name = ?
-WHERE id = ?;
-
 -- name: ListTripItems :many
 SELECT id, family_member_id, name, quantity, status
 FROM item
@@ -68,7 +48,7 @@ RETURNING family_member_id;
 
 -- name: UpdateItemQuantity :one
 -- Scoped to the trip like DeleteItem. Only the quantity changes: a packed
--- item stays packed (R2). No row means the item is not on this trip.
+-- item stays packed (04/R2). No row means the item is not on this trip.
 UPDATE item
 SET quantity = ?
 WHERE id = ? AND trip_id = ?

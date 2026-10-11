@@ -113,11 +113,11 @@ func TestAddDuplicateFamilyItemRejected(t *testing.T) {
 	}
 }
 
-// ListPeople must exclude the Family bucket. Milestone 04's activity
-// expansion means "each person" by it, and a bucket in that list would hand
-// the family a copy of every personal item. sql/queries/item.sql names the id
-// as a literal, because sqlc cannot reach the familyBucketID constant, so
-// this test is the only thing keeping the query and the constant in step.
+// ListPeople must exclude the Family bucket. It is what "each person" means
+// (the "who is going" choices of milestone 07), and the bucket is not a
+// person. sql/queries/family_member.sql names the id as a literal, because
+// sqlc cannot reach the familyBucketID constant, so this test is the only
+// thing keeping the query and the constant in step.
 func TestListPeopleExcludesTheFamilyBucket(t *testing.T) {
 	_, database := newTestApp(t)
 

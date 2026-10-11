@@ -8,6 +8,10 @@ import (
 	"github.com/Zigelzi/roundtrip/internal/db"
 )
 
+// Not from a milestone: added when the repository went public. The database
+// seeds Parent 1/2 and Child 1/2, and FAMILY_NAMES renames them at startup,
+// so real names stay out of the code.
+
 // memberNames reads the four people in seed order, which is the order
 // FAMILY_NAMES maps onto. It uses ListPeople, not ListFamilyMembers, because
 // the Family bucket is not one of the names FAMILY_NAMES supplies.

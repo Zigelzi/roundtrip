@@ -12,10 +12,10 @@ import (
 
 // Milestone 04 (spec/milestones/04-trip-basics.md), trip basics S1 to S7.
 
-// basicRow is one row of the catalogue's Basics section: the owner's
+// catalogueRow is one row of the catalogue's Basics section: the owner's
 // family_member id (1 to 4 for the people, 100 for the Family bucket), the
 // item name, and its quantity as perDay x trip days + fixed.
-type basicRow struct {
+type catalogueRow struct {
 	member int64
 	name   string
 	perDay int
@@ -27,7 +27,7 @@ type basicRow struct {
 // not read from the database: the test must prove the seed matches the
 // catalogue, not that the code copies its own table. Changing the basics means
 // changing this list too.
-var catalogueBasics = []basicRow{
+var catalogueBasics = []catalogueRow{
 	// Parent 1
 	{1, "Underwear", 1, 1},
 	{1, "Socks", 1, 1},

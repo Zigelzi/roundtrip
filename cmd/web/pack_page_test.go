@@ -1,7 +1,6 @@
 package main
 
 import (
-	"database/sql"
 	"fmt"
 	"net/http"
 	"strings"
@@ -121,27 +120,5 @@ func TestPackPageTellsNothingPlannedFromFullyPacked(t *testing.T) {
 	}
 	if section := memberSection(t, body, packed); !strings.Contains(section, "All packed") {
 		t.Errorf("a member whose items are all packed should say so:\n%s", section)
-	}
-}
-
-func packURLFor(id int64) string {
-	return fmt.Sprintf("/trips/%d/pack", id)
-}
-
-// packItem marks an already-inserted item packed, standing in for the parent
-// having ticked it on an earlier visit.
-func packItem(t *testing.T, database *sql.DB, itemID int64) {
-	t.Helper()
-	if _, err := database.Exec("UPDATE item SET status = 'packed' WHERE id = ?", itemID); err != nil {
-		t.Fatalf("pack item %d: %v", itemID, err)
-	}
-}
-
-// prepareItem marks an already-inserted item prepared, standing in for the
-// parent having gathered it on the bed on an earlier visit (milestone 08).
-func prepareItem(t *testing.T, database *sql.DB, itemID int64) {
-	t.Helper()
-	if _, err := database.Exec("UPDATE item SET status = 'prepared' WHERE id = ?", itemID); err != nil {
-		t.Fatalf("prepare item %d: %v", itemID, err)
 	}
 }

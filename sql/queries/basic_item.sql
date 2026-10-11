@@ -29,7 +29,7 @@ VALUES (
 
 -- name: DeleteBasicItem :one
 -- Returning the owner says whose section to go back to; no row means the
--- basic is already gone (R5).
+-- basic is already gone (06/R5).
 DELETE FROM basic_item
 WHERE id = ?
 RETURNING family_member_id;

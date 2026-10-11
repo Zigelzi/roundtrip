@@ -48,7 +48,7 @@ RETURNING family_member_id
 `
 
 // Returning the owner says whose section to go back to; no row means the
-// basic is already gone (R5).
+// basic is already gone (06/R5).
 func (q *Queries) DeleteBasicItem(ctx context.Context, id int64) (int64, error) {
 	row := q.db.QueryRowContext(ctx, deleteBasicItem, id)
 	var family_member_id int64

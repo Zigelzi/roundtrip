@@ -18,8 +18,7 @@ import (
 // comes last, and each member's basics by position. ?edit=ID opens one row
 // for editing.
 func (app *application) handleBasics(w http.ResponseWriter, r *http.Request) {
-	editID, _ := strconv.ParseInt(r.URL.Query().Get("edit"), 10, 64)
-	sections, edit, err := app.basicsPage(r.Context(), view.BasicEdit{ID: editID})
+	sections, edit, err := app.basicsPage(r.Context(), view.BasicEdit{ID: editParam(r)})
 	if err != nil {
 		app.serverError(w, "load basics", err)
 		return
@@ -65,10 +64,10 @@ const (
 	noBasicName    = "Enter a name for the basic."
 )
 
-// handleSaveBasic saves a basic's name and its daily and extra quantity (S2,
-// S3, S8, S11). An empty quantity field counts as 0. A refused value
-// re-renders the page with the row still open and the message (S7, S9, S12).
-// A basic that is already gone is not an error (R5): the page is shown as it
+// handleSaveBasic saves a basic's name and its daily and extra quantity (06/S2,
+// 06/S3, 06/S8, 06/S11). An empty quantity field counts as 0. A refused value
+// re-renders the page with the row still open and the message (06/S7, 06/S9, 06/S12).
+// A basic that is already gone is not an error (06/R5): the page is shown as it
 // is.
 func (app *application) handleSaveBasic(w http.ResponseWriter, r *http.Request) {
 	id, err := strconv.ParseInt(r.PathValue("id"), 10, 64)
@@ -88,7 +87,7 @@ func (app *application) handleSaveBasic(w http.ResponseWriter, r *http.Request) 
 		app.serverError(w, "load basics", err)
 		return
 	}
-	// The page drops an edit for a basic that is gone (R5).
+	// The page drops an edit for a basic that is gone (06/R5).
 	if form.ID == 0 {
 		http.Redirect(w, r, view.BasicsURL, http.StatusSeeOther)
 		return
@@ -152,7 +151,7 @@ func siblingsOf(sections []view.MemberBasics, id int64) siblings {
 	return siblings{}
 }
 
-// alreadyHasBasic is the S10 and S12 message, naming the existing basic as
+// alreadyHasBasic is the 06/S10 and 06/S12 message, naming the existing basic as
 // it is spelled on the page.
 func alreadyHasBasic(s siblings, name string) string {
 	for _, o := range s.others {
@@ -187,9 +186,9 @@ func validateBasic(form view.BasicEdit, s siblings) (perDay, fixed int64, errs [
 	return perDay, fixed, errs
 }
 
-// handleAddBasic adds a basic last in a family member's list (S4). It takes
-// the same three fields as the edit form (R2) and follows the same rules (S7,
-// S9, S10). A refused add re-renders the page with the message under that
+// handleAddBasic adds a basic last in a family member's list (06/S4). It takes
+// the same three fields as the edit form (06/R2) and follows the same rules (06/S7,
+// 06/S9, 06/S10). A refused add re-renders the page with the message under that
 // member's form.
 func (app *application) handleAddBasic(w http.ResponseWriter, r *http.Request) {
 	memberID, err := strconv.ParseInt(r.PathValue("memberID"), 10, 64)
@@ -242,9 +241,9 @@ func (app *application) handleAddBasic(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, view.MemberBasicsURL(memberID), http.StatusSeeOther)
 }
 
-// handleRemoveBasic removes a basic, with no confirmation (Q3). A basic that
+// handleRemoveBasic removes a basic, with no confirmation (06/Q3). A basic that
 // is already gone (a double tap, or the other parent) leaves the page as it
-// is (R5).
+// is (06/R5).
 func (app *application) handleRemoveBasic(w http.ResponseWriter, r *http.Request) {
 	id, err := strconv.ParseInt(r.PathValue("id"), 10, 64)
 	if err != nil {

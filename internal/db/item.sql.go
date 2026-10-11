@@ -72,38 +72,6 @@ func (q *Queries) GetItemOwner(ctx context.Context, arg GetItemOwnerParams) (int
 	return family_member_id, err
 }
 
-const listFamilyMembers = `-- name: ListFamilyMembers :many
-
-SELECT id, name
-FROM family_member
-ORDER BY id
-`
-
-// Keep query files ASCII-only: a multi-byte character (even in a comment)
-// made sqlc slice the following queries at the wrong offsets.
-func (q *Queries) ListFamilyMembers(ctx context.Context) ([]FamilyMember, error) {
-	rows, err := q.db.QueryContext(ctx, listFamilyMembers)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-	var items []FamilyMember
-	for rows.Next() {
-		var i FamilyMember
-		if err := rows.Scan(&i.ID, &i.Name); err != nil {
-			return nil, err
-		}
-		items = append(items, i)
-	}
-	if err := rows.Close(); err != nil {
-		return nil, err
-	}
-	if err := rows.Err(); err != nil {
-		return nil, err
-	}
-	return items, nil
-}
-
 const listItemNames = `-- name: ListItemNames :many
 SELECT CAST(MIN(name) AS TEXT) AS name
 FROM item
@@ -136,41 +104,8 @@ func (q *Queries) ListItemNames(ctx context.Context) ([]string, error) {
 	return items, nil
 }
 
-const listPeople = `-- name: ListPeople :many
-SELECT id, name
-FROM family_member
-WHERE id != 100
-ORDER BY id
-`
-
-// The four people, excluding the Family bucket (id 100, cmd/web's
-// familyBucketID). For logic that means "each person" and must not hand the
-// bucket a copy of every personal item, such as milestone 05's activity
-// expansion.
-func (q *Queries) ListPeople(ctx context.Context) ([]FamilyMember, error) {
-	rows, err := q.db.QueryContext(ctx, listPeople)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-	var items []FamilyMember
-	for rows.Next() {
-		var i FamilyMember
-		if err := rows.Scan(&i.ID, &i.Name); err != nil {
-			return nil, err
-		}
-		items = append(items, i)
-	}
-	if err := rows.Close(); err != nil {
-		return nil, err
-	}
-	if err := rows.Err(); err != nil {
-		return nil, err
-	}
-	return items, nil
-}
-
 const listTripItems = `-- name: ListTripItems :many
+
 SELECT id, family_member_id, name, quantity, status
 FROM item
 WHERE trip_id = ?
@@ -185,6 +120,8 @@ type ListTripItemsRow struct {
 	Status         string
 }
 
+// Keep query files ASCII-only: a multi-byte character (even in a comment)
+// made sqlc slice the following queries at the wrong offsets.
 func (q *Queries) ListTripItems(ctx context.Context, tripID int64) ([]ListTripItemsRow, error) {
 	rows, err := q.db.QueryContext(ctx, listTripItems, tripID)
 	if err != nil {
@@ -248,25 +185,6 @@ func (q *Queries) MoveItemStatus(ctx context.Context, arg MoveItemStatusParams) 
 	return family_member_id, err
 }
 
-const updateFamilyMemberName = `-- name: UpdateFamilyMemberName :execrows
-UPDATE family_member
-SET name = ?
-WHERE id = ?
-`
-
-type UpdateFamilyMemberNameParams struct {
-	Name string
-	ID   int64
-}
-
-func (q *Queries) UpdateFamilyMemberName(ctx context.Context, arg UpdateFamilyMemberNameParams) (int64, error) {
-	result, err := q.db.ExecContext(ctx, updateFamilyMemberName, arg.Name, arg.ID)
-	if err != nil {
-		return 0, err
-	}
-	return result.RowsAffected()
-}
-
 const updateItemQuantity = `-- name: UpdateItemQuantity :one
 UPDATE item
 SET quantity = ?
@@ -281,7 +199,7 @@ type UpdateItemQuantityParams struct {
 }
 
 // Scoped to the trip like DeleteItem. Only the quantity changes: a packed
-// item stays packed (R2). No row means the item is not on this trip.
+// item stays packed (04/R2). No row means the item is not on this trip.
 func (q *Queries) UpdateItemQuantity(ctx context.Context, arg UpdateItemQuantityParams) (int64, error) {
 	row := q.db.QueryRowContext(ctx, updateItemQuantity, arg.Quantity, arg.ID, arg.TripID)
 	var family_member_id int64

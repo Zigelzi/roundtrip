@@ -19,7 +19,7 @@ const basicsURL = "/basics"
 // formatter, so the test states the contract instead of copying the code: a
 // fixed basic is just its number, a daily one "N / day", plus "+ M extra"
 // when it has extra.
-func basicQuantityText(b basicRow) string {
+func basicQuantityText(b catalogueRow) string {
 	switch {
 	case b.perDay == 0:
 		return strconv.Itoa(b.fixed)
@@ -139,7 +139,7 @@ func basicNameStored(t *testing.T, database *sql.DB, id int64) string {
 
 // assertBasicShown checks the quantity the basics page shows for a basic,
 // read from the page rather than the database.
-func assertBasicShown(t *testing.T, app *application, database *sql.DB, member int64, name string, want basicRow) {
+func assertBasicShown(t *testing.T, app *application, database *sql.DB, member int64, name string, want catalogueRow) {
 	t.Helper()
 	section := memberSection(t, get(t, app, basicsURL), memberNameByID(t, database, member))
 	row := basicRowHTML(t, section, name)
@@ -157,7 +157,7 @@ func TestChangeBasicDailyQuantity(t *testing.T) {
 		t.Fatalf("save: status = %d, want 303", rec.Code)
 	}
 
-	assertBasicShown(t, app, database, 1, "Underwear", basicRow{perDay: 2, fixed: 1})
+	assertBasicShown(t, app, database, 1, "Underwear", catalogueRow{perDay: 2, fixed: 1})
 	if got := quantityOf(t, database, createTripOf(t, app, database, 3), 1, "Underwear"); got != 7 {
 		t.Errorf("new 3-day trip has %d underwear, want 7", got)
 	}
@@ -172,7 +172,7 @@ func TestChangeBasicExtraQuantity(t *testing.T) {
 		t.Fatalf("save: status = %d, want 303", rec.Code)
 	}
 
-	assertBasicShown(t, app, database, 1, "Underwear", basicRow{perDay: 1, fixed: 2})
+	assertBasicShown(t, app, database, 1, "Underwear", catalogueRow{perDay: 1, fixed: 2})
 	if got := quantityOf(t, database, createTripOf(t, app, database, 3), 1, "Underwear"); got != 5 {
 		t.Errorf("new 3-day trip has %d underwear, want 5", got)
 	}
@@ -187,7 +187,7 @@ func TestChangeFixedBasicQuantity(t *testing.T) {
 		t.Fatalf("save: status = %d, want 303", rec.Code)
 	}
 
-	assertBasicShown(t, app, database, 1, "Shoes", basicRow{fixed: 3})
+	assertBasicShown(t, app, database, 1, "Shoes", catalogueRow{fixed: 3})
 	for _, days := range []int{1, 14} {
 		if got := quantityOf(t, database, createTripOf(t, app, database, days), 1, "Shoes"); got != 3 {
 			t.Errorf("new %d-day trip has %d shoes, want 3", days, got)
@@ -253,17 +253,6 @@ func TestBasicSaveRejected(t *testing.T) {
 				t.Errorf("stored %d/%d, want unchanged %d/%d", pd, fx, wantPD, wantFx)
 			}
 		})
-	}
-}
-
-// insertBasic adds a basic last in a member's list, as the add form will.
-func insertBasic(t *testing.T, database *sql.DB, member int64, name string, perDay, fixed int) {
-	t.Helper()
-	_, err := database.Exec(`INSERT INTO basic_item (family_member_id, position, name, name_key, per_day, fixed)
-		VALUES (?, (SELECT max(position) + 1 FROM basic_item WHERE family_member_id = ?), ?, lower(?), ?, ?)`,
-		member, member, name, name, perDay, fixed)
-	if err != nil {
-		t.Fatalf("insert basic %q: %v", name, err)
 	}
 }
 
@@ -470,7 +459,7 @@ func TestAddBasic(t *testing.T) {
 	if !strings.Contains(section[last:], ">Sunglasses<") {
 		t.Errorf("Sunglasses is not last in Child 1's basics")
 	}
-	assertBasicShown(t, app, database, 3, "Sunglasses", basicRow{fixed: 1})
+	assertBasicShown(t, app, database, 3, "Sunglasses", catalogueRow{fixed: 1})
 	if got := quantityOf(t, database, createTripOf(t, app, database, 3), 3, "Sunglasses"); got != 1 {
 		t.Errorf("new 3-day trip has %d sunglasses for Child 1, want 1", got)
 	}

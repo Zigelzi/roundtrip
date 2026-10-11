@@ -89,14 +89,3 @@ func TestItemCountUpdatesInPlace(t *testing.T) {
 		t.Errorf("reply to removing does not carry the new count, 1 item:\n%s", body)
 	}
 }
-
-// memberHeading is the first <h2> in a piece of the page.
-func memberHeading(t *testing.T, s string) string {
-	t.Helper()
-	start := strings.Index(s, "<h2")
-	end := strings.Index(s, "</h2>")
-	if start < 0 || end < start {
-		t.Fatalf("no <h2> heading in:\n%s", s)
-	}
-	return s[start:end]
-}

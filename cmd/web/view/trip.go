@@ -95,7 +95,7 @@ type TripPageData struct {
 
 // ItemEdit is the trip page's edit mode (?edit=ITEM_ID): the one item whose
 // quantity is being changed. While ItemID is set, every other row's Change
-// and Remove buttons are disabled (S10). Zero means no row is being edited.
+// and Remove buttons are disabled (04/S10). Zero means no row is being edited.
 type ItemEdit struct {
 	ItemID int64
 	// Quantity is the value in the edit field: the item's own, or what was

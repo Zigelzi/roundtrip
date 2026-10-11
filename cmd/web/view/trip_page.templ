@@ -9,6 +9,11 @@ import "strconv"
 // during the edit transition every named row is lifted above the page, and
 // without a name of its own the header would be drawn under the rows that
 // are scrolled behind it.
+//
+// Tests read a member's section as running from its <section> to the first
+// </section>, and its first <h2> as the member's heading (memberSection,
+// memberHeading). So a section holds no nested <section>, and its first <h2>
+// stays the member name.
 templ TripPage(page TripPageData) {
 	@Layout(page.Trip.Destination) {
 		<a href="/" class="inline-flex min-h-12 items-center text-slate-600">← Trips</a>
@@ -33,19 +38,6 @@ templ TripPage(page TripPageData) {
 			}
 		</datalist>
 	}
-}
-
-// jumpLinks are plain #anchor links to each member's section, in page
-// order, so a parent can skip past everyone else's items. One equal-width
-// column per member keeps them on a single line (the header is sticky, so a
-// second line would cost list space on every screen); a long name is cut
-// short with an ellipsis rather than wrapping. The basics page uses them too.
-templ jumpLinks(members []MemberLink) {
-	<nav class="mt-2 grid grid-flow-col auto-cols-fr gap-1">
-		for _, m := range members {
-			<a href={ templ.SafeURL("#" + memberAnchor(m.ID)) } class="flex min-h-11 min-w-0 items-center justify-center rounded-lg border border-slate-300 bg-white px-1 text-sm font-semibold text-slate-700"><span class="truncate">{ m.Name }</span></a>
-		}
-	</nav>
 }
 
 // memberSection is one member's items plus the add form. The form sits
@@ -74,25 +66,6 @@ templ memberSection(tripID int64, m MemberItems, edit ItemEdit) {
 		</form>
 	</section>
 }
-
-// anchorClass is on everything the page jumps to by its #id (a section, a
-// row), so it lands just below the sticky header instead of under it. It is
-// the header's height (about 117px) plus a little room; change the two
-// together. The header's title and dates are cut to one line each so that
-// height stays fixed: a long destination that wrapped would push every jump
-// under the header.
-const anchorClass = "scroll-mt-32"
-
-// stepperClass is the − / + quantity buttons: full 48px tap targets.
-const stepperClass = "size-12 shrink-0 rounded-lg border bg-white text-xl font-semibold"
-
-// Trial colours: red for −, green for +.
-const decreaseClass = stepperClass + " border-red-300 text-red-600"
-const increaseClass = stepperClass + " border-green-300 text-green-700"
-
-// quantityClass fits two digits and hides the browser's own spin arrows,
-// since − / + replace them.
-const quantityClass = "min-h-12 w-14 rounded-lg border border-slate-300 bg-white px-1 text-center text-base [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
 
 // MemberItemList is the part of a member's section that htmx swaps after an
 // item is added or removed: the heading with its item count, the items and
@@ -179,41 +152,4 @@ var swapTripItems = templ.Attributes{
 	"hx-target": "#" + tripItemsID,
 	"hx-select": "#" + tripItemsID,
 	"hx-swap":   "outerHTML transition:true",
-}
-
-// transitionName gives an element its own view-transition-name, so during
-// the edit swap each row, section and add form moves and resizes on its own
-// instead of the whole list cross-fading as one picture (which showed the
-// rows below the edited one in two places at once). A row keeps the same
-// name in view and edit mode, so the browser morphs one into the other.
-// Names are built from ids, never from user text, so SafeCSS is safe here.
-func transitionName(name string) templ.SafeCSS {
-	return templ.SafeCSS("view-transition-name: " + name)
-}
-
-// rowTransition is transitionName for an item row, plus the "row" transition
-// class that tailwind.css clips, so a growing row does not paint over the
-// rows sliding below it. A clip cuts off box-shadows, which is why the edit
-// row's outline is a border rather than a ring.
-func rowTransition(name string) templ.SafeCSS {
-	return transitionName(name) + "; view-transition-class: row"
-}
-
-// sectionTransition is transitionName for a member's section, plus the
-// "section" transition class: tailwind.css clips it like a row and paints
-// the section's white card on the transition group, so the card resizes
-// smoothly while its contents do not fade.
-func sectionTransition(name string) templ.SafeCSS {
-	return transitionName(name) + "; view-transition-class: section"
-}
-
-// lockable styles a row button: base always, plus active normally or locked
-// while another row is being edited. Locked drops the colour and the
-// underline, so the button no longer looks tappable. No class mentions
-// "disabled", so an unlocked button's markup never contains the word.
-func lockable(base, active, locked string, isLocked bool) string {
-	if isLocked {
-		return base + " " + locked
-	}
-	return base + " " + active
 }

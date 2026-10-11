@@ -101,20 +101,6 @@ func detailsIsOpen(html string) bool {
 	return regexp.MustCompile(`\sopen(\s|=|>|/)`).MatchString(tag)
 }
 
-// between returns the part of s from the first from up to the next to, or
-// to the end of s when to does not follow.
-func between(t *testing.T, s, from, to string) string {
-	t.Helper()
-	i := strings.Index(s, from)
-	if i < 0 {
-		t.Fatalf("no %q in:\n%s", from, s)
-	}
-	if j := strings.Index(s[i:], to); j >= 0 {
-		return s[i : i+j]
-	}
-	return s[i:]
-}
-
 // Code review, round 1: whether a reply sends a member's packed part whole
 // follows what the page that sent the tap shows, not a guess from the
 // database. Every tap form says whether its page shows the member's packed

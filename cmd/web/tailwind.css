@@ -6,7 +6,7 @@
 
 /* Opening, saving and cancelling an item edit swap the lists with a view
    transition (hx-swap transition:true). Each row, section and add form has
-   its own view-transition-name (see transitionName in trip_page.templ), so
+   its own view-transition-name (see transitionName in view/shared.templ), so
    they slide and resize individually.
 
    Nothing cross-fades. The browser's default fades each group's old picture
