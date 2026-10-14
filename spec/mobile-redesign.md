@@ -17,30 +17,70 @@ The plan for a body of work spanning several milestones: a new look for every sc
 - "In the bag" sits right under each person's heading and previews the packed item names, without quantities.
 - Taking an item out of the bag returns it to prepared, not planned.
 - The packing button moves to a full-width bar at the bottom of the trip page, labelled "Start packing" or "Continue packing 38/75".
-- New trip: departure date, then a nights slider (1 to 14 nights), then the computed return date shown for checking.
+- New trip: departure date, then a nights slider (1 to 13 nights, see R2), then the computed return date shown for checking.
 - A trip counts as past from the day after its return date.
 
 ## Milestones, in build order
 
 The visual milestone comes first, so every feature after it is built once, in its final style.
 
-| # | Milestone | Contains | Spec |
-|---|---|---|---|
-| 09 | Visual refresh | Design tokens in Tailwind, the new look on all five screens, and the whole row opening the edit. No new route, handler or query. | not started |
-| 10 | Packing progress | Packed count per person, shown three ways: the trip bar in the header, a bar under each person's heading, the count in each filter pill. | not started |
-| 11 | In the bag | "In the bag" under each person's heading with a name preview; taking an item out returns it to prepared; a "Next: person" button at the end of a one-person view. | not started |
-| 12 | Packing button at the bottom | The trip page's packing button becomes a bottom bar, with the progress from 10 in its label. | not started |
-| 13 | Hide the packing button while typing | The bottom bar hides while an input has focus or an edit row is open, so the keyboard keeps its space. | not started |
-| 14 | Nights slider | New trip asks for departure and nights instead of a return date, and shows the return date. | not started |
-| 15 | Trip list progress and past trips | Packing progress on the trips list, and past trips in their own group. | not started |
+| # | Milestone | Contains | Depends on | Spec |
+|---|---|---|---|---|
+| 09 | Visual refresh | Design tokens in Tailwind, the new look on all five screens, and the whole row opening the edit. No new route, handler or query. Slices below. | nothing | not started |
+| 10 | Packing progress | Packed count per person, shown three ways: the trip bar in the header (the "12 of 75 packed" text stays beside it, R12), a bar under each person's heading, and "9/16" in every filter pill (R11). The trip bar also shows prepared items in amber (R22). Also on past trips, so every trip's packing page shows its progress (R17). | 09 (header, filter grid) | not started |
+| 11 | In the bag | Each person's packed part moves from the end of their list to right under their heading, keeps the title "Packed (n)" with the hint "Tap an item to take it out" (R21), and previews the packed item names (R13). Unpacking already returns an item to prepared (08/S5); this milestone keeps that working from the new place (R15). | 09; after 10, since both change the space under the heading | not started |
+| 12 | Packing button at the bottom | Slice 1: the trip page's packing button becomes a bottom bar, labelled with the trip's packed count, and "All packed" when everything is packed (R16). Slice 2: the bar hides while an input has focus or an edit row is open, so the keyboard keeps its space (R4). | 09; reuses the trip-wide count the packing page already shows, not 10 | not started |
+| 13 | Nights slider | New trip asks for departure and nights instead of a return date, and shows the return date. | 09 (new trip screen) | not started |
+| 14 | Trip list progress and past trips | Packing progress on upcoming trips in the trips list (R17), and past trips in their own group, open by default. | 09 (trips list); same count as 12 | not started |
+
+Order: 10 and 11 come first after 09 because they work on the packing page, the weakest step. 12 to 14 depend only on 09, so their order among themselves is free and can change without touching the others.
 
 When a milestone starts, its spec file replaces "not started" with a link, and from then on the spec's Status line is the only place its status is tracked.
 
 ## The line around milestone 09
 
-Milestone 09 changes only how things look. The test for that: every existing test passes without changes, and no new route, handler or database query is added. Anything that fails this test belongs in a later milestone, not 09.
+Milestone 09 changes only how things look. The test for that: no new route, handler or database query is added, and tests change only where the visible wording changes, each such change listed in 09's spec (R1). Anything that fails this test belongs in a later milestone, not 09.
 
-In 09: colours, type and spacing; person lists running edge to edge on a phone; button, stepper and edit row styles; back chevrons; the Basics button in the top bar; the 3×2 packing filter grid; the slimmer sticky header; hiding "1 pc" on the packing page; the undo zone on prepared rows; the dotted underline and whole-row tap on the trip page and basics.
+In 09: colours, type and spacing (tokens copied from the canvas into `cmd/web/tailwind.css`, which becomes their source from then on, R10); person lists running edge to edge on a phone; button, stepper and edit row styles; back chevrons; the Basics button on the trips page, in its new place (R8); the 3×2 packing filter grid; the slimmer sticky header; hiding "1 pc" on the packing page; the existing back-to-planned button on prepared rows, restyled (R6); the edit row in the blue action tint of the canvas's fifth frame, not amber (R5); the dotted underline and whole-row tap on the trip page and basics, where ✕ keeps its own separate 48px zone and, while a row is open, every other row is locked as a whole (R7).
+
+Slices, each phone-checked before the next (R9):
+
+1. Tokens and the trips page: the tokens in Tailwind, the shared styles (buttons, inputs, back chevron), and the trips page with its Basics button.
+2. Trip page: edge-to-edge person lists, the slimmer sticky header, whole-row tap with the dotted underline, the blue edit row, the stepper, ✕ in its own zone.
+3. Packing page: header, the 3×2 filter grid, the packing rows, the restyled back-to-planned button, hiding "1 pc".
+4. Basics page: the trip page's patterns applied to basics.
+5. New trip page: the form restyled as it works today (the slider is 13).
+
+## Red-team pass (2026-10-11)
+
+Findings R1 to R20, raised in a main-session red-team of this plan. Decided so far (Human-PM, 2026-10-14):
+
+- R1 Wording changes in 09: accepted. Tests that check visible wording change with it, and 09's spec lists each one. Human-PM's concern: a test suite that breaks on a single UI change is too fragile. Improving how tests check the screen is a workflow question outside this plan, to look at separately.
+- R2 Trip length: the slider runs from 1 to 13 nights, which is the existing limit of 14 days. Day trips are not supported, so a trip is at least 2 days. Storage stays in days (nights = days − 1).
+- R4 Hiding the bar while typing: merged into 12 as slice 2, since 12 without it may cost list space while typing. The milestones after it moved up by one (nights slider 13, trip list 14); none had started.
+- R5 Edit row colour: the blue action tint from the canvas's fifth frame, since amber now means prepared.
+- R6 "Undo zone": the existing back-to-planned button on prepared rows (08 slice 3), restyled. Same behaviour.
+- R7 Whole-row tap next to ✕: ✕ keeps its own 48px zone, and while a row is open every other row is locked as a whole.
+
+- R8 Basics button: only on the trips page. Same button, new layout.
+- R9 Slices: accepted, listed under "The line around milestone 09".
+- R10 Tokens: copied into `cmd/web/tailwind.css` in 09 slice 1, so implementing sessions do not need to read the canvas.
+- R11 Filter pills: every pill, Everyone and Family included, shows "9/16" (packed/total). Everyone is always shown, so a two-parent trip has three pills, which fill one row of the three-column grid.
+- R12 Header: both the progress bar and the "n of m packed" text, as in the canvas.
+- R13 In the bag: replaces the packed part at the end of each person's list and keeps the title "Packed (n)".
+- R14 "Next: person" button: dropped.
+- R15 Unpacking to prepared: already built in 08, kept.
+- R16 Bottom bar when everything is packed: reads "All packed" and still opens the packing page. The count updates when an item is added or removed on the trip page, and the page has bottom padding so the bar never covers the last add form.
+- R17 Progress: on the trips list, upcoming trips only. Every trip's packing page shows it, past ones too, through 10's header bar. The past trips group is open by default.
+- R20 Dependencies: mapped in the table. 12 needs only the trip-wide count, which exists today, so it does not wait for 10.
+
+- R3 Past trips: a trip counts as past from the day after its return date. Today a trip counts as past once its departure has gone by, so a trip in progress shows as past; 14 changes that and gets a scenario for it.
+- R18 Baseline ratings before 09, and a real trip before 11: skipped.
+- R19 Red-team for the small milestones: a light red-team pass for each milestone, run inline by the main session against that milestone's spec (as this pass was), instead of a spawned agent.
+- R21 The packed part's title (raised from the canvas): stays "Packed (n)", with the canvas's hint "Tap an item to take it out".
+- R22 Prepared in the progress bar (raised from the canvas): the trip bar shows prepared items as an amber segment beside the green packed one. This reverses 08/Q2 for the bar only; the counts in text and pills ("61 of 75 packed", "9/16") stay packed-only. 10's spec records the reversal.
+
+All findings decided (Human-PM, 2026-10-14).
 
 ## Out of scope for this plan
 
