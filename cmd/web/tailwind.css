@@ -42,6 +42,13 @@
   --radius-card: 12px;
 }
 
+/* The trip page's packing bar steps aside while a field has focus (the
+   phone keyboard is up) or a row is open for editing, so both keep their
+   space (12/S6, 12/S7). Browsers without :has() keep the bar showing. */
+body:has(input:focus, [data-editing]) #packing-bar {
+  display: none;
+}
+
 /* Opening, saving and cancelling an item edit swap the lists with a view
    transition (hx-swap transition:true). Each row, section and add form has
    its own view-transition-name (see transitionName in view/shared.templ), so

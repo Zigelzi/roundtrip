@@ -91,6 +91,10 @@ type TripPageData struct {
 	// Suggestions are item names used on any trip, offered while typing.
 	Suggestions []string
 	Edit        ItemEdit
+	// Packed and Total count the whole trip's items, for the packing bar
+	// (12/S1). Prepared items are not packed (12/Q2).
+	Packed int
+	Total  int
 }
 
 // ItemEdit is the trip page's edit mode (?edit=ITEM_ID): the one item whose

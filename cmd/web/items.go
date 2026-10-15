@@ -76,8 +76,8 @@ func (app *application) handleAddItem(w http.ResponseWriter, r *http.Request) {
 }
 
 // itemsChanged answers a successful add or remove: htmx gets the member's
-// fresh item list to swap in; a plain form post is redirected back to the
-// member's section.
+// fresh item list to swap in, and the packing bar with its new count (12/S4);
+// a plain form post is redirected back to the member's section.
 func (app *application) itemsChanged(w http.ResponseWriter, r *http.Request, tripID, memberID int64) {
 	if !isHTMX(r) {
 		http.Redirect(w, r, view.MemberURL(tripID, memberID), http.StatusSeeOther)
@@ -93,7 +93,7 @@ func (app *application) itemsChanged(w http.ResponseWriter, r *http.Request, tri
 		app.serverError(w, "find member", fmt.Errorf("member %d missing from trip %d", memberID, tripID))
 		return
 	}
-	app.render(w, r, http.StatusOK, view.MemberItemList(tripID, page.Members[i], page.Edit))
+	app.render(w, r, http.StatusOK, view.ItemsChanged(page, page.Members[i]))
 }
 
 // isHTMX reports whether the request came from htmx rather than a plain form.

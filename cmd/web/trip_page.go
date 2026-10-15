@@ -69,6 +69,12 @@ func (app *application) tripPage(ctx context.Context, tripID int64, edit view.It
 		for _, it := range items {
 			if it.FamilyMemberID == m.ID {
 				section.Items = append(section.Items, view.Item{ID: it.ID, Name: it.Name, Quantity: it.Quantity})
+				// The packing bar's count, the same items the packing page
+				// counts (12/S2).
+				page.Total++
+				if it.Status == statusPacked {
+					page.Packed++
+				}
 			}
 			if it.ID == edit.ItemID {
 				page.Edit = edit

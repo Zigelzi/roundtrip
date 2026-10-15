@@ -10,6 +10,16 @@ import "strconv"
 // without a name of its own the header would be drawn under the rows that
 // are scrolled behind it.
 //
+// The packing button is a bar fixed to the bottom of the screen (12/S1),
+// outside #trip-items, so opening, saving and cancelling a row leave it
+// alone. The spacer after the lists is taller than the bar (73px: a 1px
+// line, 12px padding and a 48px button), so the last add form can scroll up
+// above the bar (12/S5).
+//
+// Coming back with the browser's Back gesture can restore the page as it
+// was left, with the bar's count from before packing. The pageshow script
+// reloads such a restored page, so the count is fresh (12, Code review).
+//
 // Tests read a member's section as running from its <section> to the first
 // </section>, and its first <h2> as the member's heading (memberSection,
 // memberHeading). So a section holds no nested <section>, and its first <h2>
@@ -23,7 +33,6 @@ templ TripPage(page TripPageData) {
 					<h1 class="truncate text-lg font-bold">{ page.Trip.Destination }</h1>
 					<p class="truncate text-sm text-muted">{ FormatDateRange(page.Trip.Departure, page.Trip.DurationDays) } · { FormatDays(page.Trip.DurationDays) }</p>
 				</div>
-				<a href={ templ.SafeURL(PackURL(page.Trip.ID)) } class={ primaryButtonClass + " shrink-0" }>Start packing</a>
 			</div>
 			@jumpLinks(tripLinks(page.Members))
 		</header>
@@ -37,7 +46,44 @@ templ TripPage(page TripPageData) {
 				<option value={ name }></option>
 			}
 		</datalist>
+		<div aria-hidden="true" class="h-19"></div>
+		@packingBar(page, false)
+		<script>
+			window.addEventListener("pageshow", (e) => { if (e.persisted) location.reload(); });
+		</script>
 	}
+}
+
+// ItemsChanged answers adding or removing an item: the member's list, and
+// the packing bar out of band, since its count changed (12/S4).
+templ ItemsChanged(page TripPageData, m MemberItems) {
+	@MemberItemList(page.Trip.ID, m, page.Edit)
+	@packingBar(page, true)
+}
+
+// packingBar opens the packing page and says how far packing has got. It
+// steps aside while a field has focus or a row is open (12/S6, 12/S7): the
+// rule is #packing-bar in tailwind.css, which looks for data-editing on the
+// open row. It has its own view-transition-name for the same reason as the
+// header: otherwise rows sliding during the edit transition would be drawn
+// over it.
+templ packingBar(page TripPageData, oob bool) {
+	<div id="packing-bar" { oobAttrs(oob)... } style={ transitionName("packing-bar") } class="fixed inset-x-0 bottom-0 z-10 border-t border-line bg-surface">
+		<div class="mx-auto max-w-2xl px-4 py-3">
+			<a href={ templ.SafeURL(PackURL(page.Trip.ID)) } class={ primaryButtonClass + " w-full" }>
+				switch {
+					case page.Packed == 0:
+						Start packing
+					case page.Packed == page.Total:
+						All packed
+					default:
+						Continue packing
+						<span aria-hidden="true" class="tabular-nums">{ FormatCount(page.Packed) }/{ FormatCount(page.Total) }</span>
+						<span class="sr-only">{ FormatProgress(page.Packed, page.Total) }</span>
+				}
+			</a>
+		</div>
+	</div>
 }
 
 // memberSection is one member's items plus the add form. The form sits
@@ -129,13 +175,14 @@ templ itemRow(tripID, memberID int64, it Item, locked bool) {
 }
 
 // editItemRow is the row being edited: a small quantity form, tinted in the
-// action colour (09/R5; amber now means prepared). Saving is a plain post
+// action colour (09/R5; amber now means prepared). data-editing hides the
+// packing bar while the row is open (12/S7). Saving is a plain post
 // that redirects back to the row; Cancel is a link to the plain trip page,
 // back at the same row. The blue fill and lines alone mark the open row;
 // the "· change quantity" hint added after 04's phone check was dropped at
 // 09's (09/R5).
 templ editItemRow(tripID int64, it Item, edit ItemEdit) {
-	<li id={ itemAnchor(it.ID) } style={ rowTransition(itemAnchor(it.ID)) } class={ editRowClass + " " + anchorClass }>
+	<li id={ itemAnchor(it.ID) } data-editing style={ rowTransition(itemAnchor(it.ID)) } class={ editRowClass + " " + anchorClass }>
 		<form method="post" action={ templ.SafeURL(quantityURL(tripID, it.ID)) } hx-post={ quantityURL(tripID, it.ID) } { swapTripItems... } class="flex flex-col gap-2">
 			<div class="flex items-center justify-between gap-2">
 				<p class="min-w-0 font-bold">{ it.Name }</p>

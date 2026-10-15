@@ -126,6 +126,11 @@ func skipDevReloadForHTMX(next http.Handler) http.Handler {
 
 // render writes a templ component with the given status code.
 func (app *application) render(w http.ResponseWriter, r *http.Request, status int, c templ.Component) {
+	// Every page shows live state (items, counts), and browsers reuse a
+	// cached copy of a page on Back unless told not to: the trip page's
+	// packing bar then showed the count from before packing (12, Code
+	// review). no-store makes Back fetch the page again.
+	w.Header().Set("Cache-Control", "no-store")
 	w.WriteHeader(status)
 	if err := c.Render(r.Context(), w); err != nil {
 		log.Printf("failed to render page: %v", err)
