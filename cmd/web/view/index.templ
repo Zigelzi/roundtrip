@@ -1,10 +1,13 @@
 package view
 
-// Index is the front page: the family's trips, upcoming first. Its top bar
-// bleeds through the page's padding to the screen edges, like the sections
-// below it. Basics sits beside the title (09/R8), so New trip is the one
-// solid button.
-templ Index(trips []Trip) {
+// Index is the front page: the family's trips, upcoming first, then the past
+// trips in a group of their own, closed by default since they are rarely
+// what the app is opened for, and opened with a tap (14/S1, 14/S6, 14/R9).
+// With no upcoming trips there is no upcoming list at all, just the past
+// group (14/Q3). Its top bar bleeds through the page's padding to the screen
+// edges, like the sections below it. Basics sits beside the title (09/R8),
+// so New trip is the one solid button.
+templ Index(upcoming, past []Trip) {
 	@Layout("Trips") {
 		<header class={ barClass }>
 			<div class="flex min-h-16 items-center gap-1 px-4 py-2">
@@ -18,7 +21,7 @@ templ Index(trips []Trip) {
 				</a>
 			</div>
 		</header>
-		if len(trips) == 0 {
+		if len(upcoming) == 0 && len(past) == 0 {
 			<section class={ sectionClass + " mt-2 flex flex-col items-center gap-2 px-6 py-8 text-center" }>
 				<span class="text-faint">
 					@iconBag()
@@ -27,22 +30,60 @@ templ Index(trips []Trip) {
 				<p class="max-w-70 text-[15px] leading-[22px] text-muted">A new trip starts with everyone's basics already on the list, so check those first.</p>
 				<a href={ templ.SafeURL(BasicsURL) } class={ quietButtonClass + " mt-1" }>Check basics</a>
 			</section>
-		} else {
+		}
+		if len(upcoming) > 0 {
 			<ul class={ sectionClass + " mt-2 divide-y divide-line" }>
-				for _, trip := range trips {
+				for _, trip := range upcoming {
 					<li>
-						<a href={ templ.SafeURL(TripURL(trip.ID)) } class="flex min-h-19 items-center gap-3 py-3 pr-2 pl-4">
-							<span class="min-w-0 grow">
-								<span class="block text-[17px] leading-6 font-semibold">{ trip.Destination }</span>
-								<span class="block text-sm text-muted">{ FormatDateRange(trip.Departure, trip.DurationDays) } · { FormatDays(trip.DurationDays) }</span>
-							</span>
-							<span class="text-faint">
-								@iconForward()
-							</span>
-						</a>
+						@tripRow(trip)
 					</li>
 				}
 			</ul>
 		}
+		if len(past) > 0 {
+			<details class={ sectionClass + " group mt-2" }>
+				<summary class="flex min-h-14 cursor-pointer list-none items-center gap-3 py-3 pr-1 pl-4 [&::-webkit-details-marker]:hidden">
+					<span class="grow font-semibold">Past trips ({ FormatCount(len(past)) })</span>
+					<span class="flex h-6 w-12 shrink-0 items-center justify-center text-muted transition-transform group-open:rotate-180">
+						@iconDown()
+					</span>
+				</summary>
+				<ul class="divide-y divide-line border-t border-line">
+					for _, trip := range past {
+						<li>
+							@tripRow(trip)
+						</li>
+					}
+				</ul>
+			</details>
+		}
 	}
+}
+
+// tripRow is one trip in the list, linking to its page. A trip with counts
+// gets a third line: the same bar as the packing page's header, hidden from
+// screen readers, and the words they hear instead (14/S7, 14/Q1). Empty
+// trips have none, and past trips carry no counts (sortTrips), so they show
+// none either (14/S9, 14/S10). The row is built of divs, since a bar's
+// segments are divs.
+templ tripRow(trip Trip) {
+	<a href={ templ.SafeURL(TripURL(trip.ID)) } class="flex min-h-19 items-center gap-3 py-3 pr-2 pl-4">
+		<div class="min-w-0 grow">
+			<div class="text-[17px] leading-6 font-semibold">{ trip.Destination }</div>
+			<div class="text-sm text-muted">{ FormatDateRange(trip.Departure, trip.DurationDays) } · { FormatDays(trip.DurationDays) }</div>
+			if trip.Total > 0 {
+				<div aria-hidden="true" class="mt-2 flex h-1 w-full overflow-hidden rounded-full bg-line">
+					@barSegments(trip.Packed, trip.Prepared, trip.Total)
+				</div>
+				if isDone(trip.Packed, trip.Total) {
+					<div class="mt-1 text-sm font-semibold text-packed">All packed</div>
+				} else {
+					<div class="mt-1 text-sm text-muted">{ FormatProgress(trip.Packed, trip.Total) }</div>
+				}
+			}
+		</div>
+		<span class="text-faint">
+			@iconForward()
+		</span>
+	</a>
 }

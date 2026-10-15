@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"slices"
 	"strconv"
 	"strings"
 	"time"
@@ -176,23 +177,32 @@ func validateTrip(form view.TripForm, today time.Time) (db.CreateTripParams, []s
 	}, errs
 }
 
-// sortTrips turns stored trips (ordered by departure date) into the front
-// page list: upcoming trips first, nearest at the top, then past trips, most
-// recent first. A trip departing today counts as upcoming.
-func sortTrips(rows []db.Trip, today time.Time) ([]view.Trip, error) {
-	var upcoming, past []view.Trip
+// sortTrips splits stored trips (ordered by departure date) into the front
+// page's two groups: upcoming trips, nearest first, and past trips, the most
+// recently returned first. A trip is past from the day after its return, so
+// a trip departing today, or one the family is on, is upcoming (14/R2). Only
+// upcoming trips carry their packing counts; past trips show none (14/S10).
+func sortTrips(rows []db.ListTripsRow, today time.Time) (upcoming, past []view.Trip, err error) {
 	for _, row := range rows {
-		trip, err := toViewTrip(row)
+		trip, err := toViewTrip(row.Trip)
 		if err != nil {
-			return nil, err
+			return nil, nil, err
 		}
-		if trip.Departure.Before(today) {
-			past = append([]view.Trip{trip}, past...)
-		} else {
-			upcoming = append(upcoming, trip)
+		if trip.ReturnDay().Before(today) {
+			past = append(past, trip)
+			continue
 		}
+		trip.Packed, trip.Prepared, trip.Total = int(row.Packed), int(row.Prepared), int(row.Total)
+		upcoming = append(upcoming, trip)
 	}
-	return append(upcoming, past...), nil
+	// By return day, not departure: a long trip that left first can come
+	// back last (14, Code review). Stable, so trips returning the same day
+	// keep the later departure first.
+	slices.Reverse(past)
+	slices.SortStableFunc(past, func(a, b view.Trip) int {
+		return b.ReturnDay().Compare(a.ReturnDay())
+	})
+	return upcoming, past, nil
 }
 
 func toViewTrip(row db.Trip) (view.Trip, error) {

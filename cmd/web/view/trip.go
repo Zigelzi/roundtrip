@@ -12,6 +12,18 @@ type Trip struct {
 	Destination  string
 	Departure    time.Time
 	DurationDays int64
+	// Packed, Prepared and Total count the trip's items for the trips list's
+	// progress (14/S7). Only the list fills them in, and only for upcoming
+	// trips, so they are zero on every other page.
+	Packed   int
+	Prepared int
+	Total    int
+}
+
+// ReturnDay is the trip's last day: the departure day counts, so a 3-day
+// trip from 20.9 returns on 22.9.
+func (t Trip) ReturnDay() time.Time {
+	return t.Departure.AddDate(0, 0, int(t.DurationDays)-1)
 }
 
 // MaxTripNights caps a trip's length at 14 days, so a typo can't create a

@@ -103,12 +103,12 @@ func (app *application) handleIndex(w http.ResponseWriter, r *http.Request) {
 		app.serverError(w, "list trips", err)
 		return
 	}
-	trips, err := sortTrips(rows, app.today())
+	upcoming, past, err := sortTrips(rows, app.today())
 	if err != nil {
 		app.serverError(w, "sort trips", err)
 		return
 	}
-	app.render(w, r, http.StatusOK, view.Index(trips))
+	app.render(w, r, http.StatusOK, view.Index(upcoming, past))
 }
 
 // skipDevReloadForHTMX marks htmx replies so templ's live-reload proxy

@@ -47,25 +47,44 @@ func (q *Queries) GetTrip(ctx context.Context, id int64) (Trip, error) {
 }
 
 const listTrips = `-- name: ListTrips :many
-SELECT id, destination, departure_date, duration_days
+SELECT
+    trip.id, trip.destination, trip.departure_date, trip.duration_days,
+    COUNT(item.id) AS total,
+    CAST(COALESCE(SUM(item.status = 'packed'), 0) AS INTEGER) AS packed,
+    CAST(COALESCE(SUM(item.status = 'prepared'), 0) AS INTEGER) AS prepared
 FROM trip
-ORDER BY departure_date, id
+LEFT JOIN item ON item.trip_id = trip.id
+GROUP BY trip.id
+ORDER BY trip.departure_date, trip.id
 `
 
-func (q *Queries) ListTrips(ctx context.Context) ([]Trip, error) {
+type ListTripsRow struct {
+	Trip     Trip
+	Total    int64
+	Packed   int64
+	Prepared int64
+}
+
+// Each trip with its packing counts, for the trips list (14/S7): every item
+// on the trip, the same items the trip page's packing bar counts (14/R4).
+// One query for the whole list rather than one per trip (14/R6).
+func (q *Queries) ListTrips(ctx context.Context) ([]ListTripsRow, error) {
 	rows, err := q.db.QueryContext(ctx, listTrips)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	var items []Trip
+	var items []ListTripsRow
 	for rows.Next() {
-		var i Trip
+		var i ListTripsRow
 		if err := rows.Scan(
-			&i.ID,
-			&i.Destination,
-			&i.DepartureDate,
-			&i.DurationDays,
+			&i.Trip.ID,
+			&i.Trip.Destination,
+			&i.Trip.DepartureDate,
+			&i.Trip.DurationDays,
+			&i.Total,
+			&i.Packed,
+			&i.Prepared,
 		); err != nil {
 			return nil, err
 		}

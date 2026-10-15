@@ -31,7 +31,7 @@ The visual milestone comes first, so every feature after it is built once, in it
 | 11 | In the bag | Each person's packed part moves from the end of their list to right under their heading, keeps the title "Packed (n)" with the hint "Tap an item to take it out" (R21), and previews the packed item names (R13). Unpacking already returns an item to prepared (08/S5); this milestone keeps that working from the new place (R15). | 09; after 10, since both change the space under the heading | [11-in-the-bag.md](milestones/11-in-the-bag.md) |
 | 12 | Packing button at the bottom | The trip page's packing button becomes a bottom bar, labelled with the trip's packed count, and "All packed" when everything is packed (R16). The bar hides while an input has focus or an edit row is open, so the keyboard keeps its space (R4). Planned as two slices, built as one. | 09; reuses the trip-wide count the packing page already shows, not 10 | [12-packing-bar.md](milestones/12-packing-bar.md) |
 | 13 | Nights slider | New trip asks for departure and nights instead of a return date, and shows the return date. | 09 (new trip screen) | [13-nights-slider.md](milestones/13-nights-slider.md) |
-| 14 | Trip list progress and past trips | Packing progress on upcoming trips in the trips list (R17), and past trips in their own group, open by default. | 09 (trips list); same count as 12 | not started |
+| 14 | Trip list progress and past trips | Packing progress on upcoming trips in the trips list (R17), and past trips in their own group, closed by default (14/R9 reversed R17's "open"). | 09 (trips list); same count as 12 | [14-trip-list-progress.md](milestones/14-trip-list-progress.md) |
 
 Order: 10 and 11 come first after 09 because they work on the packing page, the weakest step. 12 to 14 depend only on 09, so their order among themselves is free and can change without touching the others.
 
@@ -71,7 +71,7 @@ Findings R1 to R20, raised in a main-session red-team of this plan. Decided so f
 - R14 "Next: person" button: dropped.
 - R15 Unpacking to prepared: already built in 08, kept.
 - R16 Bottom bar when everything is packed: reads "All packed" and still opens the packing page. The count updates when an item is added or removed on the trip page, and the page has bottom padding so the bar never covers the last add form.
-- R17 Progress: on the trips list, upcoming trips only. Every trip's packing page shows it, past ones too, through 10's header bar. The past trips group is open by default.
+- R17 Progress: on the trips list, upcoming trips only. Every trip's packing page shows it, past ones too, through 10's header bar. The past trips group is open by default (reversed to closed by 14/R9).
 - R20 Dependencies: mapped in the table. 12 needs only the trip-wide count, which exists today, so it does not wait for 10.
 
 - R3 Past trips: a trip counts as past from the day after its return date. Today a trip counts as past once its departure has gone by, so a trip in progress shows as past; 14 changes that and gets a scenario for it.
