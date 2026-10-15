@@ -168,12 +168,14 @@ templ pillCount(packed, total int, class string) {
 // centred, so every pill lines up the same width whatever the label's length.
 const filterPillClass = "flex min-h-14 min-w-0 flex-col items-center justify-center rounded-control border px-2 text-center text-[15px] leading-5 font-semibold"
 
-// packMemberSection is one member's things to pack and their packed part.
+// packMemberSection is one member's heading, their packed part right under
+// it, and then their things still to pack (11/S1). The packed part comes
+// first so "is it in the bag?" is answered without scrolling past the list.
 templ packMemberSection(page PackPageData, m PackMember) {
 	<section data-member={ m.Name } class={ sectionClass }>
 		@PackMemberHead(m, false)
-		@PackMemberList(page, m)
 		@PackedPart(page, m, false)
+		@PackMemberList(page, m)
 	</section>
 }
 
@@ -207,7 +209,7 @@ templ PackMemberList(page PackPageData, m PackMember) {
 		if !m.HasItems() {
 			<p class="px-4 pb-4 text-[15px] text-muted">Nothing planned.</p>
 		} else if len(m.ToPack) == 0 {
-			<div class="px-4 pb-4">
+			<div class="px-4 pt-3 pb-4">
 				@doneNote() {
 					All packed.
 				}
@@ -269,10 +271,11 @@ templ packQuantity(n int64, class string) {
 	}
 }
 
-// PackedPart holds what one member already has in the bag. The wrapper is
-// always on the page, so there is a stable place to swap it into when the
-// first item is packed; the <details> inside exists only while something is
-// packed, so a member with nothing packed shows no "Packed (0)" (08/S1).
+// PackedPart holds what one member already has in the bag, right under
+// their heading. The wrapper is always on the page, so there is a stable
+// place to swap it into when the first item is packed; the <details> inside
+// exists only while something is packed, so a member with nothing packed
+// shows no "Packed (0)" (08/S1).
 // Once it exists, a tap swaps only the count and the list inside it, never
 // the <details> itself, so it stays open while a parent works through it
 // (02/S3). The whole wrapper is sent only when the part appears or goes.
@@ -289,37 +292,51 @@ templ PackedPart(page PackPageData, m PackMember, oob bool) {
 
 // PackedSummary is the only thing saying the packed part can be opened and
 // what is inside it. Flexing a <summary> drops the browser's own disclosure
-// triangle, so the chevron here replaces it rather than decorating it.
-// Swapped on every tap to keep the count honest.
+// triangle, so the chevron on the right replaces it rather than decorating
+// it; it points down, and up while the part is open. Closed, it previews
+// the packed names, cut after two lines (11/S5); opened, the rows are on
+// show, so the preview gives way to how to take an item out (11/S3).
+// Swapped on every tap to keep the count and the preview honest (11/S6).
 templ PackedSummary(page PackPageData, m PackMember, oob bool) {
 	<summary
 		id={ packedSummaryID(m.ID) }
 		{ oobAttrs(oob)... }
-		class="flex min-h-12 cursor-pointer list-none items-center gap-2 px-4 font-semibold text-muted [&::-webkit-details-marker]:hidden"
+		class="flex min-h-14 cursor-pointer list-none items-start gap-3 py-3 pr-1 pl-4 [&::-webkit-details-marker]:hidden"
 	>
-		<span class="text-faint transition-transform group-open:rotate-90">
-			@iconForward()
+		@packedMark()
+		<span class="min-w-0 grow">
+			<span class="block font-semibold text-packed">Packed ({ FormatCount(len(m.Packed)) })</span>
+			<span data-bag-preview class="line-clamp-2 text-sm break-words leading-5 text-muted group-open:hidden">{ bagPreview(m) }</span>
+			<span class="hidden text-sm leading-5 text-muted group-open:block">Tap an item to take it out</span>
 		</span>
-		<span>Packed ({ FormatCount(len(m.Packed)) })</span>
-		<span class="ml-auto text-sm font-normal group-open:hidden">Show</span>
-		<span class="ml-auto hidden text-sm font-normal group-open:inline">Hide</span>
+		<span class="flex h-6 w-12 shrink-0 items-center justify-center text-muted transition-transform group-open:rotate-180">
+			@iconDown()
+		</span>
 	</summary>
+}
+
+// packedMark is a packed item's mark, a green box with a white tick: before
+// the packed part's title and before each packed row.
+templ packedMark() {
+	<span class="flex size-6 shrink-0 items-center justify-center rounded-box bg-packed text-white">
+		@iconTick("size-4 stroke-3")
+	</span>
 }
 
 // PackedList is the member's packed items, each one a tap to take it back.
 // The rows are lower than the ones still to pack, with the name struck
-// through, so the part reads as done.
+// through, so the part reads as done. They are tinted packed green, as
+// prepared rows are tinted amber, so the open part has a visible end above
+// the rows still to pack (11/S8, phone check).
 templ PackedList(page PackPageData, m PackMember, oob bool) {
 	<div id={ packedListID(m.ID) } { oobAttrs(oob)... }>
-		<ul class="divide-y divide-line border-t border-line">
+		<ul class="divide-y divide-line border-t border-line bg-packed-soft">
 			for _, it := range m.Packed {
 				<li class="flex">
 					@tapRow(unpackItemURL(page.Trip.ID, m.ID, it.ID, page.Filter), m, "Unpack "+it.Name, packedRowClass) {
-						<span class="flex size-6 shrink-0 items-center justify-center rounded-box bg-packed text-white">
-							@iconTick("size-4 stroke-3")
-						</span>
+						@packedMark()
 						<span class="min-w-0 grow text-muted line-through">{ it.Name }</span>
-						@packQuantity(it.Quantity, "text-muted")
+						@packQuantity(it.Quantity, "font-semibold text-muted")
 					}
 				</li>
 			}

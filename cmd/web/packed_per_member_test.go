@@ -71,12 +71,11 @@ func TestFullyPackedMemberHasAllItemsInTheirPackedPart(t *testing.T) {
 
 	body := get(t, app, packURLFor(tripID))
 
-	section := memberSection(t, body, child1)
-	i := strings.Index(section, "<details")
-	if i < 0 {
-		t.Fatalf("Child 1's section has no packed part:\n%s", section)
+	id := memberID(t, database, child1)
+	packed := packedPart(t, body, id)
+	if !strings.Contains(packed, "<details") {
+		t.Fatalf("Child 1's section has no packed part:\n%s", packed)
 	}
-	packed := section[i:]
 	for _, name := range names {
 		if !strings.Contains(packed, name) {
 			t.Errorf("Child 1's packed part is missing %q:\n%s", name, packed)
@@ -85,8 +84,13 @@ func TestFullyPackedMemberHasAllItemsInTheirPackedPart(t *testing.T) {
 	if !strings.Contains(packed, "Packed (3)") {
 		t.Errorf("Child 1's packed part does not count all three items:\n%s", packed)
 	}
-	if !strings.Contains(section[:i], "All packed") {
-		t.Errorf("Child 1's section does not say Child 1 is packed:\n%s", section)
+	// 11/S7: the note is in the list after the packed part, not inside the
+	// part, which sits under the heading in every state.
+	if toPack := packFragment(t, body, toPackListID(id)); !strings.Contains(toPack, "All packed") {
+		t.Errorf("Child 1's list does not say Child 1 is packed:\n%s", toPack)
+	}
+	if strings.Contains(packed, "All packed") {
+		t.Errorf("the note is inside the packed part:\n%s", packed)
 	}
 }
 

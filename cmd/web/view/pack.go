@@ -2,6 +2,7 @@ package view
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/a-h/templ"
 )
@@ -208,6 +209,17 @@ func packedShown(m PackMember) string {
 		return "1"
 	}
 	return "0"
+}
+
+// bagPreview is the packed part's preview while it is closed: the packed
+// item names in list order, without quantities (11/S5), so the closed part
+// answers "is it in the bag?" at a glance.
+func bagPreview(m PackMember) string {
+	names := make([]string, len(m.Packed))
+	for i, it := range m.Packed {
+		names[i] = it.Name
+	}
+	return strings.Join(names, ", ")
 }
 
 // packMeta is the packing page's line under its title: "Packing · 7 of 12
