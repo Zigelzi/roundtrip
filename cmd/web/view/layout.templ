@@ -7,7 +7,12 @@ package view
 // htmxConfig keeps htmx's defaults but also swaps 422 replies, so validation
 // errors show up in place (htmx ignores 4xx bodies by default), and lets the
 // browser report empty required fields instead of silently not sending.
-const htmxConfig = `{"reportValidityOfForms":true,"responseHandling":[{"code":"204","swap":false},{"code":"[23]..","swap":true},{"code":"422","swap":true,"error":true},{"code":"[45]..","swap":false,"error":true}]}`
+// It also turns off settling: by default, for 20ms after a swap, an element
+// that kept its id wears its old class and style, so CSS transitions can run
+// from the old look to the new. No style here transitions that way, and rows
+// keep their ids when one opens, so that only drew each row in its old look
+// for a frame before it snapped to the new one: a flicker.
+const htmxConfig = `{"attributesToSettle":[],"reportValidityOfForms":true,"responseHandling":[{"code":"204","swap":false},{"code":"[23]..","swap":true},{"code":"422","swap":true,"error":true},{"code":"[45]..","swap":false,"error":true}]}`
 
 templ Layout(title string) {
 	<!DOCTYPE html>
@@ -20,7 +25,7 @@ templ Layout(title string) {
 			<meta name="htmx-config" content={ htmxConfig }/>
 			<script src="/static/htmx.min.js" defer></script>
 		</head>
-		<body class="bg-slate-50 text-slate-900">
+		<body class="bg-canvas text-ink antialiased">
 			<main class="mx-auto max-w-2xl p-4">
 				{ children... }
 			</main>

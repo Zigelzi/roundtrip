@@ -182,3 +182,13 @@ func packedShown(m PackMember) string {
 	}
 	return "0"
 }
+
+// packMeta is the packing page's line under its title: "Packing · 7 of 12
+// packed", or just "Packing" while the trip has nothing on it. Narrowed to
+// one member, the numbers are that member's.
+func packMeta(p PackPageData) string {
+	if p.TripTotal == 0 {
+		return "Packing"
+	}
+	return "Packing · " + FormatProgress(p.Packed, p.Total)
+}

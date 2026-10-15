@@ -28,7 +28,8 @@ func TestPackPageListsItemsToPackPerMember(t *testing.T) {
 	body := get(t, app, packURLFor(tripID))
 
 	first := memberSection(t, body, parent1)
-	for _, want := range []string{"Underwear", "4 pcs", "Toothbrush", "1 pc"} {
+	// A single Toothbrush shows no "1 pc" here (09/S11, TestPackingPageHidesASingleQuantity).
+	for _, want := range []string{"Underwear", "4 pcs", "Toothbrush"} {
 		if !strings.Contains(first, want) {
 			t.Errorf("first parent's section does not show %q:\n%s", want, first)
 		}

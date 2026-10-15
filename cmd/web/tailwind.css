@@ -4,6 +4,41 @@
    which otherwise scans the whole repo (e.g. words in spec/*.md). */
 @source "./view";
 
+/* Design tokens from the mobile redesign canvas (spec/mobile-redesign.md).
+   This file is their source from milestone 09 on (09/R10). Colours keep fixed
+   meanings: primary (blue) is what to tap or what is being edited, prepared
+   (amber) is a prepared item, packed (green) a packed one, danger (red)
+   remove and errors. The action colour must never resemble the three state
+   colours. faint is for outlines and chevrons only, never text: it is too
+   light to read on white. */
+@theme {
+  --color-canvas: #EEF1EF;
+  --color-surface: #FFFFFF;
+  --color-ink: #16201B;
+  --color-muted: #59655F;
+  --color-faint: #8A958F;
+  --color-line: #DDE3DF;
+  --color-line-strong: #B8C2BC;
+  --color-primary: #1C3A5E;
+  --color-primary-soft: #E8EEF6;
+  --color-prepared: #A65508;
+  --color-prepared-soft: #FFF2E0;
+  --color-prepared-line: #F1D9B8;
+  --color-packed: #1F7A45;
+  --color-packed-soft: #E5F2EA;
+  --color-danger: #B42318;
+  --color-danger-soft: #FDEDEB;
+  --color-danger-line: #F0B4AC;
+  --color-danger-ink: #7A1A12;
+
+  /* Tick boxes, small chips, controls (buttons, inputs, pills), and section
+     cards on a wide screen (square on a phone, where they run edge to edge). */
+  --radius-box: 7px;
+  --radius-chip: 8px;
+  --radius-control: 10px;
+  --radius-card: 12px;
+}
+
 /* Opening, saving and cancelling an item edit swap the lists with a view
    transition (hx-swap transition:true). Each row, section and add form has
    its own view-transition-name (see transitionName in view/shared.templ), so
@@ -23,11 +58,10 @@
    while it grows or shrinks, so an opening row is revealed as it grows and
    does not paint over the rows sliding below it. A section's white card is
    drawn by its group instead of being part of its pictures: the section
-   drops its background and shadow while a transition is active (before the
-   old picture is taken), and the group paints them, so the card resizes
-   smoothly with its shadow intact (a clip does not cut an element's own
-   shadow). Otherwise a shrinking section's new, shorter picture would show
-   its bottom edge and shadow in the middle of the still tall box. Browsers
+   drops its background while a transition is active (before the old
+   picture is taken), and the group paints it, so the card resizes
+   smoothly. Otherwise a shrinking section's new, shorter picture would show
+   its bottom edge in the middle of the still tall box. Browsers
    without :active-view-transition keep the card in the picture too, which
    only brings that brief edge back. */
 ::view-transition-group(*) {
@@ -45,17 +79,16 @@
 ::view-transition-group(*.section) {
   overflow: clip;
 }
-html:active-view-transition #trip-items > section {
+html:active-view-transition #trip-items > section,
+html:active-view-transition #basics-items > section {
   background: none;
-  box-shadow: none;
 }
 ::view-transition-group(*.section) {
-  background: var(--color-white);
-  border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-sm);
+  background: var(--color-surface);
+  border-radius: var(--radius-card);
 }
 /* Below the sm breakpoint a section is a square, edge-to-edge panel
-   (cardClass), so its group must not round the corners mid-transition. */
+   (sectionClass), so its group must not round the corners mid-transition. */
 @media (width < 40rem) {
   ::view-transition-group(*.section) {
     border-radius: 0;

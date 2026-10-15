@@ -16,18 +16,18 @@ import "strconv"
 // stays the member name.
 templ TripPage(page TripPageData) {
 	@Layout(page.Trip.Destination) {
-		<a href="/" class="inline-flex min-h-12 items-center text-slate-600">← Trips</a>
-		<header class={ stickyHeaderClass } style={ transitionName("trip-header") }>
-			<div class="flex items-center gap-3">
+		<header class={ topBarClass } style={ transitionName("trip-header") }>
+			<div class="flex min-h-16 items-center gap-1 py-2 pr-4 pl-1">
+				@backLink("/", "Back to trips")
 				<div class="min-w-0 grow">
-					<h1 class="truncate text-xl font-bold">{ page.Trip.Destination }</h1>
-					<p class="truncate text-sm text-slate-600">{ FormatDateRange(page.Trip.Departure, page.Trip.DurationDays) } · { FormatDays(page.Trip.DurationDays) }</p>
+					<h1 class="truncate text-lg font-bold">{ page.Trip.Destination }</h1>
+					<p class="truncate text-sm text-muted">{ FormatDateRange(page.Trip.Departure, page.Trip.DurationDays) } · { FormatDays(page.Trip.DurationDays) }</p>
 				</div>
-				<a href={ templ.SafeURL(PackURL(page.Trip.ID)) } class="inline-flex min-h-12 shrink-0 items-center rounded-lg bg-slate-900 px-4 font-semibold text-white">Start packing →</a>
+				<a href={ templ.SafeURL(PackURL(page.Trip.ID)) } class={ primaryButtonClass + " shrink-0" }>Start packing</a>
 			</div>
 			@jumpLinks(tripLinks(page.Members))
 		</header>
-		<div id={ tripItemsID } class="mt-4 space-y-4">
+		<div id={ tripItemsID } class="mt-2 space-y-2">
 			for _, m := range page.Members {
 				@memberSection(page.Trip.ID, m, page.Edit)
 			}
@@ -42,9 +42,10 @@ templ TripPage(page TripPageData) {
 
 // memberSection is one member's items plus the add form. The form sits
 // outside the swapped item list: htmx replaces only the list, so the focused
-// name field (and the phone keyboard) stays put between additions.
+// name field (and the phone keyboard) stays put between additions. The add
+// form stays usable while a row is being edited (04); only rows lock.
 templ memberSection(tripID int64, m MemberItems, edit ItemEdit) {
-	<section id={ memberAnchor(m.ID) } data-member={ m.Name } style={ sectionTransition(memberAnchor(m.ID)) } class={ cardClass + " " + anchorClass }>
+	<section id={ memberAnchor(m.ID) } data-member={ m.Name } style={ sectionTransition(memberAnchor(m.ID)) } class={ sectionClass + " " + anchorClass }>
 		@MemberItemList(tripID, m, edit)
 		<form
 			method="post"
@@ -54,14 +55,12 @@ templ memberSection(tripID int64, m MemberItems, edit ItemEdit) {
 			hx-swap="outerHTML"
 			hx-on::after-request="if (event.detail.xhr.status === 200) { this.reset(); this.elements['name'].focus() }"
 			style={ transitionName("add-" + memberAnchor(m.ID)) }
-			class="mt-3 space-y-2"
+			class="space-y-2 border-t border-line px-4 pt-3 pb-4"
 		>
-			<input type="text" name="name" value={ m.Form.Name } placeholder="Add item" list="item-names" autocomplete="off" aria-label={ "Item for " + m.Name } required class={ inputClass }/>
-			<div class="flex items-center gap-2">
-				<button type="button" aria-label="Decrease quantity" onclick="this.nextElementSibling.stepDown()" class={ decreaseClass }>−</button>
-				<input type="number" name="quantity" value={ m.Form.Quantity } min="1" step="1" inputmode="numeric" aria-label="Quantity" required class={ quantityClass }/>
-				<button type="button" aria-label="Increase quantity" onclick="this.previousElementSibling.stepUp()" class={ increaseClass }>+</button>
-				<button type="submit" class="ml-auto min-h-12 rounded-lg bg-slate-900 px-6 font-semibold text-white">Add</button>
+			<input type="text" name="name" value={ m.Form.Name } placeholder={ "Add an item for " + m.Name } list="item-names" autocomplete="off" aria-label={ "Item for " + m.Name } required class={ inputClass }/>
+			<div class="flex items-center justify-between gap-2">
+				@stepper(stepperField{Name: "quantity", Value: m.Form.Quantity, Label: "Quantity", Less: "Decrease quantity", More: "Increase quantity", Min: "1", Required: true, Low: 1})
+				<button type="submit" class={ secondaryButtonClass + " min-w-28" }>Add</button>
 			</div>
 		</form>
 	</section>
@@ -69,18 +68,19 @@ templ memberSection(tripID int64, m MemberItems, edit ItemEdit) {
 
 // MemberItemList is the part of a member's section that htmx swaps after an
 // item is added or removed: the heading with its item count, the items and
-// any validation errors. The heading is inside so the count stays right. Without
-// JavaScript the forms still work as plain posts with a redirect.
+// any validation errors. The heading is inside so the count stays right, and
+// the count is inside the <h2>, which tests read as the member's heading.
+// Without JavaScript the forms still work as plain posts with a redirect.
 templ MemberItemList(tripID int64, m MemberItems, edit ItemEdit) {
 	<div id={ itemListID(m.ID) }>
-		<h2 class="flex items-baseline gap-2 text-lg font-semibold">
+		<h2 class="flex items-baseline justify-between gap-3 px-4 pt-4 pb-2.5 text-lg font-bold">
 			{ m.Name }
-			<span class="text-sm font-normal text-slate-500">{ FormatItemCount(len(m.Items)) }</span>
+			<span class="text-sm font-normal text-muted tabular-nums">{ FormatItemCount(len(m.Items)) }</span>
 		</h2>
 		if len(m.Items) == 0 {
-			<p class="mt-1 text-slate-600">No items yet.</p>
+			<p class="px-4 pb-4 text-[15px] text-muted">No items yet.</p>
 		} else {
-			<ul class="mt-2 divide-y divide-slate-100">
+			<ul class="divide-y divide-line border-t border-line">
 				for _, it := range m.Items {
 					if it.ID == edit.ItemID {
 						@editItemRow(tripID, it, edit)
@@ -90,20 +90,28 @@ templ MemberItemList(tripID int64, m MemberItems, edit ItemEdit) {
 				}
 			</ul>
 		}
-		@errorList(m.Form.Errors)
+		<div class="px-4">
+			@errorList(m.Form.Errors)
+		</div>
 	</div>
 }
 
-// itemRow is an item with its quantity and remove button. Tapping the
-// quantity reloads the page in edit mode for this row (a plain GET, so the
-// lock can cover every member's section) and lands back on the row. While
-// another row is being edited, both buttons are disabled.
+// itemRow is an item with its quantity and remove button. The name and the
+// quantity are one button, so a tap anywhere on the row opens it for
+// editing (09/S5); the dotted underline on the quantity is the hint that it
+// can be tapped. Opening is a plain GET that reloads the page in edit mode
+// for this row (so the lock can cover every member's section) and lands
+// back on the row. ✕ is a separate 48px button at the end (09/R7). While
+// another row is being edited, the whole row fades and both buttons are
+// disabled, so neither the name, the quantity nor ✕ does anything.
 templ itemRow(tripID, memberID int64, it Item, locked bool) {
-	<li id={ itemAnchor(it.ID) } style={ rowTransition(itemAnchor(it.ID)) } class={ "flex min-h-14 items-center gap-2 " + anchorClass }>
-		<span class="grow">{ it.Name }</span>
-		<form method="get" action={ templ.SafeURL(ItemURL(tripID, it.ID)) } hx-get={ TripURL(tripID) } { swapTripItems... }>
+	<li id={ itemAnchor(it.ID) } style={ rowTransition(itemAnchor(it.ID)) } class={ "flex min-h-14 items-stretch pr-1 " + anchorClass + lockedRow(locked) }>
+		<form method="get" action={ templ.SafeURL(ItemURL(tripID, it.ID)) } hx-get={ TripURL(tripID) } { swapTripItems... } class="flex min-w-0 grow">
 			<input type="hidden" name="edit" value={ strconv.FormatInt(it.ID, 10) }/>
-			<button type="submit" aria-label={ "Change quantity of " + it.Name } disabled?={ locked } class={ lockable("min-h-14 whitespace-nowrap rounded-lg px-2", "text-slate-600 underline decoration-dotted underline-offset-4", "text-slate-400", locked) }>{ FormatQuantity(it.Quantity) }</button>
+			<button type="submit" aria-label={ "Change quantity of " + it.Name } disabled?={ locked } class={ rowTapClass }>
+				<span class="min-w-0 grow">{ it.Name }</span>
+				<span class={ quantityHintClass(it.Quantity == 1) }>{ FormatQuantity(it.Quantity) }</span>
+			</button>
 		</form>
 		<form
 			method="post"
@@ -111,29 +119,32 @@ templ itemRow(tripID, memberID int64, it Item, locked bool) {
 			hx-post={ removeItemURL(tripID, it.ID) }
 			hx-target={ "#" + itemListID(memberID) }
 			hx-swap="outerHTML"
+			class="flex"
 		>
-			<button type="submit" aria-label={ "Remove " + it.Name } disabled?={ locked } class={ lockable("min-h-14 min-w-12 rounded-lg text-xl", "text-red-600", "text-slate-300", locked) }>✕</button>
+			<button type="submit" aria-label={ "Remove " + it.Name } disabled?={ locked } class={ removeButtonClass }>
+				@iconRemove()
+			</button>
 		</form>
 	</li>
 }
 
-// editItemRow is the row being edited: a small quantity form. Saving is a
-// plain post that redirects back to the row; Cancel is a link to the plain
-// trip page, back at the same row. The row is highlighted and says what is
-// happening, and Cancel looks like a button, because on the phone check
-// neither the open row nor the way out was obvious.
+// editItemRow is the row being edited: a small quantity form, tinted in the
+// action colour (09/R5; amber now means prepared). Saving is a plain post
+// that redirects back to the row; Cancel is a link to the plain trip page,
+// back at the same row. The blue fill and lines alone mark the open row;
+// the "· change quantity" hint added after 04's phone check was dropped at
+// 09's (09/R5).
 templ editItemRow(tripID int64, it Item, edit ItemEdit) {
-	<li id={ itemAnchor(it.ID) } style={ rowTransition(itemAnchor(it.ID)) } class={ "my-2 rounded-lg border-2 border-amber-400 bg-amber-50 p-3 " + anchorClass }>
-		<form method="post" action={ templ.SafeURL(quantityURL(tripID, it.ID)) } hx-post={ quantityURL(tripID, it.ID) } { swapTripItems... } class="flex flex-wrap items-center gap-2">
-			<p class="w-full">
-				<span class="font-semibold">{ it.Name }</span>
-				<span class="text-sm text-amber-800">· change quantity</span>
-			</p>
-			<button type="button" aria-label="Decrease quantity" onclick="this.nextElementSibling.stepDown()" class={ decreaseClass }>−</button>
-			<input type="number" name="quantity" value={ edit.Quantity } min="1" step="1" inputmode="numeric" aria-label={ "New quantity for " + it.Name } required class={ quantityClass }/>
-			<button type="button" aria-label="Increase quantity" onclick="this.previousElementSibling.stepUp()" class={ increaseClass }>+</button>
-			<button type="submit" class="min-h-12 rounded-lg bg-slate-900 px-4 font-semibold text-white">Save</button>
-			<a href={ templ.SafeURL(ItemURL(tripID, it.ID)) } hx-get={ TripURL(tripID) } { swapTripItems... } class="inline-flex min-h-12 items-center rounded-lg border border-slate-300 bg-white px-4 font-semibold text-slate-700">Cancel</a>
+	<li id={ itemAnchor(it.ID) } style={ rowTransition(itemAnchor(it.ID)) } class={ editRowClass + " " + anchorClass }>
+		<form method="post" action={ templ.SafeURL(quantityURL(tripID, it.ID)) } hx-post={ quantityURL(tripID, it.ID) } { swapTripItems... } class="flex flex-col gap-2">
+			<div class="flex items-center justify-between gap-2">
+				<p class="min-w-0 font-bold">{ it.Name }</p>
+				<a href={ templ.SafeURL(ItemURL(tripID, it.ID)) } hx-get={ TripURL(tripID) } { swapTripItems... } class={ quietButtonClass }>Cancel</a>
+			</div>
+			<div class="flex items-center justify-between gap-2">
+				@stepper(stepperField{Name: "quantity", Value: edit.Quantity, Label: "New quantity for " + it.Name, Less: "Decrease quantity", More: "Increase quantity", Min: "1", Required: true, Low: 1})
+				<button type="submit" class={ primaryButtonClass + " min-w-24" }>Save</button>
+			</div>
 		</form>
 		@errorList(edit.Errors)
 	</li>

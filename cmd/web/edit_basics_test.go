@@ -87,10 +87,16 @@ func TestBasicsPageListsEveryonesBasics(t *testing.T) {
 	}
 }
 
-// basicRowHTML returns the <li> on the basics page whose name is name.
+// basicRowHTML returns the <li> on the basics page whose name is name. A
+// closed row shows the name as text. An open row shows it only in its Name
+// field, whose value may be a refused rename, so it is found by the field's
+// spoken label, which always names the stored basic (09/Q3).
 func basicRowHTML(t *testing.T, section, name string) string {
 	t.Helper()
 	i := strings.Index(section, ">"+name+"<")
+	if i < 0 {
+		i = strings.Index(section, `aria-label="Name of `+name+`"`)
+	}
 	if i < 0 {
 		t.Fatalf("no basic %q in section", name)
 	}
@@ -392,7 +398,9 @@ func TestBasicEditFormShowsZeroesEmpty(t *testing.T) {
 	if tag := inputTag(t, body, "name"); !strings.Contains(tag, `value="Shoes"`) {
 		t.Errorf("edit form's name field is not Shoes: %s", tag)
 	}
-	if n := strings.Count(page, "· edit basic"); n != 1 {
+	// Only the open row has a field for a new daily quantity (the add forms
+	// label theirs "for new basic of"), so counting it counts open rows.
+	if n := strings.Count(page, `aria-label="New daily quantity for `); n != 1 {
 		t.Errorf("%d edit forms on the page, want 1", n)
 	}
 

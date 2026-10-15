@@ -1,29 +1,36 @@
 package view
 
-import "strconv"
+import (
+	"fmt"
+	"strconv"
+)
 
 // BasicsPage lists each family member's basics, in the order a new trip gets
 // them. It reuses the trip page's layout (06/Q6): a sticky header with
 // jump links, and one <section data-member="Name"> card per member.
 templ BasicsPage(members []MemberBasics, edit BasicEdit) {
 	@Layout("Basics") {
-		<a href="/" class="inline-flex min-h-12 items-center text-slate-600">← Trips</a>
-		<header class={ stickyHeaderClass } style={ transitionName("trip-header") }>
-			<h1 class="text-xl font-bold">Basics</h1>
-			<p class="text-sm text-slate-600">Every new trip starts with these.</p>
+		<header class={ topBarClass } style={ transitionName("trip-header") }>
+			<div class="flex min-h-16 items-center gap-1 py-2 pr-4 pl-1">
+				@backLink("/", "Back to trips")
+				<div class="min-w-0 grow">
+					<h1 class="truncate text-lg font-bold">Basics</h1>
+					<p class="truncate text-sm text-muted">Every new trip starts with these.</p>
+				</div>
+			</div>
 			@jumpLinks(basicsLinks(members))
 		</header>
-		<div id={ basicsItemsID } class="mt-4 space-y-4">
+		<div id={ basicsItemsID } class="mt-2 space-y-2">
 			for _, m := range members {
-				<section id={ memberAnchor(m.ID) } data-member={ m.Name } style={ sectionTransition(memberAnchor(m.ID)) } class={ cardClass + " " + anchorClass }>
-					<h2 class="flex items-baseline gap-2 text-lg font-semibold">
+				<section id={ memberAnchor(m.ID) } data-member={ m.Name } style={ sectionTransition(memberAnchor(m.ID)) } class={ sectionClass + " " + anchorClass }>
+					<h2 class="flex items-baseline justify-between gap-3 px-4 pt-4 pb-2.5 text-lg font-bold">
 						{ m.Name }
-						<span class="text-sm font-normal text-slate-500">{ FormatItemCount(len(m.Basics)) }</span>
+						<span class="text-sm font-normal text-muted tabular-nums">{ FormatItemCount(len(m.Basics)) }</span>
 					</h2>
 					if len(m.Basics) == 0 {
-						<p class="mt-1 text-slate-600">No basics yet.</p>
+						<p class="px-4 pb-4 text-[15px] text-muted">No basics yet.</p>
 					} else {
-						<ul class="mt-2 divide-y divide-slate-100">
+						<ul class="divide-y divide-line border-t border-line">
 							for _, b := range m.Basics {
 								if b.ID == edit.ID {
 									@editBasicRow(b, edit)
@@ -48,63 +55,82 @@ func basicsLinks(members []MemberBasics) []MemberLink {
 	return links
 }
 
-// basicRow is a basic with its quantity as a button: tapping it opens the
-// row for editing (a plain GET, so the lock can cover every row). While
-// another row is being edited the button is disabled.
+// basicRow is a basic and its rule, as the trip page's itemRow: the name
+// and the rule are one button, so a tap anywhere on the row opens it for
+// editing (09/S5), with the dotted underline as the hint. Opening is a
+// plain GET, so the lock can cover every row. ✕ is its own 48px button at
+// the end. While another row is being edited, the whole row fades and both
+// buttons are disabled.
 templ basicRow(b Basic, locked bool) {
-	<li id={ basicAnchor(b.ID) } style={ rowTransition(basicAnchor(b.ID)) } class={ "flex min-h-14 items-center gap-2 " + anchorClass }>
-		<span class="grow">{ b.Name }</span>
-		<form method="get" action={ templ.SafeURL(BasicsURL) } hx-get={ BasicsURL } { swapBasics... }>
+	<li id={ basicAnchor(b.ID) } style={ rowTransition(basicAnchor(b.ID)) } class={ "flex min-h-14 items-stretch pr-1 " + anchorClass + lockedRow(locked) }>
+		<form method="get" action={ templ.SafeURL(BasicsURL) } hx-get={ BasicsURL } { swapBasics... } class="flex min-w-0 grow">
 			<input type="hidden" name="edit" value={ strconv.FormatInt(b.ID, 10) }/>
-			<button type="submit" aria-label={ "Change quantity of " + b.Name } disabled?={ locked } class={ lockable("min-h-14 whitespace-nowrap rounded-lg px-2", "text-slate-600 underline decoration-dotted underline-offset-4", "text-slate-400", locked) }>{ FormatBasicQuantity(b.PerDay, b.Fixed) }</button>
+			<button type="submit" aria-label={ "Change quantity of " + b.Name } disabled?={ locked } class={ rowTapClass }>
+				<span class="min-w-0 grow">{ b.Name }</span>
+				<span class={ quantityHintClass(false) }>{ FormatBasicQuantity(b.PerDay, b.Fixed) }</span>
+			</button>
 		</form>
-		<form method="post" action={ templ.SafeURL(removeBasicURL(b.ID)) } hx-post={ removeBasicURL(b.ID) } { swapBasics... }>
-			<button type="submit" aria-label={ "Remove " + b.Name } disabled?={ locked } class={ lockable("min-h-14 min-w-12 rounded-lg text-xl", "text-red-600", "text-slate-300", locked) }>✕</button>
+		<form method="post" action={ templ.SafeURL(removeBasicURL(b.ID)) } hx-post={ removeBasicURL(b.ID) } { swapBasics... } class="flex">
+			<button type="submit" aria-label={ "Remove " + b.Name } disabled?={ locked } class={ removeButtonClass }>
+				@iconRemove()
+			</button>
 		</form>
 	</li>
 }
 
-// addBasicForm adds a basic last in the member's list. Same fields as the
-// edit row: a name, "/ day" and "extra". A refused add keeps what was typed
-// and shows the messages under the form.
+// addBasicForm adds a basic last in the member's list, under a line as on
+// the trip page. Same fields as the edit row: the name, then Per day and
+// Extra, each a stepper. A refused add keeps what was typed and shows the
+// messages under the form.
 templ addBasicForm(m MemberBasics) {
-	<form method="post" action={ templ.SafeURL(addBasicURL(m.ID)) } hx-post={ addBasicURL(m.ID) } { swapBasics... } class="mt-3 flex flex-wrap items-center gap-2 border-t border-slate-100 pt-3">
-		<input type="text" name="name" value={ m.Form.Name } placeholder="Add basic" autocomplete="off" aria-label={ "Basic for " + m.Name } class={ nameClass }/>
-		<input type="number" name="per_day" value={ m.Form.PerDay } step="1" inputmode="numeric" aria-label={ "Daily quantity for new basic of " + m.Name } class={ quantityClass }/>
-		<span>/ day +</span>
-		<input type="number" name="fixed" value={ m.Form.Fixed } step="1" inputmode="numeric" aria-label={ "Extra quantity for new basic of " + m.Name } class={ quantityClass }/>
-		<span>extra</span>
-		<button type="submit" class="min-h-12 rounded-lg bg-slate-900 px-4 font-semibold text-white">Add</button>
+	<form method="post" action={ templ.SafeURL(addBasicURL(m.ID)) } hx-post={ addBasicURL(m.ID) } { swapBasics... } class="space-y-3 border-t border-line px-4 pt-3 pb-4">
+		<input type="text" name="name" value={ m.Form.Name } placeholder={ "Add a basic for " + m.Name } autocomplete="off" aria-label={ "Basic for " + m.Name } class={ inputClass }/>
+		<div class="flex flex-wrap items-end gap-x-4 gap-y-3">
+			@labelledStepper("Per day", stepperField{ID: fmt.Sprintf("new-basic-%d-per-day", m.ID), Name: "per_day", Value: m.Form.PerDay, Label: "Daily quantity for new basic of " + m.Name, Less: "Decrease daily quantity", More: "Increase daily quantity"})
+			@labelledStepper("Extra", stepperField{ID: fmt.Sprintf("new-basic-%d-fixed", m.ID), Name: "fixed", Value: m.Form.Fixed, Label: "Extra quantity for new basic of " + m.Name, Less: "Decrease extra", More: "Increase extra"})
+			<button type="submit" class={ secondaryButtonClass + " ml-auto min-w-24" }>Add</button>
+		</div>
+		@errorList(m.Form.Errors)
 	</form>
-	@errorList(m.Form.Errors)
 }
 
-// editBasicRow is the row being edited: "[ 1 ] / day + [ 1 ] extra". Same
-// look as the trip page's edit row. Saving is a plain post that redirects
-// back to the row; Cancel is a link back to the plain page.
+// labelledStepper is one of a basic's two numbers, Per day or Extra, with
+// its label over its stepper. Neither goes below 0 (09/R6); like the
+// fields before 09 they have no browser min or max, so the server's checks
+// still explain a bad value (06/R7).
+templ labelledStepper(label string, f stepperField) {
+	<div class="flex flex-col gap-1">
+		<label for={ f.ID } class={ fieldLabelClass }>{ label }</label>
+		@stepper(f)
+	</div>
+}
+
+// editBasicRow is the row being edited, in the action colour as on the trip
+// page: its Name field, then Per day and Extra, each with a stepper, and
+// Cancel and Save at the right. The name shows only in its field, not also
+// as a title above it (09/Q3), so the form adds the top room the trip
+// page's title row takes. Saving is a plain post that redirects back to the
+// row; Cancel is a link back to the plain page. The "· edit basic" hint
+// went with the trip page's (09/R5).
 templ editBasicRow(b Basic, edit BasicEdit) {
-	<li id={ basicAnchor(b.ID) } style={ rowTransition(basicAnchor(b.ID)) } class={ "my-2 rounded-lg border-2 border-amber-400 bg-amber-50 p-3 " + anchorClass }>
-		<form method="post" action={ templ.SafeURL(basicSaveURL(b.ID)) } hx-post={ basicSaveURL(b.ID) } { swapBasics... } class="flex flex-wrap items-center gap-2">
-			<p class="w-full">
-				<span class="font-semibold">{ b.Name }</span>
-				<span class="text-sm text-amber-800">· edit basic</span>
-			</p>
-			<input type="text" name="name" value={ edit.Name } autocomplete="off" aria-label={ "Name of " + b.Name } class={ nameClass }/>
-			<input type="number" name="per_day" value={ edit.PerDay } step="1" inputmode="numeric" aria-label={ "New daily quantity for " + b.Name } class={ quantityClass }/>
-			<span>/ day +</span>
-			<input type="number" name="fixed" value={ edit.Fixed } step="1" inputmode="numeric" aria-label={ "New extra quantity for " + b.Name } class={ quantityClass }/>
-			<span>extra</span>
-			<div class="flex w-full gap-2">
-				<button type="submit" class="min-h-12 rounded-lg bg-slate-900 px-4 font-semibold text-white">Save</button>
-				<a href={ templ.SafeURL(BasicURL(b.ID)) } hx-get={ BasicsURL } { swapBasics... } class="inline-flex min-h-12 items-center rounded-lg border border-slate-300 bg-white px-4 font-semibold text-slate-700">Cancel</a>
+	<li id={ basicAnchor(b.ID) } style={ rowTransition(basicAnchor(b.ID)) } class={ editRowClass + " " + anchorClass }>
+		<form method="post" action={ templ.SafeURL(basicSaveURL(b.ID)) } hx-post={ basicSaveURL(b.ID) } { swapBasics... } class="flex flex-col gap-3 pt-2">
+			<div>
+				<label for={ fmt.Sprintf("basic-%d-name", b.ID) } class={ fieldLabelClass }>Name</label>
+				<input type="text" id={ fmt.Sprintf("basic-%d-name", b.ID) } name="name" value={ edit.Name } autocomplete="off" aria-label={ "Name of " + b.Name } class={ inputClass }/>
+			</div>
+			<div class="flex flex-wrap gap-x-4 gap-y-3">
+				@labelledStepper("Per day", stepperField{ID: fmt.Sprintf("basic-%d-per-day", b.ID), Name: "per_day", Value: edit.PerDay, Label: "New daily quantity for " + b.Name, Less: "Decrease daily quantity", More: "Increase daily quantity"})
+				@labelledStepper("Extra", stepperField{ID: fmt.Sprintf("basic-%d-fixed", b.ID), Name: "fixed", Value: edit.Fixed, Label: "New extra quantity for " + b.Name, Less: "Decrease extra", More: "Increase extra"})
+			</div>
+			<div class="flex justify-end gap-2">
+				<a href={ templ.SafeURL(BasicURL(b.ID)) } hx-get={ BasicsURL } { swapBasics... } class={ quietButtonClass }>Cancel</a>
+				<button type="submit" class={ primaryButtonClass + " min-w-24" }>Save</button>
 			</div>
 		</form>
 		@errorList(edit.Errors)
 	</li>
 }
-
-// nameClass is the name field in the edit row, full width above the numbers.
-const nameClass = "min-h-12 w-full rounded-lg border border-slate-300 bg-white px-3 text-base"
 
 // basicsItemsID is the container holding every member's section. Opening a
 // row, saving and cancelling replace it in place from the full page reply

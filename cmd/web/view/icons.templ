@@ -1,0 +1,64 @@
+package view
+
+// Line icons drawn inline, so there is no icon library to load. Each is a
+// 24×24 drawing in the text colour, hidden from screen readers: the button
+// or link around it carries the spoken label.
+templ icon(class string) {
+	<svg class={ "shrink-0 " + class } viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+		{ children... }
+	</svg>
+}
+
+templ iconBack() {
+	@icon("size-5") {
+		<path d="M15 18l-6-6 6-6"></path>
+	}
+}
+
+templ iconForward() {
+	@icon("size-5") {
+		<path d="M9 6l6 6-6 6"></path>
+	}
+}
+
+templ iconPlus() {
+	@icon("size-4.5") {
+		<path d="M12 5v14M5 12h14"></path>
+	}
+}
+
+templ iconBag() {
+	@icon("size-10 stroke-[1.5]") {
+		<path d="M6 8h12l-1 12H7L6 8z"></path>
+		<path d="M9 8V6a3 3 0 016 0v2"></path>
+	}
+}
+
+templ iconMinus() {
+	@icon("size-4.5") {
+		<path d="M5 12h14"></path>
+	}
+}
+
+templ iconRemove() {
+	@icon("size-4.5") {
+		<path d="M6 6l12 12M18 6L6 18"></path>
+	}
+}
+
+// iconUndo is the packing page's way back from prepared to planned: an
+// arrow turning back, never ✕, which elsewhere means remove.
+templ iconUndo() {
+	@icon("size-6") {
+		<path d="M9 14L4 9l5-5"></path>
+		<path d="M4 9h10.5a5.5 5.5 0 010 11H11"></path>
+	}
+}
+
+// iconTick is the tick of a packed item and of the done notes. Its size
+// varies with where it sits, so the caller gives it.
+templ iconTick(class string) {
+	@icon(class) {
+		<path d="M20 6L9 17l-5-5"></path>
+	}
+}

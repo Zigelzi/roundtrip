@@ -8,39 +8,27 @@ package view
 import "github.com/a-h/templ"
 import templruntime "github.com/a-h/templ/runtime"
 
+import "strconv"
+
 // Pieces used by more than one page: the page frame (cards, sticky header,
 // jump links), form controls and the row-editing pattern shared by the trip
 // and basics pages. A piece used by one page only stays in that page's file.
 
-// cardClass is a white panel holding a list of items. On a phone it bleeds
-// through the page's side padding (-mx-4) to the screen edges, so the list
-// keeps the whole width and only its own small padding keeps text off the
-// edge. From the sm breakpoint up, where the page is narrower than the
-// screen, it sits inside the padding as a rounded card again.
-const cardClass = "-mx-4 bg-white px-3 py-4 shadow-sm sm:mx-0 sm:rounded-lg sm:px-4"
+// Buttons. Primary is the one solid button on a screen: when two compete,
+// the second is secondary. Quiet is a text button in the action colour, for
+// a way out (Cancel) or a side route (Check basics). All are at least 48px
+// high, the smallest tap target.
+const buttonClass = "inline-flex min-h-12 items-center justify-center gap-2 whitespace-nowrap rounded-control border px-4.5 font-semibold"
+const primaryButtonClass = buttonClass + " border-primary bg-primary text-white"
+const secondaryButtonClass = buttonClass + " border-line-strong bg-surface text-ink"
+const quietButtonClass = "inline-flex min-h-12 items-center justify-center rounded-control px-3 font-semibold text-primary"
 
-// stickyHeaderClass keeps a page's title bar at the top of the screen while
-// its long list scrolls underneath. It spans the page's side padding, so on
-// a phone it reaches the screen edges like cardClass (on a wider screen it
-// stays 16px wider than the cards, unseen since it matches the page). Its
-// background is solid, so rows pass under it rather than showing through. It is kept to one or two short lines: on a phone with the
-// keyboard open, every pixel it takes is a pixel less of the list.
-const stickyHeaderClass = "sticky top-0 z-10 -mx-4 border-b border-slate-200 bg-slate-50 px-4 py-2"
+// iconButtonClass is a 48px square around an icon, with no border.
+const iconButtonClass = "inline-flex size-12 shrink-0 items-center justify-center rounded-control text-ink"
 
-// anchorClass is on everything the page jumps to by its #id (a section, a
-// row), so it lands just below the sticky header instead of under it. It is
-// the header's height (about 117px) plus a little room; change the two
-// together. The header's title and dates are cut to one line each so that
-// height stays fixed: a long destination that wrapped would push every jump
-// under the header.
-const anchorClass = "scroll-mt-32"
-
-// jumpLinks are plain #anchor links to each member's section, in page
-// order, so a parent can skip past everyone else's items. One equal-width
-// column per member keeps them on a single line (the header is sticky, so a
-// second line would cost list space on every screen); a long name is cut
-// short with an ellipsis rather than wrapping. The basics page uses them too.
-func jumpLinks(members []MemberLink) templ.Component {
+// backLink is the back arrow at the start of a page's top bar. The arrow
+// alone shows nothing to a screen reader, so label says where it goes.
+func backLink(href, label string) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
@@ -61,43 +49,161 @@ func jumpLinks(members []MemberLink) templ.Component {
 			templ_7745c5c3_Var1 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<nav class=\"mt-2 grid grid-flow-col auto-cols-fr gap-1\">")
+		var templ_7745c5c3_Var2 = []any{iconButtonClass}
+		templ_7745c5c3_Err = templ.RenderCSSItems(ctx, templ_7745c5c3_Buffer, templ_7745c5c3_Var2...)
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<a href=\"")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		var templ_7745c5c3_Var3 templ.SafeURL
+		templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(href))
+		if templ_7745c5c3_Err != nil {
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `cmd/web/view/shared.templ`, Line: 24, Col: 30}
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var3))
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "\" aria-label=\"")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		var templ_7745c5c3_Var4 string
+		templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.JoinStringErrs(label)
+		if templ_7745c5c3_Err != nil {
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `cmd/web/view/shared.templ`, Line: 24, Col: 51}
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var4))
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "\" class=\"")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		var templ_7745c5c3_Var5 string
+		templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.JoinStringErrs(templ.CSSClasses(templ_7745c5c3_Var2).String())
+		if templ_7745c5c3_Err != nil {
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `cmd/web/view/shared.templ`, Line: 1, Col: 0}
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var5))
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "\">")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = iconBack().Render(ctx, templ_7745c5c3_Buffer)
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "</a>")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		return nil
+	})
+}
+
+// sectionClass is a white panel holding a list. On a phone it bleeds
+// through the page's side padding (-mx-4) to the screen edges and is
+// square; from the sm breakpoint up it sits inside
+// the padding as a rounded card. It has no padding of its own: rows carry
+// their own 16px gutter, so their tap areas and dividers reach the edges.
+const sectionClass = "-mx-4 bg-surface sm:mx-0 sm:rounded-card"
+
+// barClass is a page's title bar: white, a line under it. It is the first
+// thing on the page and bleeds through the page's padding (-mx-4 -mt-4), so
+// on a phone it spans the screen edge to edge with nothing above it. The
+// new trip page uses it as is: a short form has nothing to scroll past.
+const barClass = "-mx-4 -mt-4 border-b border-line bg-surface"
+
+// topBarClass is barClass kept at the top while a long list scrolls under
+// it. It is kept to a title row and one row of jump links: on a phone with
+// the keyboard open, every pixel it takes is a pixel less of the list.
+const topBarClass = "sticky top-0 z-10 " + barClass
+
+// anchorClass is on everything the page jumps to by its #id (a section, a
+// row), so it lands just below the sticky header instead of under it. It is
+// the header's height (about 117px: a 64px title row, 44px jump links and
+// their 8px gap) plus a little room; change the two together. The title and
+// dates are cut to one line each so that height stays fixed: a long
+// destination that wrapped would push every jump under the header.
+const anchorClass = "scroll-mt-32"
+
+// jumpLinks are plain #anchor links to each member's section, in page
+// order, so a parent can skip past everyone else's items. One equal-width
+// button per member keeps them on a single line (the header is sticky, so a
+// second line would cost list space on every screen); a long name is cut
+// short with an ellipsis rather than wrapping. They carry no item count
+// (09/Q1): five counts do not fit at phone width, and the header is not
+// swapped when an item is added, so a count here would go stale. They are
+// lightly rounded like the packing filter, but smaller (09/Q4): 44px high,
+// under the usual 48px, to keep the header slim (that passed milestone
+// 05's phone check), with a small chip's 8px radius. The basics page uses
+// them too.
+func jumpLinks(members []MemberLink) templ.Component {
+	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
+		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
+		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
+			return templ_7745c5c3_CtxErr
+		}
+		templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templruntime.GetBuffer(templ_7745c5c3_W)
+		if !templ_7745c5c3_IsBuffer {
+			defer func() {
+				templ_7745c5c3_BufErr := templruntime.ReleaseBuffer(templ_7745c5c3_Buffer)
+				if templ_7745c5c3_Err == nil {
+					templ_7745c5c3_Err = templ_7745c5c3_BufErr
+				}
+			}()
+		}
+		ctx = templ.InitializeContext(ctx)
+		templ_7745c5c3_Var6 := templ.GetChildren(ctx)
+		if templ_7745c5c3_Var6 == nil {
+			templ_7745c5c3_Var6 = templ.NopComponent
+		}
+		ctx = templ.ClearChildren(ctx)
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "<nav class=\"grid grid-flow-col auto-cols-fr gap-1.5 px-4 pb-2\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		for _, m := range members {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "<a href=\"")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, "<a href=\"")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			var templ_7745c5c3_Var2 templ.SafeURL
-			templ_7745c5c3_Var2, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL("#" + memberAnchor(m.ID)))
+			var templ_7745c5c3_Var7 templ.SafeURL
+			templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL("#" + memberAnchor(m.ID)))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `cmd/web/view/shared.templ`, Line: 38, Col: 52}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `cmd/web/view/shared.templ`, Line: 69, Col: 52}
 			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var2))
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "\" class=\"flex min-h-11 min-w-0 items-center justify-center rounded-lg border border-slate-300 bg-white px-1 text-sm font-semibold text-slate-700\"><span class=\"truncate\">")
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var7))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			var templ_7745c5c3_Var3 string
-			templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.JoinStringErrs(m.Name)
-			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `cmd/web/view/shared.templ`, Line: 38, Col: 230}
-			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var3))
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "\" class=\"flex min-h-11 min-w-0 items-center justify-center rounded-chip border border-line-strong bg-surface px-1 text-sm font-semibold text-ink\"><span class=\"truncate\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "</span></a>")
+			var templ_7745c5c3_Var8 string
+			templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.JoinStringErrs(m.Name)
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `cmd/web/view/shared.templ`, Line: 69, Col: 230}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var8))
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "</span></a>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "</nav>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "</nav>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -107,7 +213,11 @@ func jumpLinks(members []MemberLink) templ.Component {
 
 // inputClass keeps inputs large enough to tap and at 16px text, which stops
 // iOS from zooming in on focus.
-const inputClass = "mt-1 block min-h-12 w-full rounded-lg border border-slate-300 bg-white px-3 text-base"
+const inputClass = "mt-1 block min-h-12 w-full rounded-control border border-line-strong bg-surface px-3.5 text-base text-ink placeholder:text-muted"
+
+// fieldLabelClass is a small label above a field. The field below keeps
+// 4px from it: inputClass's own top margin, or a column gap for a stepper.
+const fieldLabelClass = "block text-sm font-semibold"
 
 func errorList(errs []string) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
@@ -125,36 +235,36 @@ func errorList(errs []string) templ.Component {
 			}()
 		}
 		ctx = templ.InitializeContext(ctx)
-		templ_7745c5c3_Var4 := templ.GetChildren(ctx)
-		if templ_7745c5c3_Var4 == nil {
-			templ_7745c5c3_Var4 = templ.NopComponent
+		templ_7745c5c3_Var9 := templ.GetChildren(ctx)
+		if templ_7745c5c3_Var9 == nil {
+			templ_7745c5c3_Var9 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
 		if len(errs) > 0 {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "<ul role=\"alert\" class=\"mt-4 rounded-lg bg-red-50 p-3 text-red-800\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "<ul role=\"alert\" class=\"mt-3 rounded-control border border-danger-line bg-danger-soft px-4 py-3 text-danger-ink\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			for _, e := range errs {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, "<li>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "<li>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				var templ_7745c5c3_Var5 string
-				templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.JoinStringErrs(e)
+				var templ_7745c5c3_Var10 string
+				templ_7745c5c3_Var10, templ_7745c5c3_Err = templ.JoinStringErrs(e)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `cmd/web/view/shared.templ`, Line: 51, Col: 11}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `cmd/web/view/shared.templ`, Line: 86, Col: 11}
 				}
-				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var5))
+				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var10))
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "</li>")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, "</li>")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "</ul>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, "</ul>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -163,35 +273,240 @@ func errorList(errs []string) templ.Component {
 	})
 }
 
-// quantityClass fits two digits and hides the browser's own spin arrows,
-// since − / + replace them.
-const quantityClass = "min-h-12 w-14 rounded-lg border border-slate-300 bg-white px-1 text-center text-base [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
-
-// stepperClass is the − / + quantity buttons: full 48px tap targets.
-const stepperClass = "size-12 shrink-0 rounded-lg border bg-white text-xl font-semibold"
-
-// Trial colours: red for −, green for +.
-const decreaseClass = stepperClass + " border-red-300 text-red-600"
-
-const increaseClass = stepperClass + " border-green-300 text-green-700"
-
-// filterBaseClass fills its grid cell (w-full) and centers its label rather
-// than sizing to content, so every pill in the grid lines up the same width
-// regardless of label length. min-h-12 keeps the tap target as large as
-// before the grid (spec/constitution.md: tap-target size is function, not
-// polish).
-const filterBaseClass = "flex min-h-12 w-full items-center justify-center rounded-lg border px-3 text-center font-semibold"
-
-// lockable styles a row button: base always, plus active normally or locked
-// while another row is being edited. Locked drops the colour and the
-// underline, so the button no longer looks tappable. No class mentions
-// "disabled", so an unlocked button's markup never contains the word.
-func lockable(base, active, locked string, isLocked bool) string {
-	if isLocked {
-		return base + " " + locked
-	}
-	return base + " " + active
+// stepperField is a number with − and + either side of it, in one bordered
+// box (stepper). The number stays a real input, so the form also works
+// without JavaScript, and its text is 16px, which stops iOS zooming in.
+type stepperField struct {
+	ID          string // the input's id, for a visible <label>; empty leaves it out
+	Name, Value string
+	Label       string // what a screen reader says for the number
+	Less, More  string // what it says for − and +
+	Min         string // the input's min attribute; empty leaves it out
+	Required    bool
+	Low         int // − never goes below this, with or without Min
 }
+
+// stepper draws a stepperField. − and + are type="button", so a tap never
+// submits the form. They count from what is typed, an empty field counting
+// as 0, and neither goes below Low, so a typed -3 and + gives Low, not -2.
+// A basic's fields have no min attribute (the server checks them and
+// explains, 06), so stepDown alone would go below 0.
+func stepper(f stepperField) templ.Component {
+	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
+		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
+		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
+			return templ_7745c5c3_CtxErr
+		}
+		templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templruntime.GetBuffer(templ_7745c5c3_W)
+		if !templ_7745c5c3_IsBuffer {
+			defer func() {
+				templ_7745c5c3_BufErr := templruntime.ReleaseBuffer(templ_7745c5c3_Buffer)
+				if templ_7745c5c3_Err == nil {
+					templ_7745c5c3_Err = templ_7745c5c3_BufErr
+				}
+			}()
+		}
+		ctx = templ.InitializeContext(ctx)
+		templ_7745c5c3_Var11 := templ.GetChildren(ctx)
+		if templ_7745c5c3_Var11 == nil {
+			templ_7745c5c3_Var11 = templ.NopComponent
+		}
+		ctx = templ.ClearChildren(ctx)
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 15, "<div data-low=\"")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		var templ_7745c5c3_Var12 string
+		templ_7745c5c3_Var12, templ_7745c5c3_Err = templ.JoinStringErrs(strconv.Itoa(f.Low))
+		if templ_7745c5c3_Err != nil {
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `cmd/web/view/shared.templ`, Line: 111, Col: 36}
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var12))
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 16, "\" class=\"inline-flex shrink-0 items-stretch overflow-hidden rounded-control border border-line-strong bg-surface\"><button type=\"button\" aria-label=\"")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		var templ_7745c5c3_Var13 string
+		templ_7745c5c3_Var13, templ_7745c5c3_Err = templ.JoinStringErrs(f.Less)
+		if templ_7745c5c3_Err != nil {
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `cmd/web/view/shared.templ`, Line: 112, Col: 43}
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var13))
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 17, "\" onclick=\"const i = this.nextElementSibling; i.value = Math.max(+this.parentElement.dataset.low, (parseInt(i.value, 10) || 0) - 1)\" class=\"inline-flex h-12 w-12 items-center justify-center text-ink\">")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = iconMinus().Render(ctx, templ_7745c5c3_Buffer)
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 18, "</button> <input type=\"number\"")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		if f.ID != "" {
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 19, " id=\"")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			var templ_7745c5c3_Var14 string
+			templ_7745c5c3_Var14, templ_7745c5c3_Err = templ.JoinStringErrs(f.ID)
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `cmd/web/view/shared.templ`, Line: 118, Col: 13}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var14))
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 20, "\"")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 21, " name=\"")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		var templ_7745c5c3_Var15 string
+		templ_7745c5c3_Var15, templ_7745c5c3_Err = templ.JoinStringErrs(f.Name)
+		if templ_7745c5c3_Err != nil {
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `cmd/web/view/shared.templ`, Line: 120, Col: 16}
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var15))
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 22, "\" value=\"")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		var templ_7745c5c3_Var16 string
+		templ_7745c5c3_Var16, templ_7745c5c3_Err = templ.JoinStringErrs(f.Value)
+		if templ_7745c5c3_Err != nil {
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `cmd/web/view/shared.templ`, Line: 121, Col: 18}
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var16))
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 23, "\"")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		if f.Min != "" {
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 24, " min=\"")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			var templ_7745c5c3_Var17 string
+			templ_7745c5c3_Var17, templ_7745c5c3_Err = templ.JoinStringErrs(f.Min)
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `cmd/web/view/shared.templ`, Line: 123, Col: 15}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var17))
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 25, "\"")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 26, " step=\"1\" inputmode=\"numeric\" aria-label=\"")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		var templ_7745c5c3_Var18 string
+		templ_7745c5c3_Var18, templ_7745c5c3_Err = templ.JoinStringErrs(f.Label)
+		if templ_7745c5c3_Err != nil {
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `cmd/web/view/shared.templ`, Line: 127, Col: 23}
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var18))
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 27, "\"")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		if f.Required {
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 28, " required")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 29, " class=\"h-12 w-12 border-x border-line bg-surface text-center text-base font-bold tabular-nums [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none\"> <button type=\"button\" aria-label=\"")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		var templ_7745c5c3_Var19 string
+		templ_7745c5c3_Var19, templ_7745c5c3_Err = templ.JoinStringErrs(f.More)
+		if templ_7745c5c3_Err != nil {
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `cmd/web/view/shared.templ`, Line: 131, Col: 43}
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var19))
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 30, "\" onclick=\"const i = this.previousElementSibling; i.value = Math.max(+this.parentElement.dataset.low, (parseInt(i.value, 10) || 0) + 1)\" class=\"inline-flex h-12 w-12 items-center justify-center text-ink\">")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = iconPlus().Render(ctx, templ_7745c5c3_Buffer)
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 31, "</button></div>")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		return nil
+	})
+}
+
+// rowTapClass is the button covering a row's name and quantity, the tap
+// that opens the row for editing. It reaches the row's left edge, so the
+// whole row up to ✕ answers a tap, and it tints while pressed. Neither
+// this nor removeButtonClass may name a class with "disabled" in it (such
+// as a disabled: variant): tests find a locked row's buttons by that word
+// in their markup, and the lock's look comes from lockedRow instead.
+const rowTapClass = "flex min-h-14 w-full min-w-0 items-center gap-3 py-2 pr-2 pl-4 text-left enabled:active:bg-primary-soft"
+
+// quantityHintClass is the quantity inside rowTapClass: blue with a dotted
+// underline, the hint that the row opens. A plain "1 pc" is muted, so the
+// quantities that differ from one stand out when scanning the list.
+func quantityHintClass(one bool) string {
+	base := "shrink-0 whitespace-nowrap text-[15px] tabular-nums underline decoration-dotted decoration-[1.5px] underline-offset-[5px]"
+	if one {
+		return base + " text-muted"
+	}
+	return base + " text-primary"
+}
+
+// removeButtonClass is ✕ at a row's end: its own 48px zone, the full height
+// of the row, apart from the tap that opens the row.
+const removeButtonClass = "inline-flex min-h-14 w-12 items-center justify-center rounded-control text-danger"
+
+// lockedRow fades a whole row while another row is open. The row's buttons
+// are disabled as well; the fade is what shows it.
+func lockedRow(locked bool) string {
+	if locked {
+		return " opacity-40"
+	}
+	return ""
+}
+
+// editRowClass is an open row: the action colour's tint, with a line of it
+// above and below rather than a rounded box, so the row stays part of the
+// list. Its borders override the list's dividers. A border, not a ring:
+// the edit transition clips rows, and a clip cuts off a ring's shadow.
+const editRowClass = "border-y-2 border-primary bg-primary-soft pt-1.5 pr-4 pb-3.5 pl-4"
 
 // transitionName gives an element its own view-transition-name, so during
 // the edit swap each row, section and add form moves and resizes on its own

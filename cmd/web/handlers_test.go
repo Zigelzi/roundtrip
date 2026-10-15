@@ -31,7 +31,11 @@ func TestTailwindStylesheetServed(t *testing.T) {
 	if len(strings.TrimSpace(body)) == 0 {
 		t.Fatal("stylesheet is empty")
 	}
-	if !strings.Contains(body, "text-3xl") {
-		t.Errorf("stylesheet has no rule for .text-3xl, a class used on the index page")
+	// 09/S1: the colour tokens are built in. bg-primary is on the index
+	// page's New trip button.
+	for _, want := range []string{".bg-primary", "--color-primary"} {
+		if !strings.Contains(body, want) {
+			t.Errorf("stylesheet has no %s, which the index page uses", want)
+		}
 	}
 }
