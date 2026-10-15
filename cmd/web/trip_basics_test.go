@@ -118,14 +118,15 @@ type tripItem struct {
 	status   string
 }
 
-// createTripOf posts the new trip form for a trip of days days and returns
-// the new trip's id, failing unless the app redirects to it.
+// createTripOf posts the new trip form for a trip of days days (sent as
+// days - 1 nights, 13/S3) and returns the new trip's id, failing unless the
+// app redirects to it.
 func createTripOf(t *testing.T, app *application, database *sql.DB, days int) int64 {
 	t.Helper()
 	rec := send(t, app, http.MethodPost, "/trips", url.Values{
 		"destination":    {"Parainen"},
 		"departure_date": {"2026-09-20"},
-		"duration_days":  {strconv.Itoa(days)},
+		"nights":         {strconv.Itoa(days - 1)},
 		"members":        everyone,
 	})
 	if rec.Code != http.StatusSeeOther {
@@ -210,7 +211,8 @@ func TestBasicsSizedToTripLength(t *testing.T) {
 		days                                int
 		p1Underwear, c1Underwear, c2Nappies int
 	}{
-		{1, 2, 3, 6},
+		// The shortest trip is 2 days since milestone 13 (13/R2); it was 1.
+		{2, 3, 5, 12},
 		{3, 4, 7, 18},
 		{7, 8, 15, 42},
 		{14, 15, 29, 84},
@@ -305,7 +307,7 @@ func TestFailedTripCreationLeavesNothing(t *testing.T) {
 	rec := send(t, app, http.MethodPost, "/trips", url.Values{
 		"destination":    {"Parainen"},
 		"departure_date": {"2026-09-20"},
-		"duration_days":  {"3"},
+		"nights":         {"2"},
 		"members":        everyone,
 	})
 

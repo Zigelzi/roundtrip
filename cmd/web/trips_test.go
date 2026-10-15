@@ -60,12 +60,9 @@ func TestCreateTripFormDefaults(t *testing.T) {
 	if strings.Contains(date, "value=") && !strings.Contains(date, `value=""`) {
 		t.Errorf("departure date is prefilled: %s", date)
 	}
-	end := inputTag(t, body, "end_date")
-	if strings.Contains(end, "value=") && !strings.Contains(end, `value=""`) {
-		t.Errorf("return date is prefilled: %s", end)
-	}
-	if duration := inputTag(t, body, "duration_days"); !strings.Contains(duration, `value="3"`) {
-		t.Errorf("duration does not default to 3: %s", duration)
+	// 13/S1: nights replaced the return date and days (2 nights is 3 days).
+	if nights := inputTag(t, body, "nights"); !strings.Contains(nights, `value="2"`) {
+		t.Errorf("nights do not default to 2: %s", nights)
 	}
 }
 
@@ -77,7 +74,7 @@ func TestCreateTrip(t *testing.T) {
 	rec := send(t, app, http.MethodPost, "/trips", url.Values{
 		"destination":    {"Parainen"},
 		"departure_date": {"2026-09-20"},
-		"duration_days":  {"3"},
+		"nights":         {"2"},
 		"members":        everyone,
 	})
 
@@ -109,7 +106,7 @@ func TestCreateTripDepartingToday(t *testing.T) {
 	rec := send(t, app, http.MethodPost, "/trips", url.Values{
 		"destination":    {"Parainen"},
 		"departure_date": {"2026-09-20"},
-		"duration_days":  {"3"},
+		"nights":         {"2"},
 		"members":        everyone,
 	})
 
@@ -127,16 +124,12 @@ func TestCreateTripRejectsInvalidInput(t *testing.T) {
 		name        string
 		destination string
 		departure   string
-		end         string
-		duration    string
 		wantMessage string
 	}{
-		{"empty destination", "  ", "2026-09-25", "", "3", "Enter a destination"},
-		{"no departure date", "Parainen", "", "", "3", "Choose a departure date"},
-		{"departure before today", "Parainen", "2026-09-19", "", "3", "Departure date can't be in the past"},
-		{"return before departure", "Parainen", "2026-09-25", "2026-09-24", "3", "Return date can't be before the departure date"},
-		{"duration below 1", "Parainen", "2026-09-25", "", "0", "Duration must be a whole number of days, at least 1"},
-		{"duration not a whole number", "Parainen", "2026-09-25", "", "2.5", "Duration must be a whole number of days, at least 1"},
+		// The return date and days cases moved to 13/S4 when nights replaced them.
+		{"empty destination", "  ", "2026-09-25", "Enter a destination"},
+		{"no departure date", "Parainen", "", "Choose a departure date"},
+		{"departure before today", "Parainen", "2026-09-19", "Departure date can't be in the past"},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -148,8 +141,7 @@ func TestCreateTripRejectsInvalidInput(t *testing.T) {
 			rec := send(t, app, http.MethodPost, "/trips", url.Values{
 				"destination":    {tt.destination},
 				"departure_date": {tt.departure},
-				"end_date":       {tt.end},
-				"duration_days":  {tt.duration},
+				"nights":         {"2"},
 				"members":        everyone,
 			})
 
@@ -169,47 +161,12 @@ func TestCreateTripRejectsInvalidInput(t *testing.T) {
 			if strings.TrimSpace(tt.destination) != "" && !strings.Contains(inputTag(t, body, "destination"), `value="`+tt.destination+`"`) {
 				t.Errorf("typed destination %q was not kept", tt.destination)
 			}
-			if tt.end != "" && !strings.Contains(inputTag(t, body, "end_date"), `value="`+tt.end+`"`) {
-				t.Errorf("typed return date %q was not kept", tt.end)
-			}
-			if !strings.Contains(inputTag(t, body, "duration_days"), `value="`+tt.duration+`"`) {
-				t.Errorf("typed duration %q was not kept", tt.duration)
+			if !strings.Contains(inputTag(t, body, "nights"), `value="2"`) {
+				t.Errorf("chosen nights were not kept")
 			}
 		})
 	}
 }
 
-// S17: Parent sets the return date instead of the duration.
-func TestCreateTripWithReturnDate(t *testing.T) {
-	tests := []struct{ name, duration string }{
-		{"duration left empty", ""},
-		// Without the in-browser syncing the duration could be stale; the
-		// return date the parent picked decides.
-		{"stale duration", "3"},
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			app, database := newTestApp(t)
-			app.now = fixedNow(t, "2026-09-19T09:00:00Z")
-
-			rec := send(t, app, http.MethodPost, "/trips", url.Values{
-				"destination":    {"Levi"},
-				"departure_date": {"2026-12-20"},
-				"end_date":       {"2026-12-27"},
-				"duration_days":  {tt.duration},
-				"members":        everyone,
-			})
-
-			if rec.Code != http.StatusSeeOther {
-				t.Fatalf("status = %d, want 303", rec.Code)
-			}
-			var days int
-			if err := database.QueryRow("SELECT duration_days FROM trip").Scan(&days); err != nil {
-				t.Fatalf("trip was not saved: %v", err)
-			}
-			if days != 8 {
-				t.Errorf("duration = %d days, want 8 (20.–27.12, departure day included)", days)
-			}
-		})
-	}
-}
+// S17 (return date instead of the duration) was retired in milestone 13:
+// the return date is no longer typed, it follows from the nights (13/S2).

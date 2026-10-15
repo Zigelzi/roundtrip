@@ -13,14 +13,8 @@ import (
 	"github.com/Zigelzi/roundtrip/internal/db"
 )
 
-// dateLayout is how dates travel in forms (<input type="date">) and the database.
-const dateLayout = "2006-01-02"
-
-const defaultDurationDays = "3"
-
-// maxTripDays caps a trip's length, so a typo can't create a trip with
-// hundreds of basics that can't be deleted.
-const maxTripDays = 14
+// dateLayout is how dates travel in forms and the database (view.DateLayout).
+const dateLayout = view.DateLayout
 
 // choosePerson is the message for a trip with nobody going.
 const choosePerson = "Choose at least one person who is going."
@@ -31,7 +25,7 @@ func (app *application) handleNewTrip(w http.ResponseWriter, r *http.Request) {
 		app.serverError(w, "list people", err)
 		return
 	}
-	form := view.TripForm{DurationDays: defaultDurationDays, People: tripPeople(people, nil)}
+	form := view.TripForm{People: tripPeople(people, nil)} // the slider starts at its default
 	for i := range form.People {
 		form.People[i].Ticked = true // everyone goes unless the parent unticks them
 	}
@@ -82,8 +76,7 @@ func (app *application) handleCreateTrip(w http.ResponseWriter, r *http.Request)
 	form := view.TripForm{
 		Destination:   strings.TrimSpace(r.PostFormValue("destination")),
 		DepartureDate: r.PostFormValue("departure_date"),
-		EndDate:       r.PostFormValue("end_date"),
-		DurationDays:  strings.TrimSpace(r.PostFormValue("duration_days")),
+		Nights:        strings.TrimSpace(r.PostFormValue("nights")),
 	}
 	people, err := app.queries.ListPeople(r.Context())
 	if err != nil {
@@ -169,32 +162,17 @@ func validateTrip(form view.TripForm, today time.Time) (db.CreateTripParams, []s
 	case departure.Before(today):
 		errs = append(errs, "Departure date can't be in the past.")
 	}
-	departureOK := err == nil
 
-	// A return date, when given, decides the duration: it's what the parent
-	// picked, while the duration field may be stale if the in-browser syncing
-	// didn't run. The departure day counts, so 20.–27.12 is 8 days.
-	var days int
-	if form.EndDate != "" {
-		end, err := time.Parse(dateLayout, form.EndDate)
-		switch {
-		case err != nil:
-			errs = append(errs, "Choose a valid return date.")
-		case departureOK && end.Before(departure):
-			errs = append(errs, "Return date can't be before the departure date.")
-		case departureOK:
-			days = int(end.Sub(departure).Hours()/24) + 1
-		}
-	} else if days, err = strconv.Atoi(form.DurationDays); err != nil || days < 1 {
-		errs = append(errs, "Duration must be a whole number of days, at least 1.")
-	}
-	if days > maxTripDays {
-		errs = append(errs, fmt.Sprintf("A trip can be at most %d days.", maxTripDays))
+	// Trips are stored in days and the departure day counts, so 7 nights,
+	// 20.–27.12, is 8 days.
+	nights, err := strconv.Atoi(form.Nights)
+	if err != nil || nights < 1 || nights > view.MaxTripNights {
+		errs = append(errs, fmt.Sprintf("Choose 1 to %d nights.", view.MaxTripNights))
 	}
 	return db.CreateTripParams{
 		Destination:   form.Destination,
 		DepartureDate: form.DepartureDate,
-		DurationDays:  int64(days),
+		DurationDays:  int64(nights + 1),
 	}, errs
 }
 

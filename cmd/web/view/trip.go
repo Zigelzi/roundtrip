@@ -2,6 +2,7 @@ package view
 
 import (
 	"fmt"
+	"strconv"
 	"time"
 )
 
@@ -13,15 +14,67 @@ type Trip struct {
 	DurationDays int64
 }
 
+// MaxTripNights caps a trip's length at 14 days, so a typo can't create a
+// trip with hundreds of basics that can't be deleted (04/S11). It is the end
+// of the new trip form's slider, which starts at 1: a trip is at least 2
+// days (13/R2).
+const MaxTripNights = 13
+
+// defaultNights is where the slider starts: 3 days, as the form started
+// before nights replaced days (13/S1).
+const defaultNights = 2
+
+// DateLayout is how dates travel in forms (<input type="date">) and the
+// database.
+const DateLayout = "2006-01-02"
+
+// returnHint holds the return date's place on the new trip form until a
+// departure is chosen, so the line does not jump in later (13/Q2).
+const returnHint = "Pick a departure date to see the return date."
+
 // TripForm holds the create-trip form's values as typed, so they can be
 // shown again next to validation errors.
 type TripForm struct {
 	Destination   string
 	DepartureDate string
-	EndDate       string
-	DurationDays  string
+	Nights        string
 	People        []TripPerson
 	Errors        []string
+}
+
+// SliderNights is where the slider sits: the nights sent, kept within 1 to
+// MaxTripNights, or defaultNights when there are none (a new form) or they
+// are not a number. Only a stale or forged form sends a value outside the
+// slider; drawn as sent, the browser would move the slider into range and
+// leave the label and return date disagreeing with it.
+func (f TripForm) SliderNights() int {
+	n, err := strconv.Atoi(f.Nights)
+	if err != nil {
+		return defaultNights
+	}
+	return min(max(n, 1), MaxTripNights)
+}
+
+// NightsLabel is the slider's value in words, "7 nights", shown beside it and
+// read out by screen readers (13/S6).
+func (f TripForm) NightsLabel() string {
+	if n := f.SliderNights(); n != 1 {
+		return fmt.Sprintf("%d nights", n)
+	}
+	return "1 night"
+}
+
+// ReturnDate is the day the trip comes back for the slider's nights, with its
+// weekday so it can be checked against the booking (13/Q1): "Sun 27.12.2026".
+// It is "" until a departure is known. A trip of n nights is n + 1 days, so
+// this is the last day of FormatDateRange.
+func (f TripForm) ReturnDate() string {
+	departure, err := time.Parse(DateLayout, f.DepartureDate)
+	if err != nil {
+		return ""
+	}
+	end := departure.AddDate(0, 0, f.SliderNights())
+	return end.Format("Mon ") + FormatDate(end)
 }
 
 // TripPerson is one tick box on the create-trip form: a person, and whether

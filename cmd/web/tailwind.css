@@ -49,6 +49,54 @@ body:has(input:focus, [data-editing]) #packing-bar {
   display: none;
 }
 
+/* The new trip form's nights slider (13/S6): a full-width track with a 28px
+   thumb in the action colour, big enough to catch with a thumb. The native
+   thumb is too small on a phone, and each engine styles it with its own
+   selector, so WebKit/Blink and Firefox each get a rule. The 32px input
+   height is the thumb plus room for the focus ring. */
+.nights-slider {
+  appearance: none;
+  display: block;
+  width: 100%;
+  height: 2rem;
+  background: transparent;
+  cursor: pointer;
+}
+.nights-slider::-webkit-slider-runnable-track {
+  height: 6px;
+  border-radius: 3px;
+  background: var(--color-line-strong);
+}
+.nights-slider::-moz-range-track {
+  height: 6px;
+  border-radius: 3px;
+  background: var(--color-line-strong);
+}
+.nights-slider::-webkit-slider-thumb {
+  appearance: none;
+  width: 28px;
+  height: 28px;
+  margin-top: -11px; /* centre on the 6px track */
+  border: 3px solid var(--color-surface);
+  border-radius: 50%;
+  background: var(--color-primary);
+  box-shadow: 0 0 0 1px var(--color-primary);
+}
+.nights-slider::-moz-range-thumb {
+  width: 28px;
+  height: 28px;
+  box-sizing: border-box;
+  border: 3px solid var(--color-surface);
+  border-radius: 50%;
+  background: var(--color-primary);
+  box-shadow: 0 0 0 1px var(--color-primary);
+}
+.nights-slider:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+  border-radius: var(--radius-control);
+}
+
 /* Opening, saving and cancelling an item edit swap the lists with a view
    transition (hx-swap transition:true). Each row, section and add form has
    its own view-transition-name (see transitionName in view/shared.templ), so

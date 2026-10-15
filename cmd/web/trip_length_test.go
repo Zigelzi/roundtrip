@@ -9,19 +9,17 @@ import (
 
 // Milestone 04 (spec/milestones/04-trip-basics.md), slice 2.
 
-// S11: A trip is at most 14 days.
+// S11: A trip is at most 14 days. Since milestone 13 the form takes nights,
+// so 14 days is 13 nights, and the message is 13/S4's.
 func TestTripIsAtMostFourteenDays(t *testing.T) {
 	tests := []struct {
 		name     string
-		end      string
-		duration string
+		nights   string
 		wantDays int
 		created  bool
 	}{
-		{"14 days as a number of days", "", "14", 14, true},
-		{"14 days as a return date", "2027-06-14", "", 14, true},
-		{"15 days as a number of days", "", "15", 0, false},
-		{"15 days as a return date", "2027-06-15", "", 0, false},
+		{"14 days as 13 nights", "13", 14, true},
+		{"15 days as 14 nights", "14", 0, false},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -31,8 +29,7 @@ func TestTripIsAtMostFourteenDays(t *testing.T) {
 			rec := send(t, app, http.MethodPost, "/trips", url.Values{
 				"destination":    {"Parainen"},
 				"departure_date": {"2027-06-01"},
-				"end_date":       {tt.end},
-				"duration_days":  {tt.duration},
+				"nights":         {tt.nights},
 				"members":        everyone,
 			})
 
@@ -60,8 +57,8 @@ func TestTripIsAtMostFourteenDays(t *testing.T) {
 				t.Errorf("%d items saved, want 0", n)
 			}
 			body := rec.Body.String()
-			if !strings.Contains(body, "A trip can be at most 14 days.") {
-				t.Errorf("response does not explain the 14-day limit")
+			if !strings.Contains(body, "Choose 1 to 13 nights.") {
+				t.Errorf("response does not explain the 13-night limit")
 			}
 			if !strings.Contains(inputTag(t, body, "departure_date"), `value="2027-06-01"`) {
 				t.Errorf("typed departure date was not kept")

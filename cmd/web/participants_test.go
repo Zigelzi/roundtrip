@@ -20,14 +20,14 @@ var everyone = []string{"1", "2", "3", "4"}
 
 const choosePersonMessage = "Choose at least one person who is going."
 
-// createTripFor posts a valid 3-day trip with the given boxes ticked (nil
+// createTripFor posts a valid 3-day trip (2 nights) with the given boxes ticked (nil
 // means the form carries no member field at all).
 func createTripFor(t *testing.T, app *application, members []string) *httptest.ResponseRecorder {
 	t.Helper()
 	form := url.Values{
 		"destination":    {"Parainen"},
 		"departure_date": {"2026-09-20"},
-		"duration_days":  {"3"},
+		"nights":         {"2"},
 	}
 	if members != nil {
 		form["members"] = members
@@ -235,8 +235,8 @@ func TestTripNeedsAPerson(t *testing.T) {
 			if !strings.Contains(inputTag(t, body, "departure_date"), `value="2026-09-20"`) {
 				t.Errorf("departure date was not kept")
 			}
-			if !strings.Contains(inputTag(t, body, "duration_days"), `value="3"`) {
-				t.Errorf("days were not kept")
+			if !strings.Contains(inputTag(t, body, "nights"), `value="2"`) {
+				t.Errorf("nights were not kept")
 			}
 		})
 	}
@@ -249,7 +249,7 @@ func TestPersonMessageComesLast(t *testing.T) {
 	rec := send(t, app, http.MethodPost, "/trips", url.Values{
 		"destination":    {""},
 		"departure_date": {"2026-09-20"},
-		"duration_days":  {"3"},
+		"nights":         {"2"},
 	})
 
 	body := rec.Body.String()
@@ -266,7 +266,7 @@ func TestTicksSurviveARefusedForm(t *testing.T) {
 	rec := send(t, app, http.MethodPost, "/trips", url.Values{
 		"destination":    {""},
 		"departure_date": {"2026-09-20"},
-		"duration_days":  {"3"},
+		"nights":         {"2"},
 		"members":        {"2", "3"},
 	})
 

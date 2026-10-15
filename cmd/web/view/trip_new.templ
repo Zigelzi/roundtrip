@@ -20,20 +20,34 @@ templ NewTrip(form TripForm, today string) {
 				<span class={ fieldLabelClass }>Destination</span>
 				<input type="text" name="destination" value={ form.Destination } required class={ inputClass }/>
 			</label>
-			<div class="grid grid-cols-2 gap-3">
-				<label class="block min-w-0">
-					<span class={ fieldLabelClass }>Departure</span>
-					<input type="date" name="departure_date" value={ form.DepartureDate } min={ today } required class={ inputClass }/>
-				</label>
-				<label class="block min-w-0">
-					<span class={ fieldLabelClass }>Return</span>
-					<input type="date" name="end_date" value={ form.EndDate } min={ today } class={ inputClass }/>
-				</label>
-			</div>
-			<label class="block w-28">
-				<span class={ fieldLabelClass }>Days</span>
-				<input type="number" name="duration_days" value={ form.DurationDays } min="1" step="1" inputmode="numeric" class={ inputClass }/>
+			<label class="block">
+				<span class={ fieldLabelClass }>Departure</span>
+				<input type="date" name="departure_date" value={ form.DepartureDate } min={ today } required class={ inputClass }/>
 			</label>
+			<div>
+				<div class="flex items-baseline justify-between gap-3">
+					<label for="nights" class={ fieldLabelClass }>Nights</label>
+					<span id="nights-value" class="font-semibold" aria-hidden="true">{ form.NightsLabel() }</span>
+				</div>
+				<input
+					id="nights"
+					type="range"
+					name="nights"
+					min="1"
+					max={ strconv.Itoa(MaxTripNights) }
+					step="1"
+					value={ strconv.Itoa(form.SliderNights()) }
+					aria-valuetext={ form.NightsLabel() }
+					class="nights-slider mt-2"
+				/>
+				<p id="return-date" data-hint={ returnHint } class="mt-1 text-sm text-muted">
+					if form.ReturnDate() != "" {
+						Return { form.ReturnDate() }
+					} else {
+						{ returnHint }
+					}
+				</p>
+			</div>
 			<fieldset>
 				<legend class={ fieldLabelClass }>Who is going</legend>
 				<div class="mt-1 grid grid-cols-2 gap-2">
@@ -50,7 +64,7 @@ templ NewTrip(form TripForm, today string) {
 					}
 				</div>
 			</fieldset>
-			@syncTripDates()
+			@syncNights()
 			<button type="submit" class={ primaryButtonClass + " w-full disabled:opacity-50" }>Create trip</button>
 		</form>
 	}
@@ -70,35 +84,41 @@ const personToggleClass = "flex min-h-14 w-full items-center gap-3 rounded-contr
 // The tick is drawn in the text colour, transparent until ticked.
 const tickBoxClass = "flex size-6 shrink-0 items-center justify-center rounded-box border-2 border-line-strong bg-surface text-transparent group-has-[:checked]:border-primary group-has-[:checked]:bg-primary group-has-[:checked]:text-white"
 
-// syncTripDates keeps duration and return date in step while typing:
-// changing the days or the departure moves the return date; changing the
-// return date recalculates the days. Dates are handled as UTC midnight, so
-// there are no daylight-saving surprises in the day arithmetic. It also
-// disables Create once the form is submitted.
-templ syncTripDates() {
+// syncNights keeps the nights label and the return date in step with the
+// slider and the departure while the parent moves them (13/S2). The server
+// draws both on load; this redraws them from the fields' actual values, which
+// also covers a page restored from the browser's cache. Dates are handled as
+// UTC midnight, so there are no daylight-saving surprises in the day
+// arithmetic, and are written as the server writes them ("Sun 27.12.2026",
+// ReturnDate in trip.go). It also disables Create once the form is submitted.
+templ syncNights() {
 	<script>
 		(() => {
 			const form = document.currentScript.closest("form");
 			const departure = form.elements["departure_date"];
-			const end = form.elements["end_date"];
-			const days = form.elements["duration_days"];
+			const nights = form.elements["nights"];
+			const label = form.querySelector("#nights-value");
+			const returns = form.querySelector("#return-date");
 			const dayMs = 24 * 60 * 60 * 1000;
+			const weekdays = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
-			function updateEnd() {
+			function update() {
+				const n = parseInt(nights.value, 10);
+				const words = n === 1 ? "1 night" : n + " nights";
+				label.textContent = words;
+				nights.setAttribute("aria-valuetext", words);
 				const d = Date.parse(departure.value);
-				const n = parseInt(days.value, 10);
-				if (departure.value) end.min = departure.value;
-				if (!isNaN(d) && n >= 1) end.value = new Date(d + (n - 1) * dayMs).toISOString().slice(0, 10);
-			}
-			function updateDays() {
-				const d = Date.parse(departure.value);
-				const e = Date.parse(end.value);
-				if (!isNaN(d) && !isNaN(e) && e >= d) days.value = Math.round((e - d) / dayMs) + 1;
+				if (isNaN(d)) {
+					returns.textContent = returns.dataset.hint;
+					return;
+				}
+				const r = new Date(d + n * dayMs);
+				returns.textContent = "Return " + weekdays[r.getUTCDay()] + " " + r.getUTCDate() + "." + (r.getUTCMonth() + 1) + "." + r.getUTCFullYear();
 			}
 
-			departure.addEventListener("input", updateEnd);
-			days.addEventListener("input", updateEnd);
-			end.addEventListener("input", updateDays);
+			departure.addEventListener("input", update);
+			nights.addEventListener("input", update);
+			update();
 
 			// One trip per tap: a quick double tap would otherwise post twice.
 			// Re-enable when the browser restores this page from its cache.
@@ -106,7 +126,12 @@ templ syncTripDates() {
 			// button below it has been parsed.
 			const submit = () => form.querySelector("button[type=submit]");
 			form.addEventListener("submit", () => { submit().disabled = true; });
-			window.addEventListener("pageshow", (e) => { if (e.persisted) submit().disabled = false; });
+			window.addEventListener("pageshow", (e) => {
+				if (e.persisted) {
+					submit().disabled = false;
+					update();
+				}
+			});
 		})();
 	</script>
 }

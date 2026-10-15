@@ -194,7 +194,8 @@ func TestChangeFixedBasicQuantity(t *testing.T) {
 	}
 
 	assertBasicShown(t, app, database, 1, "Shoes", catalogueRow{fixed: 3})
-	for _, days := range []int{1, 14} {
+	// The shortest and longest trips: 2 days since milestone 13 (13/R2), and 14.
+	for _, days := range []int{2, 14} {
 		if got := quantityOf(t, database, createTripOf(t, app, database, days), 1, "Shoes"); got != 3 {
 			t.Errorf("new %d-day trip has %d shoes, want 3", days, got)
 		}
