@@ -12,8 +12,9 @@ import (
 type PackPageData struct {
 	Trip    Trip
 	Members []PackMember
-	// Packed and Total drive the progress line. They count what is shown:
-	// narrowed to one member, they are that member's numbers.
+	// Packed and Total count what is shown: narrowed to one member, they are
+	// that member's numbers. They drive the "member is packed" note; the
+	// header line and the trip bar count the whole trip instead (10/Q1).
 	Packed int
 	Total  int
 	// TripTotal counts the whole trip regardless of narrowing, so that
@@ -25,6 +26,9 @@ type PackPageData struct {
 	// trip" line, so finishing a narrowed bucket does not read as the whole
 	// trip being done when it is not.
 	TripPacked int
+	// TripPrepared counts the prepared items of the whole trip, for the amber
+	// part of the trip bar (10/S1). Like TripPacked, it ignores narrowing.
+	TripPrepared int
 	// Filter is the family member the page is narrowed to, 0 for everyone.
 	Filter int64
 	// FamilyBucketID is the family_member row that means "the whole family"
@@ -93,7 +97,24 @@ type PackMember struct {
 // nothing planned and a member who is finished both show an empty to-pack
 // list, and they must not read the same (02/S9).
 func (m PackMember) HasItems() bool {
-	return len(m.ToPack)+len(m.Packed) > 0
+	return m.Total() > 0
+}
+
+// Total is how many items the member has on the trip, packed or not.
+func (m PackMember) Total() int {
+	return len(m.ToPack) + len(m.Packed)
+}
+
+// PreparedCount is how many of the member's items are prepared, for the
+// amber part of their bar (10/Q2).
+func (m PackMember) PreparedCount() int {
+	n := 0
+	for _, it := range m.ToPack {
+		if it.Prepared {
+			n++
+		}
+	}
+	return n
 }
 
 // PackURL is a trip's packing page.
@@ -149,6 +170,12 @@ func packedSummaryID(memberID int64) string {
 	return fmt.Sprintf("packed-summary-member-%d", memberID)
 }
 
+// packHeadID is one member's heading and bar, swapped on every tap of
+// theirs (10/S5).
+func packHeadID(memberID int64) string {
+	return fmt.Sprintf("pack-head-member-%d", memberID)
+}
+
 func packedListID(memberID int64) string {
 	return fmt.Sprintf("packed-list-member-%d", memberID)
 }
@@ -184,11 +211,28 @@ func packedShown(m PackMember) string {
 }
 
 // packMeta is the packing page's line under its title: "Packing · 7 of 12
-// packed", or just "Packing" while the trip has nothing on it. Narrowed to
-// one member, the numbers are that member's.
+// packed", or just "Packing" while the trip has nothing on it. It counts the
+// whole trip, also when the page is narrowed to one member, so it always
+// agrees with the trip bar beside it (10/Q1).
 func packMeta(p PackPageData) string {
 	if p.TripTotal == 0 {
 		return "Packing"
 	}
-	return "Packing · " + FormatProgress(p.Packed, p.Total)
+	return "Packing · " + FormatProgress(p.TripPacked, p.TripTotal)
+}
+
+// isDone says a count is finished: everything packed, and something to pack.
+// An empty 0/0 is not done (10/R5), so it gets no green and no tick.
+func isDone(packed, total int) bool {
+	return total > 0 && packed == total
+}
+
+// barWidth is the inline style of one bar segment: n of total as a
+// percentage of the bar. The width is inline because it is data, not a
+// design token, so no Tailwind class could name it (10/S1).
+func barWidth(n, total int) templ.SafeCSS {
+	if total == 0 {
+		return templ.SafeCSS("width: 0%")
+	}
+	return templ.SafeCSS(fmt.Sprintf("width: %.1f%%", float64(n)*100/float64(total)))
 }

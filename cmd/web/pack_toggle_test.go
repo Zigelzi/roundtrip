@@ -361,7 +361,7 @@ func countMoved(t *testing.T, database *sql.DB) int {
 func packFragment(t *testing.T, body, id string) string {
 	t.Helper()
 	var starts []int
-	for _, prefix := range []string{"topack-member-", "packed-member-", "packed-summary-member-", "packed-list-member-", "pack-progress"} {
+	for _, prefix := range []string{"topack-member-", "packed-member-", "packed-summary-member-", "packed-list-member-", "pack-progress", "pack-trip-bar", "pack-head-member-", "pack-filter"} {
 		for off := 0; ; {
 			i := strings.Index(body[off:], `id="`+prefix)
 			if i < 0 {

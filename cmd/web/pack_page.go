@@ -186,6 +186,7 @@ func (app *application) packPage(ctx context.Context, tripID, filter int64) (vie
 		}
 		page.TripTotal += len(section.Packed) + len(section.ToPack)
 		page.TripPacked += len(section.Packed)
+		page.TripPrepared += section.PreparedCount()
 		page.Members = append(page.Members, section)
 	}
 	// A filter naming nobody (a stale or hand-edited link) would otherwise
@@ -193,8 +194,9 @@ func (app *application) packPage(ctx context.Context, tripID, filter int64) (vie
 	if page.Filter != 0 && packMemberIndex(page.Members, page.Filter) < 0 {
 		page.Filter = 0
 	}
-	// The progress counts what is on screen: narrowed to one member, it is
-	// that member's own progress (02/S5).
+	// Packed and Total count what is on screen: narrowed to one member, they
+	// are that member's. Only the "is packed" note uses them; the header and
+	// the trip bar count the whole trip (10/Q1).
 	for _, m := range page.Shown() {
 		page.Packed += len(m.Packed)
 		page.Total += len(m.Packed) + len(m.ToPack)

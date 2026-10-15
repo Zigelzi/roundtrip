@@ -21,6 +21,9 @@
   --color-line-strong: #B8C2BC;
   --color-primary: #1C3A5E;
   --color-primary-soft: #E8EEF6;
+  /* Secondary text on a solid primary fill, such as the count on the
+     packing filter pill being viewed. */
+  --color-primary-pale: #D7E1EE;
   --color-prepared: #A65508;
   --color-prepared-soft: #FFF2E0;
   --color-prepared-line: #F1D9B8;

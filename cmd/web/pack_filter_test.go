@@ -29,8 +29,10 @@ func TestPackPageNarrowedToOneMember(t *testing.T) {
 	if strings.Contains(body, "Raincoat") {
 		t.Errorf("another member's items are still on the page")
 	}
-	if !strings.Contains(body, "0 of 2 packed") {
-		t.Errorf("progress counts more than the chosen member's items")
+	// 10/S3: the header counts the whole trip; the person's own count is
+	// in their heading.
+	if heading := memberHeading(t, memberSection(t, body, familyMembers[0])); !strings.Contains(heading, "0 of 2 packed") {
+		t.Errorf("the chosen member's heading does not count only their items:\n%s", heading)
 	}
 	if want := fmt.Sprintf(`href="%s"`, packURLFor(tripID)); !strings.Contains(body, want) {
 		t.Errorf("no way back to seeing every member (%s)", want)
@@ -57,8 +59,12 @@ func TestPackingWhileNarrowedStaysNarrowed(t *testing.T) {
 
 	body := sendHTMX(t, app, action, nil).Body.String()
 
-	if progress := packFragment(t, body, "pack-progress"); !strings.Contains(progress, "1 of 2 packed") {
-		t.Errorf("after a tap the progress is no longer narrowed:\n%s", progress)
+	// 10/S3: the header counts the whole trip, the heading the person.
+	if progress := packFragment(t, body, "pack-progress"); !strings.Contains(progress, "1 of 3 packed") {
+		t.Errorf("after a tap the header does not count the whole trip:\n%s", progress)
+	}
+	if head := packFragment(t, body, packHeadID(first)); !strings.Contains(head, "1 of 2 packed") {
+		t.Errorf("after a tap the member's heading does not count their items:\n%s", head)
 	}
 	if strings.Contains(body, "Raincoat") {
 		t.Errorf("after a tap another member's items appeared:\n%s", body)

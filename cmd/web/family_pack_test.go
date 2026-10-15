@@ -145,8 +145,10 @@ func TestPackPageNarrowedToFamily(t *testing.T) {
 	if strings.Contains(body, "Toothbrush") {
 		t.Errorf("a person's items are still on the page")
 	}
-	if !strings.Contains(body, "0 of 2 packed") {
-		t.Errorf("progress counts more than the family's items:\n%s", body)
+	// 10/S3: the header counts the whole trip, the heading the family's
+	// own items.
+	if heading := memberHeading(t, memberSection(t, body, "Family")); !strings.Contains(heading, "0 of 2 packed") {
+		t.Errorf("the Family heading does not count only the family's items:\n%s", heading)
 	}
 }
 

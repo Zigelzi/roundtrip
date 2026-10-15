@@ -18,6 +18,7 @@ templ PackPage(page PackPageData) {
 					@PackProgress(page, false)
 				</div>
 			</div>
+			@PackTripBar(page, false)
 		</header>
 		if page.TripTotal == 0 {
 			<div class={ sectionClass + " mt-2 px-4 pt-4 pb-2" }>
@@ -28,7 +29,7 @@ templ PackPage(page PackPageData) {
 				</a>
 			</div>
 		} else {
-			@filterNav(page)
+			@FilterNav(page, false)
 			<div class="mt-2 space-y-2">
 				for _, m := range page.Shown() {
 					@packMemberSection(page, m)
@@ -62,6 +63,34 @@ templ PackProgress(page PackPageData, oob bool) {
 	</div>
 }
 
+// PackTripBar is the thin bar along the bottom of the header: how much of
+// the whole trip is packed (green) and prepared (amber), the rest grey
+// (10/S1). It counts the whole trip even when the page is narrowed (10/Q1).
+// It is decoration for the eye; the line beside it carries the numbers, so it
+// is hidden from screen readers. It is swapped on every tap, and with htmx
+// settling off app-wide it simply jumps to its new width (10/Out 1). A trip
+// with nothing on it shows no bar, but the element is always there, so a tap
+// whose reply finds the trip emptied (the other parent removed its last item)
+// can clear a bar already on the page.
+templ PackTripBar(page PackPageData, oob bool) {
+	if page.TripTotal > 0 {
+		<div id="pack-trip-bar" aria-hidden="true" { oobAttrs(oob)... } class="flex h-1 w-full bg-line">
+			@barSegments(page.TripPacked, page.TripPrepared, page.TripTotal)
+		</div>
+	} else {
+		<div id="pack-trip-bar" aria-hidden="true" { oobAttrs(oob)... }></div>
+	}
+}
+
+// barSegments is what the trip bar and each person's bar share: packed
+// (green) from the left, then prepared (amber), as shares of total. Both bars
+// show prepared, so a bar means the same thing wherever it is (10/Q2). The
+// rest is the bar's own grey background.
+templ barSegments(packed, prepared, total int) {
+	<div data-bar="packed" class="h-full bg-packed" style={ barWidth(packed, total) }></div>
+	<div data-bar="prepared" class="h-full bg-prepared" style={ barWidth(prepared, total) }></div>
+}
+
 // doneNote is a short note in the packed colour with a tick, for something
 // finished: the whole trip, one person, or one person's list.
 templ doneNote() {
@@ -82,42 +111,92 @@ templ doneNote() {
 // horizontal scrolling, which would push Family off-screen on first paint
 // (the reason it is ordered second in FilterOrder, not last). It is a white
 // band under the top bar, not part of it, so it scrolls away with the list.
-templ filterNav(page PackPageData) {
-	<nav class="-mx-4 grid grid-cols-3 gap-2 bg-surface px-4 py-2">
-		@filterLink(PackURL(page.Trip.ID), "Everyone", page.Filter == 0)
+// Each pill counts what its view holds, packed out of total, so a parent can
+// pick whose things to pack next without opening each one (10/S6). The
+// counts change with every tap, so the row is swapped with each reply
+// (10/S7); it is a handful of links, and the reply keeps the page's
+// narrowing, so the current pill stays marked.
+templ FilterNav(page PackPageData, oob bool) {
+	<nav id="pack-filter" { oobAttrs(oob)... } class="-mx-4 grid grid-cols-3 gap-2 bg-surface px-4 py-2">
+		@filterLink(PackURL(page.Trip.ID), "Everyone", page.Filter == 0, page.TripPacked, page.TripTotal)
 		for _, m := range page.FilterOrder() {
-			@filterLink(packMemberURL(page.Trip.ID, m.ID), m.Name, page.Filter == m.ID)
+			@filterLink(packMemberURL(page.Trip.ID, m.ID), m.Name, page.Filter == m.ID, len(m.Packed), m.Total())
 		}
 	</nav>
 }
 
 // filterLink marks the one being viewed in solid blue, so it is obvious
 // whose things are on screen. aria-current carries that to a screen reader
-// as well.
-templ filterLink(url, label string, active bool) {
+// as well. A pill with nothing in it (0/0) is dimmed, so the row also shows
+// who is coming on the trip; it stays a link, and the one being viewed is
+// never dimmed (10/S6). It sinks into the page instead: the canvas grey as
+// its fill, no visible border, muted text (5.4:1). Opacity or a fainter text
+// would read as dimmer but take the text below a readable contrast.
+templ filterLink(url, label string, active bool, packed, total int) {
 	if active {
-		<a href={ templ.SafeURL(url) } aria-current="page" class={ filterPillClass + " border-primary bg-primary text-white" }><span class="truncate">{ label }</span></a>
+		<a href={ templ.SafeURL(url) } aria-current="page" class={ filterPillClass + " border-primary bg-primary text-white" }>
+			<span class="max-w-full truncate">{ label }</span>
+			@pillCount(packed, total, "font-medium text-primary-pale")
+		</a>
 	} else {
-		<a href={ templ.SafeURL(url) } class={ filterPillClass + " border-line-strong bg-surface text-ink" }><span class="truncate">{ label }</span></a>
+		<a href={ templ.SafeURL(url) } class={ filterPillClass, templ.KV("border-line-strong bg-surface text-ink", total > 0), templ.KV("border-canvas bg-canvas text-muted", total == 0) }>
+			<span class="max-w-full truncate">{ label }</span>
+			if isDone(packed, total) {
+				@pillCount(packed, total, "font-semibold text-packed")
+			} else {
+				@pillCount(packed, total, "font-medium text-muted")
+			}
+		</a>
 	}
 }
 
-// filterPillClass fills its grid cell and centres its label, so every pill
-// lines up the same width whatever the label's length.
-const filterPillClass = "flex min-h-14 min-w-0 items-center justify-center rounded-control border px-2 text-center font-semibold"
+// pillCount is a pill's "9/16" under its name. The short form is for the
+// eye; a screen reader hears "9 of 16 packed" instead of "9 slash 16"
+// (10/R4). A finished count (not an empty 0/0, 10/R5) has a tick before it,
+// so done is not told by colour alone. On the active pill the count stays
+// pale on the blue, as the canvas has it, since green on blue would not read.
+templ pillCount(packed, total int, class string) {
+	<span aria-hidden="true" class={ "inline-flex items-center gap-0.5 text-sm tabular-nums " + class }>
+		if isDone(packed, total) {
+			@iconTick("size-3.5 stroke-3")
+		}
+		{ FormatCount(packed) }/{ FormatCount(total) }</span>
+	<span class="sr-only">{ FormatProgress(packed, total) }</span>
+}
+
+// filterPillClass fills its grid cell and stacks the name over the count,
+// centred, so every pill lines up the same width whatever the label's length.
+const filterPillClass = "flex min-h-14 min-w-0 flex-col items-center justify-center rounded-control border px-2 text-center text-[15px] leading-5 font-semibold"
 
 // packMemberSection is one member's things to pack and their packed part.
-// The heading is as on the trip page: the name, and how many items the
-// member has, which packing never changes, so it is not swapped.
 templ packMemberSection(page PackPageData, m PackMember) {
 	<section data-member={ m.Name } class={ sectionClass }>
-		<h2 class="flex items-baseline justify-between gap-3 px-4 pt-4 pb-2.5 text-lg font-bold">
-			{ m.Name }
-			<span class="text-sm font-normal text-muted tabular-nums">{ FormatItemCount(len(m.ToPack) + len(m.Packed)) }</span>
-		</h2>
+		@PackMemberHead(m, false)
 		@PackMemberList(page, m)
 		@PackedPart(page, m, false)
 	</section>
+}
+
+// PackMemberHead is a member's heading and their bar: the name, how much of
+// their list is packed ("1 of 4 packed", 10/S4), and the same green and amber
+// bar as the trip's, under the heading rather than in it, since tests and
+// screen readers take the <h2> as the heading. A tap swaps it for the member
+// whose item moved, and only theirs (10/S5). A member with nothing planned
+// shows no count and no bar: their list already says "Nothing planned."
+templ PackMemberHead(m PackMember, oob bool) {
+	<div id={ packHeadID(m.ID) } { oobAttrs(oob)... } class="px-4 pt-4 pb-3">
+		<h2 class="flex items-baseline justify-between gap-3 text-lg font-bold">
+			{ m.Name }
+			if m.HasItems() {
+				<span class="text-sm font-normal text-muted tabular-nums">{ FormatProgress(len(m.Packed), m.Total()) }</span>
+			}
+		</h2>
+		if m.HasItems() {
+			<div aria-hidden="true" class="mt-2.5 flex h-1.5 overflow-hidden rounded-[3px] bg-line">
+				@barSegments(len(m.Packed), m.PreparedCount(), m.Total())
+			</div>
+		}
+	</div>
 }
 
 // PackMemberList is what one member still has to pack, the part a tap
@@ -262,7 +341,10 @@ templ PackChanged(page PackPageData, m PackMember, wholePart bool) {
 		@PackedSummary(page, m, true)
 		@PackedList(page, m, true)
 	}
+	@PackMemberHead(m, true)
 	@PackProgress(page, true)
+	@PackTripBar(page, true)
+	@FilterNav(page, true)
 }
 
 // toPackRowClass and packedRowClass are a row's tap: its whole width up to
