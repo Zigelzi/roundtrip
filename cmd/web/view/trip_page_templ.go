@@ -205,7 +205,7 @@ func TripPage(page TripPageData) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, " <script>\n\t\t\twindow.addEventListener(\"pageshow\", (e) => { if (e.persisted) location.reload(); });\n\t\t</script>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, " <script>\n\t\t\twindow.addEventListener(\"pageshow\", (e) => { if (e.persisted) location.reload(); });\n\t\t\t// After an add, keep the member's form in use: empty it, focus the\n\t\t\t// name field (which also hides the packing bar) and scroll the form\n\t\t\t// to the middle of the screen. The scroll waits for the phone\n\t\t\t// keyboard to finish moving, otherwise the page ends up at the top.\n\t\t\tfunction itemAdded(form) {\n\t\t\t\tform.reset();\n\t\t\t\tform.elements[\"name\"].focus({ preventScroll: true });\n\t\t\t\tsetTimeout(() => scrollToCenter(form), 150);\n\t\t\t}\n\n\t\t\t// The browser's own smooth scroll is slow and cannot be sped up, so\n\t\t\t// this one eases out over 150ms.\n\t\t\tfunction scrollToCenter(el) {\n\t\t\t\tconst start = window.scrollY;\n\t\t\t\tconst viewHeight = window.visualViewport ? window.visualViewport.height : window.innerHeight;\n\t\t\t\tconst rect = el.getBoundingClientRect();\n\t\t\t\tconst distance = rect.top + rect.height / 2 - viewHeight / 2;\n\t\t\t\tconst began = performance.now();\n\t\t\t\tconst step = (now) => {\n\t\t\t\t\tconst t = Math.min((now - began) / 150, 1);\n\t\t\t\t\twindow.scrollTo(0, start + distance * (1 - (1 - t) * (1 - t)));\n\t\t\t\t\tif (t < 1) requestAnimationFrame(step);\n\t\t\t\t};\n\t\t\t\trequestAnimationFrame(step);\n\t\t\t}\n\t\t</script>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -296,7 +296,7 @@ func packingBar(page TripPageData, oob bool) templ.Component {
 		var templ_7745c5c3_Var13 string
 		templ_7745c5c3_Var13, templ_7745c5c3_Err = templruntime.SanitizeStyleAttributeValues(transitionName("packing-bar"))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `cmd/web/view/trip_page.templ`, Line: 71, Col: 81}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `cmd/web/view/trip_page.templ`, Line: 96, Col: 81}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var13))
 		if templ_7745c5c3_Err != nil {
@@ -318,7 +318,7 @@ func packingBar(page TripPageData, oob bool) templ.Component {
 		var templ_7745c5c3_Var15 templ.SafeURL
 		templ_7745c5c3_Var15, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(PackURL(page.Trip.ID)))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `cmd/web/view/trip_page.templ`, Line: 73, Col: 49}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `cmd/web/view/trip_page.templ`, Line: 98, Col: 49}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var15))
 		if templ_7745c5c3_Err != nil {
@@ -360,7 +360,7 @@ func packingBar(page TripPageData, oob bool) templ.Component {
 			var templ_7745c5c3_Var17 string
 			templ_7745c5c3_Var17, templ_7745c5c3_Err = templ.JoinStringErrs(FormatCount(page.Packed))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `cmd/web/view/trip_page.templ`, Line: 81, Col: 78}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `cmd/web/view/trip_page.templ`, Line: 106, Col: 78}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var17))
 			if templ_7745c5c3_Err != nil {
@@ -373,7 +373,7 @@ func packingBar(page TripPageData, oob bool) templ.Component {
 			var templ_7745c5c3_Var18 string
 			templ_7745c5c3_Var18, templ_7745c5c3_Err = templ.JoinStringErrs(FormatCount(page.Total))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `cmd/web/view/trip_page.templ`, Line: 81, Col: 106}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `cmd/web/view/trip_page.templ`, Line: 106, Col: 106}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var18))
 			if templ_7745c5c3_Err != nil {
@@ -386,7 +386,7 @@ func packingBar(page TripPageData, oob bool) templ.Component {
 			var templ_7745c5c3_Var19 string
 			templ_7745c5c3_Var19, templ_7745c5c3_Err = templ.JoinStringErrs(FormatProgress(page.Packed, page.Total))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `cmd/web/view/trip_page.templ`, Line: 82, Col: 69}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `cmd/web/view/trip_page.templ`, Line: 107, Col: 69}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var19))
 			if templ_7745c5c3_Err != nil {
@@ -442,7 +442,7 @@ func memberSection(tripID int64, m MemberItems, edit ItemEdit) templ.Component {
 		var templ_7745c5c3_Var22 string
 		templ_7745c5c3_Var22, templ_7745c5c3_Err = templ.JoinStringErrs(memberAnchor(m.ID))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `cmd/web/view/trip_page.templ`, Line: 94, Col: 33}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `cmd/web/view/trip_page.templ`, Line: 119, Col: 33}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var22))
 		if templ_7745c5c3_Err != nil {
@@ -455,7 +455,7 @@ func memberSection(tripID int64, m MemberItems, edit ItemEdit) templ.Component {
 		var templ_7745c5c3_Var23 string
 		templ_7745c5c3_Var23, templ_7745c5c3_Err = templ.JoinStringErrs(m.Name)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `cmd/web/view/trip_page.templ`, Line: 94, Col: 56}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `cmd/web/view/trip_page.templ`, Line: 119, Col: 56}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var23))
 		if templ_7745c5c3_Err != nil {
@@ -468,7 +468,7 @@ func memberSection(tripID int64, m MemberItems, edit ItemEdit) templ.Component {
 		var templ_7745c5c3_Var24 string
 		templ_7745c5c3_Var24, templ_7745c5c3_Err = templruntime.SanitizeStyleAttributeValues(sectionTransition(memberAnchor(m.ID)))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `cmd/web/view/trip_page.templ`, Line: 94, Col: 104}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `cmd/web/view/trip_page.templ`, Line: 119, Col: 104}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var24))
 		if templ_7745c5c3_Err != nil {
@@ -502,7 +502,7 @@ func memberSection(tripID int64, m MemberItems, edit ItemEdit) templ.Component {
 		var templ_7745c5c3_Var26 templ.SafeURL
 		templ_7745c5c3_Var26, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(addItemURL(tripID, m.ID, edit.ItemID)))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `cmd/web/view/trip_page.templ`, Line: 98, Col: 64}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `cmd/web/view/trip_page.templ`, Line: 123, Col: 64}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var26))
 		if templ_7745c5c3_Err != nil {
@@ -515,7 +515,7 @@ func memberSection(tripID int64, m MemberItems, edit ItemEdit) templ.Component {
 		var templ_7745c5c3_Var27 string
 		templ_7745c5c3_Var27, templ_7745c5c3_Err = templ.JoinStringErrs(addItemURL(tripID, m.ID, edit.ItemID))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `cmd/web/view/trip_page.templ`, Line: 99, Col: 50}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `cmd/web/view/trip_page.templ`, Line: 124, Col: 50}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var27))
 		if templ_7745c5c3_Err != nil {
@@ -528,20 +528,20 @@ func memberSection(tripID int64, m MemberItems, edit ItemEdit) templ.Component {
 		var templ_7745c5c3_Var28 string
 		templ_7745c5c3_Var28, templ_7745c5c3_Err = templ.JoinStringErrs("#" + itemListID(m.ID))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `cmd/web/view/trip_page.templ`, Line: 100, Col: 37}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `cmd/web/view/trip_page.templ`, Line: 125, Col: 37}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var28))
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 36, "\" hx-swap=\"outerHTML\" hx-on::after-request=\"if (event.detail.xhr.status === 200) { this.reset(); this.elements['name'].focus() }\" style=\"")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 36, "\" hx-swap=\"outerHTML\" hx-on::after-request=\"if (event.detail.xhr.status === 200) { itemAdded(this) }\" style=\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var29 string
 		templ_7745c5c3_Var29, templ_7745c5c3_Err = templruntime.SanitizeStyleAttributeValues(transitionName("add-" + memberAnchor(m.ID)))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `cmd/web/view/trip_page.templ`, Line: 103, Col: 54}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `cmd/web/view/trip_page.templ`, Line: 128, Col: 54}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var29))
 		if templ_7745c5c3_Err != nil {
@@ -563,7 +563,7 @@ func memberSection(tripID int64, m MemberItems, edit ItemEdit) templ.Component {
 		var templ_7745c5c3_Var31 string
 		templ_7745c5c3_Var31, templ_7745c5c3_Err = templ.JoinStringErrs(m.Form.Name)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `cmd/web/view/trip_page.templ`, Line: 106, Col: 53}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `cmd/web/view/trip_page.templ`, Line: 131, Col: 53}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var31))
 		if templ_7745c5c3_Err != nil {
@@ -576,7 +576,7 @@ func memberSection(tripID int64, m MemberItems, edit ItemEdit) templ.Component {
 		var templ_7745c5c3_Var32 string
 		templ_7745c5c3_Var32, templ_7745c5c3_Err = templ.JoinStringErrs("Add an item for " + m.Name)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `cmd/web/view/trip_page.templ`, Line: 106, Col: 97}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `cmd/web/view/trip_page.templ`, Line: 131, Col: 97}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var32))
 		if templ_7745c5c3_Err != nil {
@@ -589,7 +589,7 @@ func memberSection(tripID int64, m MemberItems, edit ItemEdit) templ.Component {
 		var templ_7745c5c3_Var33 string
 		templ_7745c5c3_Var33, templ_7745c5c3_Err = templ.JoinStringErrs("Item for " + m.Name)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `cmd/web/view/trip_page.templ`, Line: 106, Col: 170}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `cmd/web/view/trip_page.templ`, Line: 131, Col: 170}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var33))
 		if templ_7745c5c3_Err != nil {
@@ -675,7 +675,7 @@ func MemberItemList(tripID int64, m MemberItems, edit ItemEdit) templ.Component 
 		var templ_7745c5c3_Var38 string
 		templ_7745c5c3_Var38, templ_7745c5c3_Err = templ.JoinStringErrs(itemListID(m.ID))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `cmd/web/view/trip_page.templ`, Line: 121, Col: 27}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `cmd/web/view/trip_page.templ`, Line: 146, Col: 27}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var38))
 		if templ_7745c5c3_Err != nil {
@@ -688,7 +688,7 @@ func MemberItemList(tripID int64, m MemberItems, edit ItemEdit) templ.Component 
 		var templ_7745c5c3_Var39 string
 		templ_7745c5c3_Var39, templ_7745c5c3_Err = templ.JoinStringErrs(m.Name)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `cmd/web/view/trip_page.templ`, Line: 123, Col: 11}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `cmd/web/view/trip_page.templ`, Line: 148, Col: 11}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var39))
 		if templ_7745c5c3_Err != nil {
@@ -701,7 +701,7 @@ func MemberItemList(tripID int64, m MemberItems, edit ItemEdit) templ.Component 
 		var templ_7745c5c3_Var40 string
 		templ_7745c5c3_Var40, templ_7745c5c3_Err = templ.JoinStringErrs(FormatItemCount(len(m.Items)))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `cmd/web/view/trip_page.templ`, Line: 124, Col: 92}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `cmd/web/view/trip_page.templ`, Line: 149, Col: 92}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var40))
 		if templ_7745c5c3_Err != nil {
@@ -796,7 +796,7 @@ func itemRow(tripID, memberID int64, it Item, locked bool) templ.Component {
 		var templ_7745c5c3_Var43 string
 		templ_7745c5c3_Var43, templ_7745c5c3_Err = templ.JoinStringErrs(itemAnchor(it.ID))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `cmd/web/view/trip_page.templ`, Line: 154, Col: 27}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `cmd/web/view/trip_page.templ`, Line: 179, Col: 27}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var43))
 		if templ_7745c5c3_Err != nil {
@@ -809,7 +809,7 @@ func itemRow(tripID, memberID int64, it Item, locked bool) templ.Component {
 		var templ_7745c5c3_Var44 string
 		templ_7745c5c3_Var44, templ_7745c5c3_Err = templruntime.SanitizeStyleAttributeValues(rowTransition(itemAnchor(it.ID)))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `cmd/web/view/trip_page.templ`, Line: 154, Col: 70}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `cmd/web/view/trip_page.templ`, Line: 179, Col: 70}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var44))
 		if templ_7745c5c3_Err != nil {
@@ -835,7 +835,7 @@ func itemRow(tripID, memberID int64, it Item, locked bool) templ.Component {
 		var templ_7745c5c3_Var46 templ.SafeURL
 		templ_7745c5c3_Var46, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(ItemURL(tripID, it.ID)))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `cmd/web/view/trip_page.templ`, Line: 155, Col: 67}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `cmd/web/view/trip_page.templ`, Line: 180, Col: 67}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var46))
 		if templ_7745c5c3_Err != nil {
@@ -848,7 +848,7 @@ func itemRow(tripID, memberID int64, it Item, locked bool) templ.Component {
 		var templ_7745c5c3_Var47 string
 		templ_7745c5c3_Var47, templ_7745c5c3_Err = templ.JoinStringErrs(TripURL(tripID))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `cmd/web/view/trip_page.templ`, Line: 155, Col: 94}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `cmd/web/view/trip_page.templ`, Line: 180, Col: 94}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var47))
 		if templ_7745c5c3_Err != nil {
@@ -869,7 +869,7 @@ func itemRow(tripID, memberID int64, it Item, locked bool) templ.Component {
 		var templ_7745c5c3_Var48 string
 		templ_7745c5c3_Var48, templ_7745c5c3_Err = templ.JoinStringErrs(strconv.FormatInt(it.ID, 10))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `cmd/web/view/trip_page.templ`, Line: 156, Col: 72}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `cmd/web/view/trip_page.templ`, Line: 181, Col: 72}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var48))
 		if templ_7745c5c3_Err != nil {
@@ -891,7 +891,7 @@ func itemRow(tripID, memberID int64, it Item, locked bool) templ.Component {
 		var templ_7745c5c3_Var50 string
 		templ_7745c5c3_Var50, templ_7745c5c3_Err = templ.JoinStringErrs("Change quantity of " + it.Name)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `cmd/web/view/trip_page.templ`, Line: 157, Col: 69}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `cmd/web/view/trip_page.templ`, Line: 182, Col: 69}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var50))
 		if templ_7745c5c3_Err != nil {
@@ -927,7 +927,7 @@ func itemRow(tripID, memberID int64, it Item, locked bool) templ.Component {
 		var templ_7745c5c3_Var52 string
 		templ_7745c5c3_Var52, templ_7745c5c3_Err = templ.JoinStringErrs(it.Name)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `cmd/web/view/trip_page.templ`, Line: 158, Col: 40}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `cmd/web/view/trip_page.templ`, Line: 183, Col: 40}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var52))
 		if templ_7745c5c3_Err != nil {
@@ -962,7 +962,7 @@ func itemRow(tripID, memberID int64, it Item, locked bool) templ.Component {
 		var templ_7745c5c3_Var55 string
 		templ_7745c5c3_Var55, templ_7745c5c3_Err = templ.JoinStringErrs(FormatQuantity(it.Quantity))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `cmd/web/view/trip_page.templ`, Line: 159, Col: 85}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `cmd/web/view/trip_page.templ`, Line: 184, Col: 85}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var55))
 		if templ_7745c5c3_Err != nil {
@@ -975,7 +975,7 @@ func itemRow(tripID, memberID int64, it Item, locked bool) templ.Component {
 		var templ_7745c5c3_Var56 templ.SafeURL
 		templ_7745c5c3_Var56, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(removeItemURL(tripID, it.ID)))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `cmd/web/view/trip_page.templ`, Line: 164, Col: 55}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `cmd/web/view/trip_page.templ`, Line: 189, Col: 55}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var56))
 		if templ_7745c5c3_Err != nil {
@@ -988,7 +988,7 @@ func itemRow(tripID, memberID int64, it Item, locked bool) templ.Component {
 		var templ_7745c5c3_Var57 string
 		templ_7745c5c3_Var57, templ_7745c5c3_Err = templ.JoinStringErrs(removeItemURL(tripID, it.ID))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `cmd/web/view/trip_page.templ`, Line: 165, Col: 41}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `cmd/web/view/trip_page.templ`, Line: 190, Col: 41}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var57))
 		if templ_7745c5c3_Err != nil {
@@ -1001,7 +1001,7 @@ func itemRow(tripID, memberID int64, it Item, locked bool) templ.Component {
 		var templ_7745c5c3_Var58 string
 		templ_7745c5c3_Var58, templ_7745c5c3_Err = templ.JoinStringErrs("#" + itemListID(memberID))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `cmd/web/view/trip_page.templ`, Line: 166, Col: 41}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `cmd/web/view/trip_page.templ`, Line: 191, Col: 41}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var58))
 		if templ_7745c5c3_Err != nil {
@@ -1023,7 +1023,7 @@ func itemRow(tripID, memberID int64, it Item, locked bool) templ.Component {
 		var templ_7745c5c3_Var60 string
 		templ_7745c5c3_Var60, templ_7745c5c3_Err = templ.JoinStringErrs("Remove " + it.Name)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `cmd/web/view/trip_page.templ`, Line: 170, Col: 57}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `cmd/web/view/trip_page.templ`, Line: 195, Col: 57}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var60))
 		if templ_7745c5c3_Err != nil {
@@ -1108,7 +1108,7 @@ func editItemRow(tripID int64, it Item, edit ItemEdit) templ.Component {
 		var templ_7745c5c3_Var64 string
 		templ_7745c5c3_Var64, templ_7745c5c3_Err = templ.JoinStringErrs(itemAnchor(it.ID))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `cmd/web/view/trip_page.templ`, Line: 185, Col: 27}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `cmd/web/view/trip_page.templ`, Line: 210, Col: 27}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var64))
 		if templ_7745c5c3_Err != nil {
@@ -1121,7 +1121,7 @@ func editItemRow(tripID int64, it Item, edit ItemEdit) templ.Component {
 		var templ_7745c5c3_Var65 string
 		templ_7745c5c3_Var65, templ_7745c5c3_Err = templruntime.SanitizeStyleAttributeValues(rowTransition(itemAnchor(it.ID)))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `cmd/web/view/trip_page.templ`, Line: 185, Col: 83}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `cmd/web/view/trip_page.templ`, Line: 210, Col: 83}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var65))
 		if templ_7745c5c3_Err != nil {
@@ -1147,7 +1147,7 @@ func editItemRow(tripID int64, it Item, edit ItemEdit) templ.Component {
 		var templ_7745c5c3_Var67 templ.SafeURL
 		templ_7745c5c3_Var67, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(quantityURL(tripID, it.ID)))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `cmd/web/view/trip_page.templ`, Line: 186, Col: 72}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `cmd/web/view/trip_page.templ`, Line: 211, Col: 72}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var67))
 		if templ_7745c5c3_Err != nil {
@@ -1160,7 +1160,7 @@ func editItemRow(tripID int64, it Item, edit ItemEdit) templ.Component {
 		var templ_7745c5c3_Var68 string
 		templ_7745c5c3_Var68, templ_7745c5c3_Err = templ.JoinStringErrs(quantityURL(tripID, it.ID))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `cmd/web/view/trip_page.templ`, Line: 186, Col: 111}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `cmd/web/view/trip_page.templ`, Line: 211, Col: 111}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var68))
 		if templ_7745c5c3_Err != nil {
@@ -1181,7 +1181,7 @@ func editItemRow(tripID int64, it Item, edit ItemEdit) templ.Component {
 		var templ_7745c5c3_Var69 string
 		templ_7745c5c3_Var69, templ_7745c5c3_Err = templ.JoinStringErrs(it.Name)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `cmd/web/view/trip_page.templ`, Line: 188, Col: 42}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `cmd/web/view/trip_page.templ`, Line: 213, Col: 42}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var69))
 		if templ_7745c5c3_Err != nil {
@@ -1203,7 +1203,7 @@ func editItemRow(tripID int64, it Item, edit ItemEdit) templ.Component {
 		var templ_7745c5c3_Var71 templ.SafeURL
 		templ_7745c5c3_Var71, templ_7745c5c3_Err = templ.JoinURLErrs(templ.SafeURL(ItemURL(tripID, it.ID)))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `cmd/web/view/trip_page.templ`, Line: 189, Col: 51}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `cmd/web/view/trip_page.templ`, Line: 214, Col: 51}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var71))
 		if templ_7745c5c3_Err != nil {
@@ -1216,7 +1216,7 @@ func editItemRow(tripID int64, it Item, edit ItemEdit) templ.Component {
 		var templ_7745c5c3_Var72 string
 		templ_7745c5c3_Var72, templ_7745c5c3_Err = templ.JoinStringErrs(TripURL(tripID))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `cmd/web/view/trip_page.templ`, Line: 189, Col: 78}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `cmd/web/view/trip_page.templ`, Line: 214, Col: 78}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var72))
 		if templ_7745c5c3_Err != nil {

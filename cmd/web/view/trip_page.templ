@@ -50,6 +50,31 @@ templ TripPage(page TripPageData) {
 		@packingBar(page, false)
 		<script>
 			window.addEventListener("pageshow", (e) => { if (e.persisted) location.reload(); });
+			// After an add, keep the member's form in use: empty it, focus the
+			// name field (which also hides the packing bar) and scroll the form
+			// to the middle of the screen. The scroll waits for the phone
+			// keyboard to finish moving, otherwise the page ends up at the top.
+			function itemAdded(form) {
+				form.reset();
+				form.elements["name"].focus({ preventScroll: true });
+				setTimeout(() => scrollToCenter(form), 150);
+			}
+
+			// The browser's own smooth scroll is slow and cannot be sped up, so
+			// this one eases out over 150ms.
+			function scrollToCenter(el) {
+				const start = window.scrollY;
+				const viewHeight = window.visualViewport ? window.visualViewport.height : window.innerHeight;
+				const rect = el.getBoundingClientRect();
+				const distance = rect.top + rect.height / 2 - viewHeight / 2;
+				const began = performance.now();
+				const step = (now) => {
+					const t = Math.min((now - began) / 150, 1);
+					window.scrollTo(0, start + distance * (1 - (1 - t) * (1 - t)));
+					if (t < 1) requestAnimationFrame(step);
+				};
+				requestAnimationFrame(step);
+			}
 		</script>
 	}
 }
@@ -99,7 +124,7 @@ templ memberSection(tripID int64, m MemberItems, edit ItemEdit) {
 			hx-post={ addItemURL(tripID, m.ID, edit.ItemID) }
 			hx-target={ "#" + itemListID(m.ID) }
 			hx-swap="outerHTML"
-			hx-on::after-request="if (event.detail.xhr.status === 200) { this.reset(); this.elements['name'].focus() }"
+			hx-on::after-request="if (event.detail.xhr.status === 200) { itemAdded(this) }"
 			style={ transitionName("add-" + memberAnchor(m.ID)) }
 			class="space-y-2 border-t border-line px-4 pt-3 pb-4"
 		>
