@@ -88,7 +88,7 @@ func (app *application) routes() http.Handler {
 	mux.HandleFunc("POST /trips/{id}/members/{memberID}/items/{itemID}/unprepare", app.handleUnprepareItem)
 	mux.HandleFunc("POST /trips/{id}/members/{memberID}/items", app.handleAddItem)
 	mux.HandleFunc("POST /trips/{id}/items/{itemID}/delete", app.handleRemoveItem)
-	mux.HandleFunc("POST /trips/{id}/items/{itemID}/quantity", app.handleChangeQuantity)
+	mux.HandleFunc("POST /trips/{id}/items/{itemID}", app.handleSaveItem)
 	mux.HandleFunc("GET "+view.BasicsURL, app.handleBasics)
 	mux.HandleFunc("POST "+view.BasicsURL+"/{id}", app.handleSaveBasic)
 	mux.HandleFunc("POST "+view.BasicsURL+"/{id}/delete", app.handleRemoveBasic)

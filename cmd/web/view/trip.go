@@ -163,14 +163,18 @@ type TripPageData struct {
 }
 
 // ItemEdit is the trip page's edit mode (?edit=ITEM_ID): the one item whose
-// quantity is being changed. While ItemID is set, every other row's Change
-// and Remove buttons are disabled (04/S10). Zero means no row is being edited.
+// name and quantity are being changed. While ItemID is set, every other row's
+// Edit and Remove buttons are disabled (04/S10). Zero means no row is being
+// edited.
 type ItemEdit struct {
 	ItemID int64
-	// Quantity is the value in the edit field: the item's own, or what was
-	// submitted if it was refused.
-	Quantity string
-	Errors   []string
+	// Name and Quantity are the values in the edit fields: the item's own, or
+	// what was submitted if Submitted is set (a refused save), even when that
+	// is empty (15/S5).
+	Name      string
+	Quantity  string
+	Submitted bool
+	Errors    []string
 }
 
 // MemberItems is one family member's section: their items and add form.
@@ -250,8 +254,8 @@ func ItemURL(tripID, itemID int64) string {
 	return TripURL(tripID) + "#" + itemAnchor(itemID)
 }
 
-func quantityURL(tripID, itemID int64) string {
-	return fmt.Sprintf("/trips/%d/items/%d/quantity", tripID, itemID)
+func saveItemURL(tripID, itemID int64) string {
+	return fmt.Sprintf("/trips/%d/items/%d", tripID, itemID)
 }
 
 func removeItemURL(tripID, itemID int64) string {

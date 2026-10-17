@@ -1,10 +1,13 @@
 package view
 
-import "strconv"
+import (
+	"fmt"
+	"strconv"
+)
 
 // TripPage shows a trip and each family member's items. Each member is a
 // <section data-member="Name"> with an id for jumping back to it. With
-// page.Edit set, one row is a quantity form and every other row is locked.
+// page.Edit set, one row is an edit form and every other row is locked.
 // The header sticks to the top, and it has its own view-transition-name:
 // during the edit transition every named row is lifted above the page, and
 // without a name of its own the header would be drawn under the rows that
@@ -179,7 +182,7 @@ templ itemRow(tripID, memberID int64, it Item, locked bool) {
 	<li id={ itemAnchor(it.ID) } style={ rowTransition(itemAnchor(it.ID)) } class={ "flex min-h-14 items-stretch pr-1 " + anchorClass + lockedRow(locked) }>
 		<form method="get" action={ templ.SafeURL(ItemURL(tripID, it.ID)) } hx-get={ TripURL(tripID) } { swapTripItems... } class="flex min-w-0 grow">
 			<input type="hidden" name="edit" value={ strconv.FormatInt(it.ID, 10) }/>
-			<button type="submit" aria-label={ "Change quantity of " + it.Name } disabled?={ locked } class={ rowTapClass }>
+			<button type="submit" aria-label={ "Edit " + it.Name } disabled?={ locked } class={ rowTapClass }>
 				<span class="min-w-0 grow">{ it.Name }</span>
 				<span class={ quantityHintClass(it.Quantity == 1) }>{ FormatQuantity(it.Quantity) }</span>
 			</button>
@@ -199,22 +202,26 @@ templ itemRow(tripID, memberID int64, it Item, locked bool) {
 	</li>
 }
 
-// editItemRow is the row being edited: a small quantity form, tinted in the
-// action colour (09/R5; amber now means prepared). data-editing hides the
-// packing bar while the row is open (12/S7). Saving is a plain post
-// that redirects back to the row; Cancel is a link to the plain trip page,
-// back at the same row. The blue fill and lines alone mark the open row;
-// the "· change quantity" hint added after 04's phone check was dropped at
-// 09's (09/R5).
+// editItemRow is the row being edited, in the action colour (09/R5; amber now
+// means prepared), laid out like the basics page's: the Name field, the
+// Quantity stepper, then Cancel and Save at the right. The name shows only in
+// its field, not also as a title above it. data-editing hides the packing bar
+// while the row is open (12/S7), and the Name field is not focused on open:
+// most opens only change the quantity and the keyboard would cover the
+// stepper. Saving is a plain post that redirects back to the row; Cancel is a
+// link to the plain trip page, back at the same row.
 templ editItemRow(tripID int64, it Item, edit ItemEdit) {
 	<li id={ itemAnchor(it.ID) } data-editing style={ rowTransition(itemAnchor(it.ID)) } class={ editRowClass + " " + anchorClass }>
-		<form method="post" action={ templ.SafeURL(quantityURL(tripID, it.ID)) } hx-post={ quantityURL(tripID, it.ID) } { swapTripItems... } class="flex flex-col gap-2">
-			<div class="flex items-center justify-between gap-2">
-				<p class="min-w-0 font-bold">{ it.Name }</p>
-				<a href={ templ.SafeURL(ItemURL(tripID, it.ID)) } hx-get={ TripURL(tripID) } { swapTripItems... } class={ quietButtonClass }>Cancel</a>
+		<form method="post" action={ templ.SafeURL(saveItemURL(tripID, it.ID)) } hx-post={ saveItemURL(tripID, it.ID) } { swapTripItems... } class="flex flex-col gap-3 pt-2">
+			<div>
+				<label for={ fmt.Sprintf("item-%d-name", it.ID) } class={ fieldLabelClass }>Name</label>
+				<input type="text" id={ fmt.Sprintf("item-%d-name", it.ID) } name="name" value={ edit.Name } autocomplete="off" aria-label={ "Name of " + it.Name } class={ inputClass }/>
 			</div>
-			<div class="flex items-center justify-between gap-2">
-				@stepper(stepperField{Name: "quantity", Value: edit.Quantity, Label: "New quantity for " + it.Name, Less: "Decrease quantity", More: "Increase quantity", Min: "1", Required: true, Low: 1})
+			<div class="flex flex-wrap">
+				@labelledStepper("Quantity", stepperField{ID: fmt.Sprintf("item-%d-quantity", it.ID), Name: "quantity", Value: edit.Quantity, Label: "New quantity for " + it.Name, Less: "Decrease quantity", More: "Increase quantity", Min: "1", Required: true, Low: 1})
+			</div>
+			<div class="flex justify-end gap-2">
+				<a href={ templ.SafeURL(ItemURL(tripID, it.ID)) } hx-get={ TripURL(tripID) } { swapTripItems... } class={ quietButtonClass }>Cancel</a>
 				<button type="submit" class={ primaryButtonClass + " min-w-24" }>Save</button>
 			</div>
 		</form>

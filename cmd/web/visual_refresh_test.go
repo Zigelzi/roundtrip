@@ -92,7 +92,7 @@ func TestWholeTripRowOpensTheEdit(t *testing.T) {
 
 	body := get(t, app, tripURLFor(tripID))
 
-	open := buttonHTML(t, body, "Change quantity of Socks")
+	open := buttonHTML(t, body, "Edit Socks")
 	for _, want := range []string{">Socks<", "4 pcs"} {
 		if !strings.Contains(open, want) {
 			t.Errorf("the button that opens the edit does not hold %q: %s", want, open)

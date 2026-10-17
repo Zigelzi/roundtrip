@@ -185,23 +185,32 @@ func (q *Queries) MoveItemStatus(ctx context.Context, arg MoveItemStatusParams) 
 	return family_member_id, err
 }
 
-const updateItemQuantity = `-- name: UpdateItemQuantity :one
+const updateItem = `-- name: UpdateItem :one
 UPDATE item
-SET quantity = ?
+SET name = ?, name_key = ?, quantity = ?
 WHERE id = ? AND trip_id = ?
 RETURNING family_member_id
 `
 
-type UpdateItemQuantityParams struct {
+type UpdateItemParams struct {
+	Name     string
+	NameKey  string
 	Quantity int64
 	ID       int64
 	TripID   int64
 }
 
-// Scoped to the trip like DeleteItem. Only the quantity changes: a packed
-// item stays packed (04/R2). No row means the item is not on this trip.
-func (q *Queries) UpdateItemQuantity(ctx context.Context, arg UpdateItemQuantityParams) (int64, error) {
-	row := q.db.QueryRowContext(ctx, updateItemQuantity, arg.Quantity, arg.ID, arg.TripID)
+// Scoped to the trip like DeleteItem. Name and quantity change; the status
+// does not, so a packed item stays packed (04/R2, 15/S8). No row means the
+// item is not on this trip.
+func (q *Queries) UpdateItem(ctx context.Context, arg UpdateItemParams) (int64, error) {
+	row := q.db.QueryRowContext(ctx, updateItem,
+		arg.Name,
+		arg.NameKey,
+		arg.Quantity,
+		arg.ID,
+		arg.TripID,
+	)
 	var family_member_id int64
 	err := row.Scan(&family_member_id)
 	return family_member_id, err

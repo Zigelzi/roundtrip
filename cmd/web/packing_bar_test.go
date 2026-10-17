@@ -178,7 +178,7 @@ func TestOpenRowMarksTheBarHidden(t *testing.T) {
 
 	// Saving redirects, and htmx follows the redirect to the page it swaps
 	// in, so the page at the redirect is what the parent sees after saving.
-	rec := send(t, app, http.MethodPost, fmt.Sprintf("/trips/%d/items/%d/quantity", tripID, socks), url.Values{"quantity": {"4"}})
+	rec := send(t, app, http.MethodPost, fmt.Sprintf("/trips/%d/items/%d", tripID, socks), url.Values{"quantity": {"4"}})
 	if rec.Code != http.StatusSeeOther {
 		t.Fatalf("saving: status = %d, want 303", rec.Code)
 	}

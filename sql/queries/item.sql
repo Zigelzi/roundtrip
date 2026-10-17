@@ -46,10 +46,11 @@ DELETE FROM item
 WHERE id = ? AND trip_id = ?
 RETURNING family_member_id;
 
--- name: UpdateItemQuantity :one
--- Scoped to the trip like DeleteItem. Only the quantity changes: a packed
--- item stays packed (04/R2). No row means the item is not on this trip.
+-- name: UpdateItem :one
+-- Scoped to the trip like DeleteItem. Name and quantity change; the status
+-- does not, so a packed item stays packed (04/R2, 15/S8). No row means the
+-- item is not on this trip.
 UPDATE item
-SET quantity = ?
+SET name = ?, name_key = ?, quantity = ?
 WHERE id = ? AND trip_id = ?
 RETURNING family_member_id;

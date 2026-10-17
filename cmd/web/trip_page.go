@@ -36,7 +36,7 @@ func (app *application) handleTrip(w http.ResponseWriter, r *http.Request) {
 // tripPage loads everything the trip page shows: the trip, each family
 // member's items with an empty add form, and item names to suggest. edit is
 // the row to show in edit mode; it is dropped if the item is not on this
-// trip, and its field starts at the item's quantity unless edit says otherwise.
+// trip, and its fields start at the item's own values unless edit was submitted.
 func (app *application) tripPage(ctx context.Context, tripID int64, edit view.ItemEdit) (view.TripPageData, error) {
 	row, err := app.queries.GetTrip(ctx, tripID)
 	if errors.Is(err, sql.ErrNoRows) {
@@ -78,7 +78,8 @@ func (app *application) tripPage(ctx context.Context, tripID int64, edit view.It
 			}
 			if it.ID == edit.ItemID {
 				page.Edit = edit
-				if page.Edit.Quantity == "" {
+				if !edit.Submitted {
+					page.Edit.Name = it.Name
 					page.Edit.Quantity = strconv.FormatInt(it.Quantity, 10)
 				}
 			}

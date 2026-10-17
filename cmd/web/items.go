@@ -48,7 +48,7 @@ func (app *application) handleAddItem(w http.ResponseWriter, r *http.Request) {
 		Name:     strings.TrimSpace(r.PostFormValue("name")),
 		Quantity: strings.TrimSpace(r.PostFormValue("quantity")),
 	}
-	quantity, errs := validateItem(form, page.Members[i])
+	quantity, errs := validateItem(form, page.Members[i], 0)
 	if len(errs) > 0 {
 		form.Errors = errs
 		page.Members[i].Form = form
@@ -107,16 +107,18 @@ func itemKey(name string) string {
 	return strings.ToLower(name)
 }
 
-// validateItem checks a member's add-item form. It returns the quantity to
-// store, or one user-facing message per problem.
-func validateItem(form view.ItemForm, member view.MemberItems) (int64, []string) {
+// validateItem checks a member's add-item or edit-item form. It returns the
+// quantity to store, or one user-facing message per problem. ignoreID is the
+// item being edited, which is not a duplicate of itself (15/S3); adding
+// passes 0.
+func validateItem(form view.ItemForm, member view.MemberItems, ignoreID int64) (int64, []string) {
 	var errs []string
 	if form.Name == "" {
 		errs = append(errs, "Enter an item name.")
 	} else {
 		for _, it := range member.Items {
-			if itemKey(it.Name) == itemKey(form.Name) {
-				errs = append(errs, fmt.Sprintf("%s already has %s.", member.Name, it.Name))
+			if it.ID != ignoreID && itemKey(it.Name) == itemKey(form.Name) {
+				errs = append(errs, alreadyHasItem(member.Name, it.Name))
 				break
 			}
 		}
@@ -126,6 +128,11 @@ func validateItem(form view.ItemForm, member view.MemberItems) (int64, []string)
 		errs = append(errs, badQuantity)
 	}
 	return quantity, errs
+}
+
+// alreadyHasItem is the message for a name the member already has.
+func alreadyHasItem(member, name string) string {
+	return fmt.Sprintf("%s already has %s.", member, name)
 }
 
 // badQuantity is the one message for any quantity that isn't a whole number
@@ -139,10 +146,12 @@ func parseQuantity(s string) (quantity int64, ok bool) {
 	return quantity, err == nil && quantity >= 1
 }
 
-// handleChangeQuantity saves an item's new quantity (04/S8). Only the quantity
-// changes; a packed item stays packed (04/R2). An invalid value re-renders the
-// trip page with the row still in edit mode (04/S9).
-func (app *application) handleChangeQuantity(w http.ResponseWriter, r *http.Request) {
+// handleSaveItem saves an item's new name and quantity (04/S8, 15). Only
+// those change; a packed item stays packed (04/R2). A save with no name field
+// at all, from a page opened before names were editable, keeps the name
+// (15/S13). An invalid value re-renders the trip page with the row still in
+// edit mode and what was typed in its fields (04/S9, 15/S4, S5).
+func (app *application) handleSaveItem(w http.ResponseWriter, r *http.Request) {
 	tripID, err := tripIDFromPath(r)
 	if err != nil {
 		app.tripNotFound(w, r)
@@ -153,41 +162,80 @@ func (app *application) handleChangeQuantity(w http.ResponseWriter, r *http.Requ
 		app.itemNotFound(w, r)
 		return
 	}
-	input := strings.TrimSpace(r.PostFormValue("quantity"))
-	quantity, ok := parseQuantity(input)
-	if !ok {
-		edit := view.ItemEdit{ItemID: itemID, Quantity: input, Errors: []string{badQuantity}}
-		page, err := app.tripPage(r.Context(), tripID, edit)
-		if errors.Is(err, errTripNotFound) {
-			app.tripNotFound(w, r)
-			return
-		}
-		if err != nil {
-			app.serverError(w, "load trip page", err)
-			return
-		}
-		// tripPage drops an edit for an item that is not on this trip.
-		if page.Edit.ItemID == 0 {
-			app.itemNotFound(w, r)
-			return
-		}
-		app.render(w, r, http.StatusUnprocessableEntity, view.TripPage(page))
+	typedName := strings.TrimSpace(r.PostFormValue("name"))
+	_, hasName := r.PostForm["name"]
+	typedQuantity := strings.TrimSpace(r.PostFormValue("quantity"))
+
+	// The page is loaded first: it says whether the item is on this trip, and
+	// holds the owner's other items for the duplicate check. tripPage drops an
+	// edit for an item that is not on this trip.
+	edit := view.ItemEdit{ItemID: itemID, Name: typedName, Quantity: typedQuantity, Submitted: true}
+	page, err := app.tripPage(r.Context(), tripID, edit)
+	if errors.Is(err, errTripNotFound) {
+		app.tripNotFound(w, r)
 		return
 	}
-	_, err = app.queries.UpdateItemQuantity(r.Context(), db.UpdateItemQuantityParams{
+	if err != nil {
+		app.serverError(w, "load trip page", err)
+		return
+	}
+	if page.Edit.ItemID == 0 {
+		app.itemNotFound(w, r)
+		return
+	}
+	owner, current := findItem(page.Members, itemID)
+	if !hasName {
+		typedName = current.Name
+		page.Edit.Name = typedName
+	}
+
+	quantity, errs := validateItem(view.ItemForm{Name: typedName, Quantity: typedQuantity}, page.Members[owner], itemID)
+	if len(errs) > 0 {
+		app.refuseItemSave(w, r, page, errs)
+		return
+	}
+	_, err = app.queries.UpdateItem(r.Context(), db.UpdateItemParams{
+		Name:     typedName,
+		NameKey:  itemKey(typedName),
 		Quantity: quantity,
 		ID:       itemID,
 		TripID:   tripID,
 	})
+	// A unique violation is the other parent adding the same name a moment
+	// ago: refuse it like any duplicate. Unlike adding, it is not a
+	// double tap, since this save did not happen.
+	if db.IsUniqueViolation(err) {
+		app.refuseItemSave(w, r, page, []string{alreadyHasItem(page.Members[owner].Name, typedName)})
+		return
+	}
 	if errors.Is(err, sql.ErrNoRows) {
 		app.itemNotFound(w, r)
 		return
 	}
 	if err != nil {
-		app.serverError(w, "update item quantity", err)
+		app.serverError(w, "update item", err)
 		return
 	}
 	http.Redirect(w, r, view.ItemURL(tripID, itemID), http.StatusSeeOther)
+}
+
+// refuseItemSave answers a refused save with the trip page, the row still
+// open with what was typed.
+func (app *application) refuseItemSave(w http.ResponseWriter, r *http.Request, page view.TripPageData, errs []string) {
+	page.Edit.Errors = errs
+	app.render(w, r, http.StatusUnprocessableEntity, view.TripPage(page))
+}
+
+// findItem is the index of the member who owns item id, and the item.
+func findItem(members []view.MemberItems, id int64) (int, view.Item) {
+	for i, m := range members {
+		for _, it := range m.Items {
+			if it.ID == id {
+				return i, it
+			}
+		}
+	}
+	return -1, view.Item{}
 }
 
 func (app *application) itemNotFound(w http.ResponseWriter, r *http.Request) {

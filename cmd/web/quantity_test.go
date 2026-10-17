@@ -14,18 +14,18 @@ import (
 // item's quantity, S8 to S10.
 //
 // Page contract these tests rely on:
-//   - Each item row has a <button aria-label="Change quantity of NAME"> that
+//   - Each item row has a <button aria-label="Edit NAME"> that
 //     opens the row for editing, next to the existing "Remove NAME" button.
 //   - The trip page with ?edit=ITEM_ID shows that row in edit mode: an input
 //     aria-label="New quantity for NAME" named "quantity", in a form that
-//     posts to /trips/TRIP/items/ITEM/quantity, a Save button and a Cancel
+//     posts to /trips/TRIP/items/ITEM, a Save button and a Cancel
 //     link back to the plain trip page at that row (#item-ITEM). Every
 //     other row's Change and Remove buttons are disabled; the add forms are
 //     not.
 //   - Saving without htmx redirects (303) back to the trip page.
 
 func quantityURL(tripID, itemID int64) string {
-	return fmt.Sprintf("/trips/%d/items/%d/quantity", tripID, itemID)
+	return fmt.Sprintf("/trips/%d/items/%d", tripID, itemID)
 }
 
 func editURL(tripID, itemID int64) string {
@@ -157,9 +157,9 @@ func TestOnlyOneItemIsEditedAtATime(t *testing.T) {
 
 	// Other rows, in the same section and in another, are locked.
 	for _, c := range []struct{ section, label string }{
-		{p1, "Change quantity of Socks"},
+		{p1, "Edit Socks"},
 		{p1, "Remove Socks"},
-		{p2, "Change quantity of Underwear"},
+		{p2, "Edit Underwear"},
 		{p2, "Remove Underwear"},
 	} {
 		if tag := buttonTag(t, c.section, c.label); !strings.Contains(tag, "disabled") {
@@ -176,8 +176,8 @@ func TestOnlyOneItemIsEditedAtATime(t *testing.T) {
 	}
 	after := get(t, app, tripURLFor(tripID))
 	for _, c := range []struct{ member, label string }{
-		{"Parent 1", "Change quantity of Underwear"},
-		{"Parent 1", "Change quantity of Socks"},
+		{"Parent 1", "Edit Underwear"},
+		{"Parent 1", "Edit Socks"},
 		{"Parent 1", "Remove Socks"},
 		{"Parent 2", "Remove Underwear"},
 	} {
@@ -210,7 +210,7 @@ func TestEditingSwapsListsInPlace(t *testing.T) {
 	if !strings.Contains(page, `id="trip-items"`) {
 		t.Fatalf("trip page has no #trip-items container to swap")
 	}
-	open := enclosingTag(t, page, `aria-label="Change quantity of Underwear"`, "<form")
+	open := enclosingTag(t, page, `aria-label="Edit Underwear"`, "<form")
 	assertSwapsTripItems(t, "Change quantity form", open)
 	if !strings.Contains(open, "hx-get=") {
 		t.Errorf("Change quantity form does not load edit mode with htmx: %s", open)
