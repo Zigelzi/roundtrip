@@ -120,7 +120,7 @@ Light red-team of this draft, run inline by the main session (R19 in `../mobile-
 Open questions resolved (Human-PM, 2026-10-15), each as recommended:
 - **Q1 Where the count sits:** a third line under the dates, where the bar is too.
 - **Q2 Design reference:** built from the proposal, without reading the canvas.
-- **Q3 Only past trips:** no upcoming section, just the past group.
+- **Q3 Only past trips:** no upcoming section, just the past group. Reversed by 16/R1: the list now always has an "Upcoming" heading when any trip exists.
 
 Allocation (Human-PM, 2026-10-15): both slices inline in this main session, on Opus, tests written first.
 

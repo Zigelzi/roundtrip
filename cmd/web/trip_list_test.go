@@ -142,7 +142,14 @@ func TestOnlyPastTrips(t *testing.T) {
 	if strings.Contains(body, "No trips yet") {
 		t.Errorf("trips list says \"No trips yet\" while it has a past trip")
 	}
-	// Q3: no empty upcoming section above the group.
+	// 16/S3: reverses 14/Q3. The heading stays, with a line saying why the
+	// list above the past group is empty.
+	if !strings.Contains(upcoming, ">Upcoming trips<") {
+		t.Errorf("trips list has no \"Upcoming trips\" heading above the past group")
+	}
+	if !strings.Contains(upcoming, "No upcoming trips.") {
+		t.Errorf("trips list does not say there are no upcoming trips")
+	}
 	if strings.Contains(upcoming, "<ul") {
 		t.Errorf("trips list has an upcoming list with no upcoming trips")
 	}
@@ -266,5 +273,155 @@ func TestPastTripsMostRecentReturnFirst(t *testing.T) {
 	lapland, turku := strings.Index(group, "Lapland"), strings.Index(group, "Turku")
 	if lapland < 0 || turku < 0 || lapland > turku {
 		t.Errorf("past trips: Lapland@%d, Turku@%d; want Lapland first, it came back last", lapland, turku)
+	}
+}
+
+// Milestone 16 (spec/milestones/16-trips-list-upcoming.md), slice 1: the
+// Upcoming heading.
+
+// S1: Upcoming trips have a heading.
+func TestUpcomingTripsHaveAHeading(t *testing.T) {
+	app, database := newTestApp(t)
+	app.now = fixedNow(t, "2026-09-19T09:00:00Z")
+	insertTrip(t, database, "Parainen", "2026-09-20", 3)
+	insertTrip(t, database, "Levi", "2026-12-01", 5)
+	insertTrip(t, database, "Kuopio", "2026-06-10", 2)
+
+	upcoming, _, _, ok := pastGroup(t, get(t, app, "/"))
+
+	if !ok {
+		t.Fatalf("no past trips group")
+	}
+	heading := strings.Index(upcoming, ">Upcoming trips<")
+	parainen, levi := strings.Index(upcoming, "Parainen"), strings.Index(upcoming, "Levi")
+	if heading < 0 || parainen < heading || levi < heading {
+		t.Errorf("heading@%d, Parainen@%d, Levi@%d; want the \"Upcoming trips\" heading above both", heading, parainen, levi)
+	}
+	// Not inside a <details>: pastGroup cuts at the past group's <details>,
+	// so anything left of it is outside every group. A heading that is a
+	// real heading element is read by screen readers as one.
+	if !strings.Contains(upcoming, "<h2") {
+		t.Errorf("\"Upcoming trips\" is not a heading element:\n%s", upcoming)
+	}
+	if strings.Contains(upcoming, "No upcoming trips.") {
+		t.Errorf("trips list says there are no upcoming trips while it has two")
+	}
+}
+
+// S2: The heading shows without past trips.
+func TestUpcomingHeadingWithoutPastTrips(t *testing.T) {
+	app, database := newTestApp(t)
+	app.now = fixedNow(t, "2026-09-19T09:00:00Z")
+	insertTrip(t, database, "Parainen", "2026-09-20", 3)
+
+	body := get(t, app, "/")
+
+	if !strings.Contains(body, ">Upcoming trips<") {
+		t.Errorf("trips list has no \"Upcoming trips\" heading")
+	}
+	if _, _, _, ok := pastGroup(t, body); ok {
+		t.Errorf("trips list has a past trips group with no past trips")
+	}
+}
+
+// S4: No trips at all.
+func TestNoTripsAtAllHasNoUpcomingHeading(t *testing.T) {
+	app, _ := newTestApp(t)
+	app.now = fixedNow(t, "2026-09-19T09:00:00Z")
+
+	body := get(t, app, "/")
+
+	if !strings.Contains(body, "No trips yet") {
+		t.Errorf("empty trips list does not say \"No trips yet\"")
+	}
+	if strings.Contains(body, ">Upcoming trips<") || strings.Contains(body, "No upcoming trips.") {
+		t.Errorf("empty trips list shows the Upcoming heading or its empty line")
+	}
+}
+
+// Slice 2: progress only once packing has started.
+
+// S5: A planned trip shows no progress.
+func TestPlannedTripShowsNoProgress(t *testing.T) {
+	app, database := newTestApp(t)
+	app.now = fixedNow(t, "2026-09-19T09:00:00Z")
+	levi := insertTrip(t, database, "Levi", "2026-12-01", 5)
+	insertItems(t, database, levi, 40, 0, 0)
+
+	row := tripRow(t, get(t, app, "/"), "Levi")
+
+	if !strings.Contains(row, "1.–5.12.2026") {
+		t.Errorf("Levi's row does not show its dates:\n%s", row)
+	}
+	if strings.Contains(row, "data-bar") || strings.Contains(row, "packed") {
+		t.Errorf("Levi's row shows progress with nothing prepared or packed:\n%s", row)
+	}
+}
+
+// S6: Preparing an item starts the progress.
+func TestPreparingAnItemStartsTheProgress(t *testing.T) {
+	app, database := newTestApp(t)
+	app.now = fixedNow(t, "2026-09-19T09:00:00Z")
+	levi := insertTrip(t, database, "Levi", "2026-12-01", 5)
+	insertItems(t, database, levi, 40, 0, 6)
+
+	row := tripRow(t, get(t, app, "/"), "Levi")
+
+	if !strings.Contains(row, "0 of 40 packed") {
+		t.Errorf("Levi's row does not read \"0 of 40 packed\":\n%s", row)
+	}
+	wantBar(t, "Levi's row", row, 0, 15)
+}
+
+// S7 is 14/S7 (TestUpcomingTripShowsPackingProgress) with nothing prepared.
+func TestPackingAnItemStartsTheProgress(t *testing.T) {
+	app, database := newTestApp(t)
+	app.now = fixedNow(t, "2026-09-19T09:00:00Z")
+	levi := insertTrip(t, database, "Levi", "2026-12-01", 5)
+	insertItems(t, database, levi, 40, 18, 0)
+
+	row := tripRow(t, get(t, app, "/"), "Levi")
+
+	if !strings.Contains(row, "18 of 40 packed") {
+		t.Errorf("Levi's row does not read \"18 of 40 packed\":\n%s", row)
+	}
+	wantBar(t, "Levi's row", row, 45, 0)
+}
+
+// S8: Taking everything back hides the progress again. The state is set
+// through the requests a parent uses, so "started" cannot be a stored flag.
+func TestTakingEverythingBackHidesTheProgress(t *testing.T) {
+	app, database := newTestApp(t)
+	app.now = fixedNow(t, "2026-09-19T09:00:00Z")
+	levi := insertTrip(t, database, "Levi", "2026-12-01", 5)
+	first := memberID(t, database, familyMembers[0])
+	var ids []int64
+	for i := range 40 {
+		id := insertItem(t, database, levi, familyMembers[0], fmt.Sprintf("Item %d", i+1), 1)
+		ids = append(ids, id)
+		switch {
+		case i < 18:
+			packItem(t, database, id)
+		case i < 24:
+			prepareItem(t, database, id)
+		}
+	}
+	if row := tripRow(t, get(t, app, "/"), "Levi"); !strings.Contains(row, "18 of 40 packed") {
+		t.Fatalf("setup: Levi's row does not show progress:\n%s", row)
+	}
+
+	for i, id := range ids[:24] {
+		if i < 18 {
+			sendHTMX(t, app, unpackItemURL(levi, first, id), nil)
+		}
+		sendHTMX(t, app, unprepareItemURL(levi, first, id), nil)
+	}
+
+	row := tripRow(t, get(t, app, "/"), "Levi")
+	if !strings.Contains(row, "1.–5.12.2026") {
+		t.Errorf("Levi's row does not show its dates:\n%s", row)
+	}
+	if strings.Contains(row, "data-bar") || strings.Contains(row, "packed") {
+		t.Errorf("Levi's row still shows progress with everything back to planned:\n%s", row)
 	}
 }

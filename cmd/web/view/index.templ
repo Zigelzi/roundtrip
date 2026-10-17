@@ -3,8 +3,9 @@ package view
 // Index is the front page: the family's trips, upcoming first, then the past
 // trips in a group of their own, closed by default since they are rarely
 // what the app is opened for, and opened with a tap (14/S1, 14/S6, 14/R9).
-// With no upcoming trips there is no upcoming list at all, just the past
-// group (14/Q3). Its top bar bleeds through the page's padding to the screen
+// The upcoming trips sit under an "Upcoming" heading whenever any trip
+// exists, and with none upcoming a short line says so (16/S1 to S4, reversing
+// 14/Q3). Its top bar bleeds through the page's padding to the screen
 // edges, like the sections below it. Basics sits beside the title (09/R8),
 // so New trip is the one solid button.
 templ Index(upcoming, past []Trip) {
@@ -31,6 +32,9 @@ templ Index(upcoming, past []Trip) {
 				<a href={ templ.SafeURL(BasicsURL) } class={ quietButtonClass + " mt-1" }>Check basics</a>
 			</section>
 		}
+		if len(upcoming) > 0 || len(past) > 0 {
+			<h2 class="mt-4 text-sm font-semibold text-muted sm:px-4">Upcoming trips</h2>
+		}
 		if len(upcoming) > 0 {
 			<ul class={ sectionClass + " mt-2 divide-y divide-line" }>
 				for _, trip := range upcoming {
@@ -39,6 +43,8 @@ templ Index(upcoming, past []Trip) {
 					</li>
 				}
 			</ul>
+		} else if len(past) > 0 {
+			<p class={ sectionClass + " mt-2 px-4 py-4 text-[15px] leading-[22px] text-muted" }>No upcoming trips.</p>
 		}
 		if len(past) > 0 {
 			<details class={ sectionClass + " group mt-2" }>
@@ -60,18 +66,18 @@ templ Index(upcoming, past []Trip) {
 	}
 }
 
-// tripRow is one trip in the list, linking to its page. A trip with counts
+// tripRow is one trip in the list, linking to its page. A trip where
+// packing has started, meaning at least one item prepared or packed,
 // gets a third line: the same bar as the packing page's header, hidden from
-// screen readers, and the words they hear instead (14/S7, 14/Q1). Empty
-// trips have none, and past trips carry no counts (sortTrips), so they show
-// none either (14/S9, 14/S10). The row is built of divs, since a bar's
-// segments are divs.
+// screen readers, and the words they hear instead (14/S7, 14/Q1, 16/S5 to
+// S8). Planned and empty trips have none, and past trips carry no counts
+// (sortTrips), so they show none either (14/S9, 14/S10). The row is built of divs, since a bar's segments are divs.
 templ tripRow(trip Trip) {
 	<a href={ templ.SafeURL(TripURL(trip.ID)) } class="flex min-h-19 items-center gap-3 py-3 pr-2 pl-4">
 		<div class="min-w-0 grow">
 			<div class="text-[17px] leading-6 font-semibold">{ trip.Destination }</div>
 			<div class="text-sm text-muted">{ FormatDateRange(trip.Departure, trip.DurationDays) } · { FormatDays(trip.DurationDays) }</div>
-			if trip.Total > 0 {
+			if trip.Packed+trip.Prepared > 0 {
 				<div aria-hidden="true" class="mt-2 flex h-1 w-full overflow-hidden rounded-full bg-line">
 					@barSegments(trip.Packed, trip.Prepared, trip.Total)
 				</div>
